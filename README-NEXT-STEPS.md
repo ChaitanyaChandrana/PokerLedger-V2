@@ -1,69 +1,34 @@
-# Poker Ledger V2 — Today Beta
+# Poker Ledger V2.2 — Clean Approval Flow
 
-This build uses **buy-in approval** wording (no implication that payment is collected at the table). Treat the first real game as a pilot and keep V1 available.
+This build keeps the two-step buy-in model but makes the next action impossible to miss.
 
-# Poker Ledger V2.1 — Two-Step Buy-ins
-
-
-This build is already wired to the separate Firebase project:
-
-- Project ID: `pokerledger-v2`
-- Collection: `poker_games_v2`
-- Authentication: Firebase Anonymous Authentication
-- Rebuy verification: one-time QR + designated verifier
-
-## Do these Firebase steps before deployment
-
-### 1. Enable Anonymous Authentication
-Firebase Console -> PokerLedger-V2 -> Authentication -> Sign-in method -> Anonymous -> Enable -> Save.
-
-Leave automatic anonymous-user cleanup OFF while testing.
-
-### 2. Create Firestore
-Firebase Console -> Firestore Database -> Create database.
-
-Production mode is fine because you will immediately publish the supplied rules.
-
-### 3. Publish the supplied rules
-Firebase Console -> Firestore Database -> Rules.
-Replace the editor contents with `firestore.rules`, then Publish.
-
-These rules are for the V2 Firebase project only. Do not paste them into the stable V1 Firebase project.
+## What changed
+- Every player shows **Buy-ins = 1** immediately, even before the initial buy-in is approved.
+- The dashboard now shows **In Play / Buy-ins / Players**.
+- Rebuys are derived from `Buy-ins - Players` and shown on the summary line.
+- Unapproved initial buy-ins show a large **ACTION NEEDED** card.
+- The tiny confirmation tick was removed. Starting a buy-in now goes directly into the approval flow.
+- Pending player action uses large buttons:
+  - **Show QR to Host / Co-Host**
+  - **Scan QR to Approve**
+  - **✓ Confirm I Received X Chips**
+- Player rows show `1 ✓`, `2 ✓`, etc. only when all of that player's buy-ins are fully completed.
+- Removed the 20-minute buy-in reminder and the on-screen Recent Activity list to keep the live game screen cleaner. The audit events are still stored in Firestore.
 
 ## Deploy
-Deploy this whole folder to a separate HTTPS site (for example a new Netlify site).
-The QR scanner needs HTTPS and camera permission.
+For the current V2 GitHub Pages site, replace **index.html** in the root of `PokerLedger-V2` and commit to `main`.
 
-Files:
-- `index.html`
-- `firestore.rules` (Firebase console only; it does not need to be publicly served)
-- `manifest.json`
-- `sw.js`
+The included `firestore.rules` are the same matching V2 two-step rules. If those rules are already published in the `pokerledger-v2` Firebase project, you do not need to change them for this UI update.
 
-You may deploy index.html, manifest.json, and sw.js. Keeping firestore.rules in the deploy folder is harmless but unnecessary; remove it from the public site if preferred.
+After GitHub Pages rebuilds, close/reopen the page on the phones (or hard refresh) so the old cached app is not used.
 
-## Important first test
-Use 3 devices/browsers:
-1. Host creates game.
-2. Second player joins and host makes them co-host.
-3. Third player joins and requests a rebuy.
-4. Third player's phone should show a short-lived QR.
-5. Co-host taps Scan QR, scans it, sees player + amount, then approves.
-6. Scan the same QR again; it must not work.
-7. Make the co-host request a rebuy; the host must be the verifier.
-8. Test cash-out verification and final table reconciliation.
-
-## Build-specific hardening
-This ready build includes an additional request-to-ledger binding used by the Firestore rules (`lastVerifiedRequestId`). This prevents a co-host ledger update from being accepted unless it is tied to the request being approved in the same transaction.
-
-
-## V2.1 buy-in control model
-
-Every initial buy-in and rebuy uses the same two-part workflow:
-
-1. **Payment verified by QR** — every non-host player is verified by the host; the host is verified by the co-host. The scanner must explicitly confirm the buy-in payment was received.
-2. **Chips received** — the player receiving the chips confirms the physical chip handoff on their own authenticated device. Only then does that buy-in count in the authoritative in-play total.
-
-Open buy-ins in the `verified` state block settlement until the chip recipient confirms receipt. The host has a clearly-labeled emergency manual path for a dead/unavailable player phone; it is audit-logged and should not be used in normal play.
-
-New players now join with **$0 in the ledger**. The first buy-in is no longer automatic.
+## Quick test
+1. Create a fresh game.
+2. Join from another phone.
+3. The new player should immediately show **Buy-ins 1** and **$0 In**.
+4. Their phone should show a large **Initial buy-in needs approval** card.
+5. Tap **Send $40 for Approval**.
+6. Player should see **Show QR to Host**.
+7. Host sees **Scan QR to Approve**.
+8. After host approval, player sees **✓ Confirm I Received ... Chips**.
+9. Only after that final confirmation should the player's **In** amount become $40 and the row show **1 ✓**.

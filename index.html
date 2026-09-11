@@ -1495,20 +1495,17 @@ function PokerLedger() {
   async function rejectPendingBuyIn(requestId) {
     await resolvePendingRequest(requestId, "Couldn't resolve that buy-in request.");
   }
-  function requestRebuy(targetId) {
+  async function requestRebuy(targetId) {
     if (targetId !== role.playerId) {
       setError("The player must request their own QR buy-in from their phone. Use Emergency Manual only if their phone is unavailable.");
       return;
     }
     const approverId = approverFor(targetId);
     if (!approverId) {
-      setError("Assign a co-host before the host can buy in — the host cannot verify their own buy-in.");
+      setError("Assign a co-host before your buy-in can be approved — you cannot approve your own buy-in.");
       return;
     }
-    setConfirmingRebuyId(targetId);
-  }
-  async function confirmRebuy(targetId) {
-    setConfirmingRebuyId(null);
+    setError("");
     tapFeedback();
     await requestBuyInForOther(targetId);
   }
@@ -1828,9 +1825,15 @@ function PokerLedger() {
   const me = game && role ? game.players[role.playerId] : null;
   const pendingList = pendingRequests.filter(r => r.type === "buyin" && (r.status === "pending" || r.status === "verified"));
   const pendingCashOutList = pendingRequests.filter(r => r.type === "cashout" && r.status === "pending");
+  const completedBuyInCountFor = p => (p.buyins || []).filter(b => !b.voided).length;
+  const pendingBuyInCountFor = playerId => pendingList.filter(r => r.targetId === playerId).length;
+  const buyInIntentCountFor = p => Math.max(1, completedBuyInCountFor(p) + pendingBuyInCountFor(p.id));
+  const totalBuyInCount = players.reduce((sum, p) => sum + buyInIntentCountFor(p), 0);
+  const totalRebuyCount = Math.max(0, totalBuyInCount - players.length);
+  const playersNeedingInitialApproval = players.filter(p => completedBuyInCountFor(p) === 0 && pendingBuyInCountFor(p.id) === 0);
+  const buyInsNeedingAction = pendingList.length + playersNeedingInitialApproval.length;
   const totalBuyInCents = game ? players.reduce((s, p) => s + buyInTotalCents(p.buyins), 0) : 0;
   const totalBuyInDollars = fromCents(totalBuyInCents);
-  const totalRebuyCount = game ? players.reduce((s, p) => s + Math.max(0, (p.buyins || []).filter(b => !b.voided).length - 1), 0) : 0;
   const totalFinalCents = game ? players.reduce((s, p) => {
     const raw = finalInputs[p.id];
     const cents = raw !== undefined && raw !== "" ? toCents(parseFloat(raw) || 0) : (Number.isInteger(p.finalCents) ? p.finalCents : toCents(p.finalAmount || 0));
@@ -1939,7 +1942,7 @@ function PokerLedger() {
       className: "font-display font-bold text-bone text-4xl mb-1 tracking-tight"
     }, "Poker Ledger"), /*#__PURE__*/React.createElement("p", {
       className: "font-data text-gold-300 text-xs mb-1"
-    }, "V2.1 · two-step buy-ins"), /*#__PURE__*/React.createElement("p", {
+    }, "V2.2 · clean approval flow"), /*#__PURE__*/React.createElement("p", {
       className: "font-data text-smoke text-sm mb-10"
     }, "everyone joins from their own phone"), /*#__PURE__*/React.createElement("div", {
       className: "w-full max-w-sm space-y-3"
@@ -2084,7 +2087,7 @@ function PokerLedger() {
     try {
       joinUrl = `${window.location.origin}${window.location.pathname}?code=${game.code}`;
     } catch {}
-    const lastColWidth = phase === "active" ? "w-9" : "w-24";
+    const lastColWidth = phase === "active" ? "w-14" : "w-24";
     const coHostName = game.coHostId && game.players[game.coHostId] ? game.players[game.coHostId].name : null;
     return /*#__PURE__*/React.createElement("div", {
       className: "min-h-screen bg-app-gradient pb-24"
@@ -2116,13 +2119,9 @@ function PokerLedger() {
       className: "font-data text-smoke text-sm"
     }, "leave")))), /*#__PURE__*/React.createElement("p", {
       className: "font-data text-sm text-smoke mt-1"
-    }, "buy-in ", money(fromCents(buyInCentsForGame(game))), cashedOutCount > 0 && phase === "active" ? ` · ${cashedOutCount} cashed out` : ""), phase === "active" && !game.coHostId && /*#__PURE__*/React.createElement("p", {
+    }, "buy-in ", money(fromCents(buyInCentsForGame(game))), cashedOutCount > 0 && phase === "active" ? ` · ${cashedOutCount} cashed out` : ""), phase === "active" && isHost && !game.coHostId && /*#__PURE__*/React.createElement("p", {
       className: "font-data text-gold-300 text-xs mt-1.5"
-    }, isHost ? "Players can buy in through you now. Assign a co-host before your own buy-in so you never self-verify." : "The host verifies player buy-ins. A co-host is only required to verify the host."), phase === "active" && game.coHostId && isHost && /*#__PURE__*/React.createElement("p", {
-      className: "font-data text-gold-400 text-xs mt-1.5"
-    }, "You verify every player buy-in; ", firstName(coHostName), " verifies yours."), phase === "active" && isCoHost && !isHost && /*#__PURE__*/React.createElement("p", {
-      className: "font-data text-gold-400 text-xs mt-1.5"
-    }, "You're the co-host — you verify the host. The host verifies your buy-ins and everyone else's.")), /*#__PURE__*/React.createElement("div", {
+    }, "Assign a co-host before your own buy-in.")), /*#__PURE__*/React.createElement("div", {
       className: "max-w-sm mx-auto px-5 pb-2"
     }, /*#__PURE__*/React.createElement("div", {
       className: "rounded-3xl bg-gradient-to-br from-felt-800 to-felt-900 border border-felt-700 shadow-[0_0_40px_-10px_rgba(232,178,61,0.25)] p-5"
@@ -2134,19 +2133,29 @@ function PokerLedger() {
       className: "font-display font-bold text-gold-300 text-2xl mt-1 tracking-tight"
     }, money(currentInPlayDollars))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
       className: "font-data text-xs tracking-[0.1em] text-smoke uppercase"
-    }, "Rebuys"), /*#__PURE__*/React.createElement("p", {
+    }, "Buy-ins"), /*#__PURE__*/React.createElement("p", {
       className: "font-display font-bold text-bone text-2xl mt-1 tracking-tight"
-    }, totalRebuyCount)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    }, totalBuyInCount)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
       className: "font-data text-xs tracking-[0.1em] text-smoke uppercase"
     }, "Players"), /*#__PURE__*/React.createElement("p", {
       className: "font-display font-bold text-bone text-2xl mt-1 tracking-tight"
     }, players.length))), /*#__PURE__*/React.createElement("p", {
       className: "font-data text-smoke text-sm mt-3"
-    }, totalChipsInPlay.toLocaleString(), " chips in play", phase !== "active" && ` · ${money(totalFinalDollars)} final`))), pendingList.length > 0 && /*#__PURE__*/React.createElement("div", {
+    }, totalChipsInPlay.toLocaleString(), " chips in play", totalRebuyCount > 0 ? ` · ${totalRebuyCount} rebuy${totalRebuyCount === 1 ? "" : "s"}` : "", buyInsNeedingAction > 0 && phase === "active" ? ` · ${buyInsNeedingAction} need${buyInsNeedingAction === 1 ? "s" : ""} action` : "", phase !== "active" && ` · ${money(totalFinalDollars)} final`))), phase === "active" && me && !me.cashedOut && completedBuyInCountFor(me) === 0 && pendingBuyInCountFor(me.id) === 0 && /*#__PURE__*/React.createElement("div", {
+      className: "max-w-sm mx-auto px-5 pb-2"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "rounded-2xl border border-gold-500/60 bg-gold-500/10 p-4"
+    }, /*#__PURE__*/React.createElement("p", { className: "font-data text-[10px] tracking-[0.12em] text-gold-300 uppercase mb-1" }, "Action needed"), /*#__PURE__*/React.createElement("p", { className: "font-display font-semibold text-bone text-base" }, "Initial buy-in needs approval"), /*#__PURE__*/React.createElement("p", { className: "font-data text-smoke text-xs mt-1 mb-3" }, "Your buy-in is counted as #1, but $0 is in play until it is approved and the chips are confirmed."), isHost && !game.coHostId ? /*#__PURE__*/React.createElement("button", {
+      onClick: () => setShowCoHostPicker(true),
+      className: `w-full ${goldBtn} py-3 text-sm`
+    }, "Assign Co-Host First") : /*#__PURE__*/React.createElement("button", {
+      onClick: () => requestRebuy(me.id),
+      className: `w-full ${goldBtn} py-3 text-sm`
+    }, "Send ", money(fromCents(buyInCentsForGame(game))), " for Approval"))), pendingList.length > 0 && /*#__PURE__*/React.createElement("div", {
       className: "max-w-sm mx-auto px-5 pb-2 space-y-2"
     }, /*#__PURE__*/React.createElement("p", {
       className: "font-data text-xs tracking-[0.1em] text-gold-300 uppercase"
-    }, "Buy-ins in Progress"), pendingList.map(pending => {
+    }, "Buy-ins needing action"), pendingList.map(pending => {
       const target = game.players[pending.targetId];
       const approver = game.players[pending.approverId];
       const iAmApprover = role.playerId === pending.approverId;
@@ -2156,43 +2165,36 @@ function PokerLedger() {
       if (!target) return null;
       const amountDollars = Number.isInteger(pending.amountCents) ? fromCents(pending.amountCents) : pending.amount;
       const chipCount = Math.round(amountDollars * game.chipsPerDollar);
+      const approverLabel = pending.targetId === game.hostId ? "co-host" : "host";
       return /*#__PURE__*/React.createElement("div", {
         key: pending.id,
-        className: `border rounded-2xl p-3 flex items-center justify-between gap-2 ${pending.status === "verified" ? "bg-mint-500/10 border-mint-500/40" : "bg-gold-500/10 border-gold-500/30"}`
-      }, /*#__PURE__*/React.createElement("div", { className: "min-w-0" },
-        /*#__PURE__*/React.createElement("p", { className: "font-data text-bone text-sm" }, money(amountDollars), " buy-in for ", target.name),
+        className: `border rounded-2xl p-3.5 ${pending.status === "verified" ? "bg-mint-500/10 border-mint-500/40" : "bg-gold-500/10 border-gold-500/30"}`
+      }, /*#__PURE__*/React.createElement("div", { className: "flex items-start justify-between gap-3 mb-2.5" }, /*#__PURE__*/React.createElement("div", { className: "min-w-0" },
+        /*#__PURE__*/React.createElement("p", { className: "font-display font-semibold text-bone text-sm" }, target.name, " · ", money(amountDollars)),
         pending.status === "verified"
-          ? /*#__PURE__*/React.createElement("p", { className: "font-data text-mint-400 text-[10px] mt-0.5" }, "✓ buy-in approved · ", chipCount.toLocaleString(), " chips pending")
-          : /*#__PURE__*/React.createElement("p", { className: "font-data text-smoke text-[10px] mt-0.5" }, "step 1 of 2 · QR approval")
-      ), pending.status === "verified" ? (iAmTarget ? /*#__PURE__*/React.createElement("button", {
+          ? /*#__PURE__*/React.createElement("p", { className: "font-data text-mint-400 text-[11px] mt-0.5" }, "✓ Approved · ", chipCount.toLocaleString(), " chips to confirm")
+          : /*#__PURE__*/React.createElement("p", { className: "font-data text-gold-300 text-[11px] mt-0.5" }, "Approval pending")
+      ), pending.status === "verified" ? /*#__PURE__*/React.createElement("span", { className: "font-data text-mint-400 text-base shrink-0" }, "✓") : null),
+      pending.status === "verified" ? (iAmTarget ? /*#__PURE__*/React.createElement("button", {
         onClick: () => confirmChipsReceived(pending.id),
-        className: "shrink-0 font-data text-ink bg-gradient-to-b from-gold-300 to-gold-500 rounded-xl px-3 py-2 text-xs font-semibold"
-      }, "I received ", chipCount.toLocaleString(), " chips") : /*#__PURE__*/React.createElement("span", {
-        className: "font-data text-smoke text-xs text-right shrink-0"
-      }, iAmApprover ? "Give chips → waiting for player" : "waiting for chip receipt")) : iAmApprover ? /*#__PURE__*/React.createElement("div", {
-        className: "flex gap-2 shrink-0"
-      }, /*#__PURE__*/React.createElement("button", {
-        onClick: () => openRebuyScanner(pending.id),
-        className: "font-data text-mint-400 text-xs underline"
-      }, "Scan QR"), /*#__PURE__*/React.createElement("button", {
-        onClick: () => rejectPendingBuyIn(pending.id),
-        className: "font-data text-coral-400 text-xs underline"
-      }, "Reject")) : iAmRequester ? /*#__PURE__*/React.createElement("div", {
-        className: "flex gap-2 shrink-0"
-      }, /*#__PURE__*/React.createElement("button", {
-        onClick: () => showRebuyQRForRequest(pending),
-        className: "font-data text-gold-300 text-xs underline"
-      }, "Show QR"), /*#__PURE__*/React.createElement("button", {
-        onClick: () => rejectPendingBuyIn(pending.id),
-        className: "font-data text-coral-400 text-xs underline"
-      }, "cancel")) : /*#__PURE__*/React.createElement("div", {
-        className: "flex items-center gap-2 shrink-0"
-      }, /*#__PURE__*/React.createElement("span", {
+        className: `w-full ${goldBtn} py-3 text-sm`
+      }, "✓ Confirm I Received ", chipCount.toLocaleString(), " Chips") : /*#__PURE__*/React.createElement("p", {
         className: "font-data text-smoke text-xs"
-      }, "waiting on ", approver ? firstName(approver.name) : "verifier"), canCancel && /*#__PURE__*/React.createElement("button", {
+      }, iAmApprover ? "Approved. Hand over the chips; the player will confirm on their phone." : "Waiting for the player to confirm the chips.")) : iAmApprover ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
+        onClick: () => openRebuyScanner(pending.id),
+        className: `w-full ${goldBtn} py-3 text-sm`
+      }, "Scan QR to Approve"), /*#__PURE__*/React.createElement("button", {
         onClick: () => rejectPendingBuyIn(pending.id),
-        className: "font-data text-coral-400 text-xs underline"
-      }, "cancel")));
+        className: "w-full font-data text-coral-400 text-[11px] mt-2 underline text-center"
+      }, "Reject request")) : iAmRequester ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
+        onClick: () => showRebuyQRForRequest(pending),
+        className: `w-full ${goldBtn} py-3 text-sm`
+      }, "Show QR to ", approverLabel === "host" ? "Host" : "Co-Host"), /*#__PURE__*/React.createElement("p", { className: "font-data text-smoke text-[11px] mt-2 text-center" }, "Keep this screen open until it is scanned."), canCancel && /*#__PURE__*/React.createElement("button", {
+        onClick: () => rejectPendingBuyIn(pending.id),
+        className: "w-full font-data text-smoke text-[11px] mt-1 underline text-center"
+      }, "cancel")) : /*#__PURE__*/React.createElement("p", {
+        className: "font-data text-smoke text-xs"
+      }, "Waiting for ", approver ? firstName(approver.name) : approverLabel, " to approve."));
     })), pendingCashOutList.length > 0 && /*#__PURE__*/React.createElement("div", {
       className: "max-w-sm mx-auto px-5 pb-2 space-y-2"
     }, /*#__PURE__*/React.createElement("p", {
@@ -2332,11 +2334,7 @@ function PokerLedger() {
     }, spotCheckResult.diffDollars > 0 ? `${money(spotCheckResult.diffDollars)} more on the table than logged.` : `${money(Math.abs(spotCheckResult.diffDollars))} short of what was logged.`)), /*#__PURE__*/React.createElement("button", {
       onClick: closeSpotCheck,
       className: `w-full ${ghostBtn} py-3`
-    }, "Done")))), minutesSinceLastBuyIn !== null && minutesSinceLastBuyIn >= 20 && /*#__PURE__*/React.createElement("div", {
-      className: "max-w-sm mx-auto mt-1 bg-gold-500/10 border border-gold-500/30 rounded-2xl p-3"
-    }, /*#__PURE__*/React.createElement("p", {
-      className: "font-data text-gold-300 text-sm"
-    }, "Been ", minutesSinceLastBuyIn, " min since the last logged buy-in.")), phase === "settling" && Math.abs(discrepancy) > 0.01 && /*#__PURE__*/React.createElement("div", {
+    }, "Done")))), phase === "settling" && Math.abs(discrepancy) > 0.01 && /*#__PURE__*/React.createElement("div", {
       className: "max-w-sm mx-auto mt-3 bg-coral-500/10 border border-coral-500/30 rounded-2xl p-3.5"
     }, /*#__PURE__*/React.createElement("p", {
       className: "font-data text-coral-400 text-base"
@@ -2359,7 +2357,7 @@ function PokerLedger() {
       className: "flex-1"
     }, "Name"), /*#__PURE__*/React.createElement("span", {
       className: "w-11 text-center shrink-0"
-    }, "Rebuys"), /*#__PURE__*/React.createElement("span", {
+    }, "Buy-ins"), /*#__PURE__*/React.createElement("span", {
       className: "w-14 text-center shrink-0"
     }, "In"), /*#__PURE__*/React.createElement("span", {
       className: `${lastColWidth} text-center shrink-0`
@@ -2369,15 +2367,17 @@ function PokerLedger() {
       const mine = p.id === role.playerId;
       const canControl = mine || isHost;
       const isExpanded = expandedId === p.id;
-      const rebuys = Math.max(0, p.buyins.length - 1);
+      const completedBuyIns = completedBuyInCountFor(p);
+      const pendingBuyIns = pendingBuyInCountFor(p.id);
+      const buyInCount = buyInIntentCountFor(p);
+      const activeBuyInRequest = pendingList.find(r => r.targetId === p.id) || null;
+      const needsInitialApproval = completedBuyIns === 0 && pendingBuyIns === 0;
+      const buyInFullyConfirmed = completedBuyIns > 0 && pendingBuyIns === 0;
       const paidIn = buyInTotal(p.buyins);
       const settledNet = game.settlement ? game.settlement.nets[p.id] : null;
       const displayFinal = finalInputs[p.id] ?? (p.finalAmount != null ? String(p.finalAmount) : "");
       const liveNet = canControl && phase === "settling" && displayFinal !== "" ? round2((parseFloat(displayFinal) || 0) - paidIn) : null;
-      const confirmingThisRebuy = confirmingRebuyId === p.id;
-      const buyActionLabel = (p.buyins || []).filter(b => !b.voided).length === 0 ? "Buy In" : "Rebuy";
-      const approverForP = approverFor(p.id);
-      const approverName = approverForP && game.players[approverForP] ? game.players[approverForP].name : null;
+      const buyActionLabel = completedBuyIns === 0 ? "Initial Buy-in" : "Rebuy";
       return /*#__PURE__*/React.createElement("div", {
         key: p.id,
         className: `rounded-lg border ${mine ? "border-gold-500/50 bg-felt-900" : canControl ? "border-gold-500/25 bg-felt-900/80" : "border-felt-700 bg-felt-900/60"}`
@@ -2393,25 +2393,21 @@ function PokerLedger() {
       }, p.name, mine && /*#__PURE__*/React.createElement("span", {
         className: "text-gold-400 font-data text-[10px] ml-1"
       }, "you"))), /*#__PURE__*/React.createElement("span", {
-        className: "w-11 text-center font-data text-smoke text-xs shrink-0"
-      }, rebuys), /*#__PURE__*/React.createElement("span", {
+        className: `w-11 text-center font-data text-xs shrink-0 ${buyInFullyConfirmed ? "text-mint-400" : "text-gold-300"}`
+      }, buyInCount, buyInFullyConfirmed ? " ✓" : ""), /*#__PURE__*/React.createElement("span", {
         className: "w-14 text-center font-data text-gold-300 text-xs shrink-0"
-      }, money(paidIn)), phase === "active" ? mine && !p.cashedOut ? confirmingThisRebuy ? /*#__PURE__*/React.createElement("div", {
-        className: "flex items-center gap-1 shrink-0"
-      }, /*#__PURE__*/React.createElement("button", {
-        onClick: () => confirmRebuy(p.id),
-        "aria-label": "Confirm rebuy",
-        className: "w-7 h-7 rounded-full bg-gradient-to-b from-gold-300 to-gold-500 text-ink font-display font-bold text-sm flex items-center justify-center active:scale-90 transition shadow-md"
-      }, "✓"), /*#__PURE__*/React.createElement("button", {
-        onClick: () => setConfirmingRebuyId(null),
-        "aria-label": "Cancel rebuy",
-        className: "font-data text-smoke text-sm px-0.5"
-      }, "✕")) : /*#__PURE__*/React.createElement("button", {
+      }, money(paidIn)), phase === "active" ? mine && !p.cashedOut ? activeBuyInRequest ? /*#__PURE__*/React.createElement("span", {
+        className: `${lastColWidth} text-center font-data text-gold-300 text-[10px] shrink-0`
+      }, activeBuyInRequest.status === "verified" ? "Confirm" : "Pending") : needsInitialApproval ? /*#__PURE__*/React.createElement("button", {
+        onClick: () => isHost && !game.coHostId ? setShowCoHostPicker(true) : requestRebuy(p.id),
+        "aria-label": "Start initial buy-in approval",
+        className: "shrink-0 w-14 rounded-full border border-gold-500/60 text-gold-300 font-data text-[10px] py-1.5"
+      }, "Start") : /*#__PURE__*/React.createElement("button", {
         onClick: () => requestRebuy(p.id),
-        "aria-label": buyActionLabel,
-        className: "shrink-0 w-8 h-8 rounded-full bg-gradient-to-b from-gold-300 to-gold-500 text-ink font-display font-bold text-base flex items-center justify-center active:scale-90 transition shadow-md"
-      }, "+") : /*#__PURE__*/React.createElement("span", {
-        className: "shrink-0 w-8"
+        "aria-label": "Request rebuy",
+        className: "shrink-0 w-14 rounded-full border border-gold-500/60 text-gold-300 font-data text-[10px] py-1.5"
+      }, "+ Rebuy") : /*#__PURE__*/React.createElement("span", {
+        className: "shrink-0 w-14"
       }) : phase === "settling" ? isHost ? /*#__PURE__*/React.createElement("div", {
         className: `${lastColWidth} shrink-0 flex items-center justify-center gap-0.5`
       }, /*#__PURE__*/React.createElement("span", {
@@ -2429,11 +2425,7 @@ function PokerLedger() {
         className: `${lastColWidth} text-center font-data text-xs shrink-0 ${p.finalAmount != null ? "text-bone" : "text-smoke"}`
       }, p.finalAmount != null ? money(p.finalAmount) : "…") : /*#__PURE__*/React.createElement("span", {
         className: `${lastColWidth} text-center font-data text-xs font-medium shrink-0 ${settledNet >= 0 ? "text-mint-400" : "text-coral-400"}`
-      }, settledNet >= 0 ? "+" : "", money(settledNet))), confirmingThisRebuy && /*#__PURE__*/React.createElement("div", {
-        className: "px-2.5 pb-1.5 -mt-0.5"
-      }, /*#__PURE__*/React.createElement("span", {
-        className: "font-data text-gold-300 text-xs"
-      }, "Send ", money(fromCents(buyInCentsForGame(game))), " ", buyActionLabel.toLowerCase(), " request for ", firstName(p.name), " to ", approverName ? firstName(approverName) : "verifier", "?")), isHost && phase === "settling" && liveNet !== null && /*#__PURE__*/React.createElement("div", {
+      }, settledNet >= 0 ? "+" : "", money(settledNet))), isHost && phase === "settling" && liveNet !== null && /*#__PURE__*/React.createElement("div", {
         className: "px-2.5 pb-1.5 -mt-0.5"
       }, /*#__PURE__*/React.createElement("span", {
         className: `font-data text-xs font-medium ${liveNet >= 0 ? "text-mint-400" : "text-coral-400"}`
@@ -2629,9 +2621,7 @@ function PokerLedger() {
         href: `sms:${to.phone}`,
         className: "font-data text-smoke text-xs underline"
       }, "text ", firstName(to.name)))));
-    }))), activity.length > 0 && /*#__PURE__*/React.createElement("div", {
-      className: "max-w-sm mx-auto px-5 mt-5 pt-4 border-t border-felt-700"
-    }, /*#__PURE__*/React.createElement("p", { className: "font-data text-xs tracking-[0.1em] text-gold-300 uppercase mb-2" }, "Recent Activity"), /*#__PURE__*/React.createElement("div", { className: "space-y-1.5" }, activity.slice(0, 8).map(ev => /*#__PURE__*/React.createElement("div", { key: ev.id, className: "flex items-start justify-between gap-3 bg-felt-900/60 border border-felt-700 rounded-xl px-3 py-2" }, /*#__PURE__*/React.createElement("p", { className: "font-data text-smoke text-xs" }, ev.actorName || "Player", " · ", String(ev.type || "update").replaceAll("_", " ")), /*#__PURE__*/React.createElement("span", { className: "font-data text-smoke text-[10px] shrink-0" }, new Date(ev.clientTs || Date.now()).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })))))), phase === "active" && isHost && /*#__PURE__*/React.createElement("div", {
+    }))), phase === "active" && isHost && /*#__PURE__*/React.createElement("div", {
       className: "fixed bottom-0 left-0 right-0 p-4 bg-felt-950/80 backdrop-blur-md border-t border-felt-700"
     }, /*#__PURE__*/React.createElement("div", {
       className: "max-w-sm mx-auto"
