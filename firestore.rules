@@ -5,7 +5,7 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // V1 is intentionally locked. Finish any V1 game before publishing these rules.
+    // This is the separate V2 Firebase project. V1 data should not live here.
     match /poker_games/{gameCode} {
       allow read, write: if false;
     }
@@ -60,6 +60,43 @@ service cloud.firestore {
           ])
           && linkedVerifiedRequest(requestId);
       }
+      function validMemberBuyinReceipt(requestId, pid) {
+        let verified = getAfter(/databases/$(database)/documents/poker_games_v2/$(gameCode)/requests/$(requestId));
+        let beforeList = resource.data.players[pid].buyins;
+        let afterList = request.resource.data.players[pid].buyins;
+        let added = afterList[beforeList.size()];
+        return request.resource.data.players.diff(resource.data.players).affectedKeys().hasOnly([pid])
+          && request.resource.data.players[pid].diff(resource.data.players[pid]).affectedKeys().hasOnly(['buyins'])
+          && afterList.size() == beforeList.size() + 1
+          && verified.data.type == 'buyin'
+          && verified.data.status == 'approved'
+          && verified.data.targetId == pid
+          && verified.data.targetUid == request.auth.uid
+          && verified.data.chipsReceivedByUid == request.auth.uid
+          && verified.data.chipsReceivedByPlayerId == pid
+          && added.requestId == requestId
+          && added.amountCents == verified.data.amountCents
+          && added.approved == true
+          && added.approvedBy == verified.data.approverId
+          && added.approvalMethod == 'qr'
+          && added.challengeId == verified.data.challengeId
+          && added.chipsReceivedBy == pid;
+      }
+      function memberBuyinReceiptUpdate() {
+        let pid = memberPlayerId();
+        let requestId = request.resource.data.lastVerifiedRequestId;
+        return isMember()
+          && resource.data.phase == 'active'
+          && request.resource.data.phase == 'active'
+          && immutableCoreUnchanged()
+          && requestId is string
+          && requestId != resource.data.lastVerifiedRequestId
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'players', 'revision', 'updatedAtMs', 'lastVerifiedRequestId'
+          ])
+          && request.resource.data.revision == resource.data.revision + 1
+          && validMemberBuyinReceipt(requestId, pid);
+      }
       function memberSelfUpdate() {
         return isMember()
           && immutableCoreUnchanged()
@@ -93,9 +130,7 @@ service cloud.firestore {
           && request.resource.data.players[pid].id == pid
           && request.resource.data.players[pid].authUid == request.auth.uid
           && request.resource.data.players[pid].buyins is list
-          && request.resource.data.players[pid].buyins.size() == 1
-          && request.resource.data.players[pid].buyins[0].amountCents == resource.data.buyInCents
-          && request.resource.data.players[pid].buyins[0].approved == true
+          && request.resource.data.players[pid].buyins.size() == 0
           && request.resource.data.players[pid].cashedOut == false
           && request.resource.data.players[pid].finalAmount == null;
       }
@@ -116,6 +151,7 @@ service cloud.firestore {
 
       allow update: if hostUpdate()
         || coHostLedgerUpdate()
+        || memberBuyinReceiptUpdate()
         || memberSelfUpdate()
         || firstJoinUpdate();
       allow delete: if false;
@@ -148,11 +184,10 @@ service cloud.firestore {
         }
         function correctApprover() {
           let g = parentNow().data;
-          let targetIsCoHost = request.resource.data.targetId == g.coHostId;
-          return g.coHostId != null
-            && g.coHostUid != null
-            && request.resource.data.approverId == (targetIsCoHost ? g.hostId : g.coHostId)
-            && request.resource.data.approverUid == (targetIsCoHost ? g.hostUid : g.coHostUid);
+          let targetIsHost = request.resource.data.targetId == g.hostId;
+          return request.resource.data.approverId == (targetIsHost ? g.coHostId : g.hostId)
+            && request.resource.data.approverUid == (targetIsHost ? g.coHostUid : g.hostUid)
+            && (!targetIsHost || (g.coHostId != null && g.coHostUid != null));
         }
         function validCreate() {
           let g = parentNow().data;
@@ -189,6 +224,11 @@ service cloud.firestore {
             'status', 'decidedAt', 'decidedByUid', 'decidedByPlayerId'
           ]);
         }
+        function chipReceiptFieldsOnly() {
+          return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'status', 'chipsReceivedAt', 'chipsReceivedByUid', 'chipsReceivedByPlayerId'
+          ]);
+        }
         function validRejectOrCancel() {
           let g = parentNow().data;
           return resource.data.status == 'pending'
@@ -203,19 +243,7 @@ service cloud.firestore {
             );
         }
         function qrChallengeAfter() {
-          return getAfter(/databases/$(database)/documents/poker_games_v2/$(gameCode)/rebuy_challenges/$(resource.data.challengeId));
-        }
-        function validBuyinAppend(before, after, target) {
-          let beforeList = before.players[target].buyins;
-          let afterList = after.players[target].buyins;
-          let added = afterList[beforeList.size()];
-          return afterList.size() == beforeList.size() + 1
-            && added.requestId == requestId
-            && added.amountCents == resource.data.amountCents
-            && added.approved == true
-            && added.approvedBy == resource.data.approverId
-            && added.approvalMethod == 'qr'
-            && added.challengeId == resource.data.challengeId;
+          return getAfter(/databases/$(database)/documents/poker_games_v2/$(gameCode)/buyin_challenges/$(resource.data.challengeId));
         }
         function validQrProof() {
           let ch = qrChallengeAfter().data;
@@ -228,12 +256,57 @@ service cloud.firestore {
             && ch.usedByUid == request.auth.uid
             && ch.usedByPlayerId == resource.data.approverId;
         }
-        function validApproval() {
+        function validBuyinVerification() {
+          return resource.data.type == 'buyin'
+            && resource.data.status == 'pending'
+            && request.resource.data.status == 'verified'
+            && decisionFieldsOnly()
+            && resource.data.approverUid == request.auth.uid
+            && request.resource.data.decidedByUid == request.auth.uid
+            && request.resource.data.decidedByPlayerId == resource.data.approverId
+            && validQrProof();
+        }
+        function validBuyinAppend(before, after, target) {
+          let beforeList = before.players[target].buyins;
+          let afterList = after.players[target].buyins;
+          let added = afterList[beforeList.size()];
+          return afterList.size() == beforeList.size() + 1
+            && added.requestId == requestId
+            && added.amountCents == resource.data.amountCents
+            && added.approved == true
+            && added.approvedBy == resource.data.approverId
+            && added.approvalMethod == 'qr'
+            && added.challengeId == resource.data.challengeId
+            && added.chipsReceivedBy == resource.data.targetId;
+        }
+        function validBuyinReceipt() {
           let before = parentNow().data;
           let after = parentAfter().data;
           let target = resource.data.targetId;
           let playerFields = after.players[target].diff(before.players[target]).affectedKeys();
-          return resource.data.status == 'pending'
+          return resource.data.type == 'buyin'
+            && resource.data.status == 'verified'
+            && request.resource.data.status == 'approved'
+            && chipReceiptFieldsOnly()
+            && resource.data.targetUid == request.auth.uid
+            && target == before.members[request.auth.uid]
+            && request.resource.data.chipsReceivedByUid == request.auth.uid
+            && request.resource.data.chipsReceivedByPlayerId == target
+            && before.phase == 'active'
+            && after.phase == 'active'
+            && after.revision == before.revision + 1
+            && after.lastVerifiedRequestId == requestId
+            && after.players.diff(before.players).affectedKeys().hasOnly([target])
+            && playerFields.hasOnly(['buyins'])
+            && validBuyinAppend(before, after, target);
+        }
+        function validCashoutApproval() {
+          let before = parentNow().data;
+          let after = parentAfter().data;
+          let target = resource.data.targetId;
+          let playerFields = after.players[target].diff(before.players[target]).affectedKeys();
+          return resource.data.type == 'cashout'
+            && resource.data.status == 'pending'
             && request.resource.data.status == 'approved'
             && decisionFieldsOnly()
             && resource.data.approverUid == request.auth.uid
@@ -244,29 +317,21 @@ service cloud.firestore {
             && after.revision == before.revision + 1
             && after.lastVerifiedRequestId == requestId
             && after.players.diff(before.players).affectedKeys().hasOnly([target])
-            && (
-              (resource.data.type == 'buyin'
-                && playerFields.hasOnly(['buyins'])
-                && validBuyinAppend(before, after, target)
-                && validQrProof())
-              ||
-              (resource.data.type == 'cashout'
-                && playerFields.hasOnly(['cashedOut', 'finalCents', 'finalAmount'])
-                && after.players[target].cashedOut == true
-                && after.players[target].finalCents == resource.data.amountCents
-                && after.players[target].finalAmount == resource.data.amount)
-            );
+            && playerFields.hasOnly(['cashedOut', 'finalCents', 'finalAmount'])
+            && after.players[target].cashedOut == true
+            && after.players[target].finalCents == resource.data.amountCents
+            && after.players[target].finalAmount == resource.data.amount;
         }
 
         allow get, list: if isParentMember();
         allow create: if validCreate();
-        allow update: if signedIn() && (validRejectOrCancel() || validApproval());
+        allow update: if signedIn() && (validRejectOrCancel() || validBuyinVerification() || validBuyinReceipt() || validCashoutApproval());
         allow delete: if false;
       }
 
       // Hidden one-time rebuy challenge. The verifier cannot read the secret
       // from Firestore; they only receive it by scanning the player's QR.
-      match /rebuy_challenges/{challengeId} {
+      match /buyin_challenges/{challengeId} {
         function linkedRequestAfter() {
           return getAfter(/databases/$(database)/documents/poker_games_v2/$(gameCode)/requests/$(request.resource.data.requestId));
         }
@@ -314,7 +379,7 @@ service cloud.firestore {
           && request.resource.data.presentedSecret == resource.data.secret
           && request.resource.data.usedAt == request.time
           && request.time < resource.data.createdAt + duration.value(90, 's')
-          && linkedRequestAfterUse().data.status == 'approved'
+          && linkedRequestAfterUse().data.status == 'verified'
           && linkedRequestAfterUse().data.approverUid == request.auth.uid
           && linkedRequestAfterUse().data.approverId == request.resource.data.usedByPlayerId
           && linkedRequestAfterUse().data.challengeId == challengeId;

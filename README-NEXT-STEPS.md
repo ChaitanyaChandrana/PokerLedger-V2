@@ -1,4 +1,9 @@
-# Poker Ledger V2 — Ready Build
+# Poker Ledger V2 — Today Beta
+
+This build uses **buy-in approval** wording (no implication that payment is collected at the table). Treat the first real game as a pilot and keep V1 available.
+
+# Poker Ledger V2.1 — Two-Step Buy-ins
+
 
 This build is already wired to the separate Firebase project:
 
@@ -50,3 +55,15 @@ Use 3 devices/browsers:
 
 ## Build-specific hardening
 This ready build includes an additional request-to-ledger binding used by the Firestore rules (`lastVerifiedRequestId`). This prevents a co-host ledger update from being accepted unless it is tied to the request being approved in the same transaction.
+
+
+## V2.1 buy-in control model
+
+Every initial buy-in and rebuy uses the same two-part workflow:
+
+1. **Payment verified by QR** — every non-host player is verified by the host; the host is verified by the co-host. The scanner must explicitly confirm the buy-in payment was received.
+2. **Chips received** — the player receiving the chips confirms the physical chip handoff on their own authenticated device. Only then does that buy-in count in the authoritative in-play total.
+
+Open buy-ins in the `verified` state block settlement until the chip recipient confirms receipt. The host has a clearly-labeled emergency manual path for a dead/unavailable player phone; it is audit-logged and should not be used in normal play.
+
+New players now join with **$0 in the ledger**. The first buy-in is no longer automatic.
