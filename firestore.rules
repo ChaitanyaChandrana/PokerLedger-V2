@@ -1,0 +1,355 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // V1 is intentionally locked. Finish any V1 game before publishing these rules.
+    match /poker_games/{gameCode} {
+      allow read, write: if false;
+    }
+
+    match /poker_games_v2/{gameCode} {
+      function hasMembersMap() {
+        return resource.data.members is map;
+      }
+      function incomingHasMembersMap() {
+        return request.resource.data.members is map;
+      }
+      function isMember() {
+        return signedIn()
+          && hasMembersMap()
+          && resource.data.members.keys().hasAny([request.auth.uid]);
+      }
+      function memberPlayerId() {
+        return resource.data.members[request.auth.uid];
+      }
+      function isHost() {
+        return signedIn() && resource.data.hostUid == request.auth.uid;
+      }
+      function isCoHost() {
+        return signedIn() && resource.data.coHostUid == request.auth.uid;
+      }
+      function immutableCoreUnchanged() {
+        return request.resource.data.code == resource.data.code
+          && request.resource.data.schemaVersion == resource.data.schemaVersion
+          && request.resource.data.hostUid == resource.data.hostUid
+          && request.resource.data.hostId == resource.data.hostId;
+      }
+      function hostUpdate() {
+        return isHost() && immutableCoreUnchanged();
+      }
+      function linkedVerifiedRequest(requestId) {
+        let verified = getAfter(/databases/$(database)/documents/poker_games_v2/$(gameCode)/requests/$(requestId));
+        return verified.data.status == 'approved'
+          && verified.data.approverUid == request.auth.uid
+          && verified.data.approverId == resource.data.members[request.auth.uid]
+          && request.resource.data.players.diff(resource.data.players).affectedKeys().hasOnly([verified.data.targetId]);
+      }
+      function coHostLedgerUpdate() {
+        let requestId = request.resource.data.lastVerifiedRequestId;
+        return isCoHost()
+          && resource.data.phase == 'active'
+          && request.resource.data.phase == 'active'
+          && immutableCoreUnchanged()
+          && requestId is string
+          && requestId != resource.data.lastVerifiedRequestId
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'players', 'revision', 'updatedAtMs', 'lastVerifiedRequestId'
+          ])
+          && linkedVerifiedRequest(requestId);
+      }
+      function memberSelfUpdate() {
+        return isMember()
+          && immutableCoreUnchanged()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'players', 'revision', 'updatedAtMs'
+          ])
+          && request.resource.data.players.diff(resource.data.players).affectedKeys()
+              .hasOnly([memberPlayerId()])
+          && request.resource.data.players[memberPlayerId()].authUid == request.auth.uid
+          && request.resource.data.players[memberPlayerId()]
+              .diff(resource.data.players[memberPlayerId()]).affectedKeys()
+              .hasOnly(['name', 'phone']);
+      }
+      function firstJoinUpdate() {
+        let pid = request.resource.data.members[request.auth.uid];
+        return signedIn()
+          && !isMember()
+          && incomingHasMembersMap()
+          && request.resource.data.members.keys().hasAny([request.auth.uid])
+          && resource.data.phase == 'active'
+          && request.resource.data.phase == 'active'
+          && immutableCoreUnchanged()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'players', 'members', 'revision', 'updatedAtMs'
+          ])
+          && request.resource.data.members.diff(resource.data.members).affectedKeys()
+              .hasOnly([request.auth.uid])
+          && !resource.data.players.keys().hasAny([pid])
+          && request.resource.data.players.diff(resource.data.players).affectedKeys()
+              .hasOnly([pid])
+          && request.resource.data.players[pid].id == pid
+          && request.resource.data.players[pid].authUid == request.auth.uid
+          && request.resource.data.players[pid].buyins is list
+          && request.resource.data.players[pid].buyins.size() == 1
+          && request.resource.data.players[pid].buyins[0].amountCents == resource.data.buyInCents
+          && request.resource.data.players[pid].buyins[0].approved == true
+          && request.resource.data.players[pid].cashedOut == false
+          && request.resource.data.players[pid].finalAmount == null;
+      }
+
+      // An invite code is effectively the lookup secret. Auth is still required.
+      allow get: if signedIn();
+      allow list: if false;
+
+      allow create: if signedIn()
+        && request.resource.data.schemaVersion == 2
+        && request.resource.data.code == gameCode
+        && request.resource.data.phase == 'active'
+        && request.resource.data.hostUid == request.auth.uid
+        && request.resource.data.members is map
+        && request.resource.data.members.keys().hasAny([request.auth.uid])
+        && request.resource.data.hostId == request.resource.data.members[request.auth.uid]
+        && request.resource.data.players[request.resource.data.hostId].authUid == request.auth.uid;
+
+      allow update: if hostUpdate()
+        || coHostLedgerUpdate()
+        || memberSelfUpdate()
+        || firstJoinUpdate();
+      allow delete: if false;
+
+      // Rebuy and cash-out requests are separate documents so ordinary members
+      // never need permission to edit the shared ledger to ask for money changes.
+      match /requests/{requestId} {
+        function parentNow() {
+          return get(/databases/$(database)/documents/poker_games_v2/$(gameCode));
+        }
+        function parentAfter() {
+          return getAfter(/databases/$(database)/documents/poker_games_v2/$(gameCode));
+        }
+        function isParentMember() {
+          let g = parentNow();
+          return signedIn()
+            && g.data.members is map
+            && g.data.members.keys().hasAny([request.auth.uid]);
+        }
+        function myPlayerId() {
+          return parentNow().data.members[request.auth.uid];
+        }
+        function requestShapeValid() {
+          return request.resource.data.keys().hasOnly([
+            'schemaVersion', 'type', 'status', 'targetId', 'targetUid',
+            'amountCents', 'amount', 'approverId', 'approverUid',
+            'requesterId', 'requesterUid', 'ts',
+            'approvalMode', 'challengeId', 'challengeExpiresAtMs'
+          ]);
+        }
+        function correctApprover() {
+          let g = parentNow().data;
+          let targetIsCoHost = request.resource.data.targetId == g.coHostId;
+          return g.coHostId != null
+            && g.coHostUid != null
+            && request.resource.data.approverId == (targetIsCoHost ? g.hostId : g.coHostId)
+            && request.resource.data.approverUid == (targetIsCoHost ? g.hostUid : g.coHostUid);
+        }
+        function validCreate() {
+          let g = parentNow().data;
+          let mine = g.members[request.auth.uid];
+          let isBuyin = request.resource.data.type == 'buyin';
+          let isCashout = request.resource.data.type == 'cashout';
+          return isParentMember()
+            && g.phase == 'active'
+            && requestShapeValid()
+            && request.resource.data.schemaVersion == 2
+            && request.resource.data.status == 'pending'
+            && (isBuyin || isCashout)
+            && request.resource.data.requesterUid == request.auth.uid
+            && request.resource.data.requesterId == mine
+            && g.players.keys().hasAny([request.resource.data.targetId])
+            && request.resource.data.targetUid == g.players[request.resource.data.targetId].authUid
+            && request.resource.data.amountCents is int
+            && ((isBuyin && request.resource.data.amountCents > 0)
+              || (isCashout && request.resource.data.amountCents >= 0))
+            && correctApprover()
+            && (
+              (isBuyin
+                && request.resource.data.targetId == mine
+                && request.resource.data.approvalMode == 'qr'
+                && request.resource.data.challengeId is string
+                && request.resource.data.challengeExpiresAtMs is int)
+              ||
+              (isCashout
+                && (g.hostUid == request.auth.uid || request.resource.data.targetId == mine))
+            );
+        }
+        function decisionFieldsOnly() {
+          return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'status', 'decidedAt', 'decidedByUid', 'decidedByPlayerId'
+          ]);
+        }
+        function validRejectOrCancel() {
+          let g = parentNow().data;
+          return resource.data.status == 'pending'
+            && decisionFieldsOnly()
+            && request.resource.data.decidedByUid == request.auth.uid
+            && request.resource.data.decidedByPlayerId == g.members[request.auth.uid]
+            && (
+              (request.resource.data.status == 'rejected' && resource.data.approverUid == request.auth.uid)
+              ||
+              (request.resource.data.status == 'cancelled'
+                && (resource.data.requesterUid == request.auth.uid || g.hostUid == request.auth.uid))
+            );
+        }
+        function qrChallengeAfter() {
+          return getAfter(/databases/$(database)/documents/poker_games_v2/$(gameCode)/rebuy_challenges/$(resource.data.challengeId));
+        }
+        function validBuyinAppend(before, after, target) {
+          let beforeList = before.players[target].buyins;
+          let afterList = after.players[target].buyins;
+          let added = afterList[beforeList.size()];
+          return afterList.size() == beforeList.size() + 1
+            && added.requestId == requestId
+            && added.amountCents == resource.data.amountCents
+            && added.approved == true
+            && added.approvedBy == resource.data.approverId
+            && added.approvalMethod == 'qr'
+            && added.challengeId == resource.data.challengeId;
+        }
+        function validQrProof() {
+          let ch = qrChallengeAfter().data;
+          return resource.data.approvalMode == 'qr'
+            && ch.requestId == requestId
+            && ch.challengeId == resource.data.challengeId
+            && ch.targetId == resource.data.targetId
+            && ch.approverUid == request.auth.uid
+            && ch.used == true
+            && ch.usedByUid == request.auth.uid
+            && ch.usedByPlayerId == resource.data.approverId;
+        }
+        function validApproval() {
+          let before = parentNow().data;
+          let after = parentAfter().data;
+          let target = resource.data.targetId;
+          let playerFields = after.players[target].diff(before.players[target]).affectedKeys();
+          return resource.data.status == 'pending'
+            && request.resource.data.status == 'approved'
+            && decisionFieldsOnly()
+            && resource.data.approverUid == request.auth.uid
+            && request.resource.data.decidedByUid == request.auth.uid
+            && request.resource.data.decidedByPlayerId == resource.data.approverId
+            && before.phase == 'active'
+            && after.phase == 'active'
+            && after.revision == before.revision + 1
+            && after.lastVerifiedRequestId == requestId
+            && after.players.diff(before.players).affectedKeys().hasOnly([target])
+            && (
+              (resource.data.type == 'buyin'
+                && playerFields.hasOnly(['buyins'])
+                && validBuyinAppend(before, after, target)
+                && validQrProof())
+              ||
+              (resource.data.type == 'cashout'
+                && playerFields.hasOnly(['cashedOut', 'finalCents', 'finalAmount'])
+                && after.players[target].cashedOut == true
+                && after.players[target].finalCents == resource.data.amountCents
+                && after.players[target].finalAmount == resource.data.amount)
+            );
+        }
+
+        allow get, list: if isParentMember();
+        allow create: if validCreate();
+        allow update: if signedIn() && (validRejectOrCancel() || validApproval());
+        allow delete: if false;
+      }
+
+      // Hidden one-time rebuy challenge. The verifier cannot read the secret
+      // from Firestore; they only receive it by scanning the player's QR.
+      match /rebuy_challenges/{challengeId} {
+        function linkedRequestAfter() {
+          return getAfter(/databases/$(database)/documents/poker_games_v2/$(gameCode)/requests/$(request.resource.data.requestId));
+        }
+        function linkedRequestAfterUse() {
+          return getAfter(/databases/$(database)/documents/poker_games_v2/$(gameCode)/requests/$(resource.data.requestId));
+        }
+        function createShapeValid() {
+          return request.resource.data.keys().hasOnly([
+            'schemaVersion', 'requestId', 'challengeId', 'secret',
+            'requesterUid', 'approverUid', 'targetId',
+            'createdAt', 'displayExpiresAtMs', 'used'
+          ]);
+        }
+        function useFieldsOnly() {
+          return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'used', 'usedAt', 'usedByUid', 'usedByPlayerId', 'presentedSecret'
+          ]);
+        }
+
+        allow get: if signedIn() && resource.data.requesterUid == request.auth.uid;
+        allow list: if false;
+
+        allow create: if signedIn()
+          && createShapeValid()
+          && request.resource.data.schemaVersion == 2
+          && request.resource.data.challengeId == challengeId
+          && request.resource.data.requesterUid == request.auth.uid
+          && request.resource.data.secret is string
+          && request.resource.data.used == false
+          && request.resource.data.createdAt == request.time
+          && linkedRequestAfter().data.type == 'buyin'
+          && linkedRequestAfter().data.status == 'pending'
+          && linkedRequestAfter().data.approvalMode == 'qr'
+          && linkedRequestAfter().data.challengeId == challengeId
+          && linkedRequestAfter().data.requesterUid == request.auth.uid
+          && linkedRequestAfter().data.targetId == request.resource.data.targetId
+          && linkedRequestAfter().data.approverUid == request.resource.data.approverUid;
+
+        allow update: if signedIn()
+          && resource.data.used == false
+          && useFieldsOnly()
+          && request.resource.data.used == true
+          && resource.data.approverUid == request.auth.uid
+          && request.resource.data.usedByUid == request.auth.uid
+          && request.resource.data.presentedSecret == resource.data.secret
+          && request.resource.data.usedAt == request.time
+          && request.time < resource.data.createdAt + duration.value(90, 's')
+          && linkedRequestAfterUse().data.status == 'approved'
+          && linkedRequestAfterUse().data.approverUid == request.auth.uid
+          && linkedRequestAfterUse().data.approverId == request.resource.data.usedByPlayerId
+          && linkedRequestAfterUse().data.challengeId == challengeId;
+
+        allow delete: if false;
+      }
+
+      // Append-only activity trail. getAfter lets creation/join transactions
+      // create their audit event in the same atomic operation.
+      match /events/{eventId} {
+        function parentAfterForEvent() {
+          return getAfter(/databases/$(database)/documents/poker_games_v2/$(gameCode));
+        }
+        function actorIsMemberAfter() {
+          return signedIn()
+            && parentAfterForEvent().data.members is map
+            && parentAfterForEvent().data.members.keys().hasAny([request.auth.uid]);
+        }
+        function actorIsMemberNow() {
+          let g = get(/databases/$(database)/documents/poker_games_v2/$(gameCode));
+          return signedIn()
+            && g.data.members is map
+            && g.data.members.keys().hasAny([request.auth.uid]);
+        }
+
+        allow get, list: if actorIsMemberNow();
+        allow create: if actorIsMemberAfter()
+          && request.resource.data.actorUid == request.auth.uid
+          && request.resource.data.schemaVersion == 2;
+        allow update, delete: if false;
+      }
+
+      match /{document=**} {
+        allow read, write: if false;
+      }
+    }
+  }
+}

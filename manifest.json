@@ -1,0 +1,8 @@
+{
+  "name": "Poker Ledger V2",
+  "short_name": "Poker Ledger",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#170E22",
+  "theme_color": "#170E22"
+}

@@ -1,0 +1,2725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Poker Ledger — Poker Buy-ins & Settlement</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#170E22">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Poker Ledger">
+<script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<style>*,:after,:before{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/*! tailwindcss v3.4.19 | MIT License | https://tailwindcss.com*/*,:after,:before{box-sizing:border-box;border:0 solid #e5e7eb}:after,:before{--tw-content:""}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;font-family:ui-sans-serif,system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0}fieldset,legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::-moz-placeholder,textarea::-moz-placeholder{opacity:1;color:#9ca3af}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.fixed{position:fixed}.inset-0{inset:0}.bottom-0{bottom:0}.left-0{left:0}.right-0{right:0}.z-50{z-index:50}.mx-auto{margin-left:auto;margin-right:auto}.-mt-0\.5{margin-top:-.125rem}.mb-1{margin-bottom:.25rem}.mb-1\.5{margin-bottom:.375rem}.mb-10{margin-bottom:2.5rem}.mb-2{margin-bottom:.5rem}.mb-2\.5{margin-bottom:.625rem}.mb-3{margin-bottom:.75rem}.mb-4{margin-bottom:1rem}.mb-5{margin-bottom:1.25rem}.mb-6{margin-bottom:1.5rem}.ml-1{margin-left:.25rem}.ml-2{margin-left:.5rem}.ml-3{margin-left:.75rem}.mt-0\.5{margin-top:.125rem}.mt-1{margin-top:.25rem}.mt-1\.5{margin-top:.375rem}.mt-2{margin-top:.5rem}.mt-3{margin-top:.75rem}.mt-4{margin-top:1rem}.mt-5{margin-top:1.25rem}.mt-8{margin-top:2rem}.block{display:block}.inline-block{display:inline-block}.flex{display:flex}.table{display:table}.grid{display:grid}.hidden{display:none}.h-40{height:10rem}.h-7{height:1.75rem}.h-8{height:2rem}.max-h-72{max-height:18rem}.min-h-screen{min-height:100vh}.w-11{width:2.75rem}.w-14{width:3.5rem}.w-24{width:6rem}.w-5{width:1.25rem}.w-7{width:1.75rem}.w-8{width:2rem}.w-9{width:2.25rem}.w-full{width:100%}.min-w-0{min-width:0}.max-w-sm{max-width:24rem}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.resize-none{resize:none}.grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-0\.5{gap:.125rem}.gap-1{gap:.25rem}.gap-1\.5{gap:.375rem}.gap-2{gap:.5rem}.gap-3{gap:.75rem}.gap-6{gap:1.5rem}.space-y-1>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.25rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.25rem*var(--tw-space-y-reverse))}.space-y-1\.5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.375rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.375rem*var(--tw-space-y-reverse))}.space-y-2>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.5rem*var(--tw-space-y-reverse))}.space-y-2\.5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.625rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.625rem*var(--tw-space-y-reverse))}.space-y-3>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.75rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.75rem*var(--tw-space-y-reverse))}.space-y-4>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem*var(--tw-space-y-reverse))}.space-y-5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.25rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.25rem*var(--tw-space-y-reverse))}.overflow-y-auto{overflow-y:auto}.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rounded-2xl{border-radius:1rem}.rounded-3xl{border-radius:1.5rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:.5rem}.rounded-xl{border-radius:.75rem}.border{border-width:1px}.border-0{border-width:0}.border-b{border-bottom-width:1px}.border-t{border-top-width:1px}.border-dashed{border-style:dashed}.border-coral-500\/30{border-color:rgba(201,58,58,.3)}.border-felt-600{--tw-border-opacity:1;border-color:rgb(92 68 112/var(--tw-border-opacity,1))}.border-felt-700{--tw-border-opacity:1;border-color:rgb(74 51 88/var(--tw-border-opacity,1))}.border-gold-500\/25{border-color:rgba(200,148,48,.25)}.border-gold-500\/30{border-color:rgba(200,148,48,.3)}.border-gold-500\/40{border-color:rgba(200,148,48,.4)}.border-gold-500\/50{border-color:rgba(200,148,48,.5)}.border-gold-500\/60{border-color:rgba(200,148,48,.6)}.border-mint-500\/40{border-color:rgba(34,162,94,.4)}.bg-coral-500{--tw-bg-opacity:1;background-color:rgb(201 58 58/var(--tw-bg-opacity,1))}.bg-coral-500\/10{background-color:rgba(201,58,58,.1)}.bg-felt-800{--tw-bg-opacity:1;background-color:rgb(46 27 61/var(--tw-bg-opacity,1))}.bg-felt-800\/60{background-color:rgba(46,27,61,.6)}.bg-felt-800\/70{background-color:rgba(46,27,61,.7)}.bg-felt-900{--tw-bg-opacity:1;background-color:rgb(36 21 49/var(--tw-bg-opacity,1))}.bg-felt-900\/60{background-color:rgba(36,21,49,.6)}.bg-felt-900\/80{background-color:rgba(36,21,49,.8)}.bg-felt-950\/80{background-color:rgba(23,14,34,.8)}.bg-felt-950\/95{background-color:rgba(23,14,34,.95)}.bg-gold-500\/10{background-color:rgba(200,148,48,.1)}.bg-mint-500\/10{background-color:rgba(34,162,94,.1)}.bg-transparent{background-color:transparent}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255/var(--tw-bg-opacity,1))}.bg-gradient-to-b{background-image:linear-gradient(to bottom,var(--tw-gradient-stops))}.bg-gradient-to-br{background-image:linear-gradient(to bottom right,var(--tw-gradient-stops))}.from-felt-800{--tw-gradient-from:#2e1b3d var(--tw-gradient-from-position);--tw-gradient-to:rgba(46,27,61,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.from-gold-300{--tw-gradient-from:#f2ca6e var(--tw-gradient-from-position);--tw-gradient-to:hsla(42,84%,69%,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.from-gold-500\/10{--tw-gradient-from:rgba(200,148,48,.1) var(--tw-gradient-from-position);--tw-gradient-to:rgba(200,148,48,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.to-felt-900{--tw-gradient-to:#241531 var(--tw-gradient-to-position)}.to-gold-500{--tw-gradient-to:#c89430 var(--tw-gradient-to-position)}.to-transparent{--tw-gradient-to:transparent var(--tw-gradient-to-position)}.p-2{padding:.5rem}.p-3{padding:.75rem}.p-3\.5{padding:.875rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.px-0\.5{padding-left:.125rem;padding-right:.125rem}.px-2{padding-left:.5rem;padding-right:.5rem}.px-2\.5{padding-left:.625rem;padding-right:.625rem}.px-3{padding-left:.75rem;padding-right:.75rem}.px-3\.5{padding-left:.875rem;padding-right:.875rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.py-1{padding-top:.25rem;padding-bottom:.25rem}.py-1\.5{padding-top:.375rem;padding-bottom:.375rem}.py-2{padding-top:.5rem;padding-bottom:.5rem}.py-2\.5{padding-top:.625rem;padding-bottom:.625rem}.py-3{padding-top:.75rem;padding-bottom:.75rem}.py-3\.5{padding-top:.875rem;padding-bottom:.875rem}.py-4{padding-top:1rem;padding-bottom:1rem}.pb-0\.5{padding-bottom:.125rem}.pb-1{padding-bottom:.25rem}.pb-1\.5{padding-bottom:.375rem}.pb-2{padding-bottom:.5rem}.pb-2\.5{padding-bottom:.625rem}.pb-24{padding-bottom:6rem}.pt-1{padding-top:.25rem}.pt-4{padding-top:1rem}.pt-5{padding-top:1.25rem}.text-left{text-align:left}.text-center{text-align:center}.text-2xl{font-size:1.5rem;line-height:2rem}.text-4xl{font-size:2.25rem;line-height:2.5rem}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:.75rem;line-height:1rem}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-normal{font-weight:400}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.tracking-\[0\.1em\]{letter-spacing:.1em}.tracking-\[0\.2em\]{letter-spacing:.2em}.tracking-tight{letter-spacing:-.025em}.tracking-wide{letter-spacing:.025em}.tracking-widest{letter-spacing:.1em}.text-bone{--tw-text-opacity:1;color:rgb(244 238 251/var(--tw-text-opacity,1))}.text-coral-400{--tw-text-opacity:1;color:rgb(240 98 95/var(--tw-text-opacity,1))}.text-gold-300{--tw-text-opacity:1;color:rgb(242 202 110/var(--tw-text-opacity,1))}.text-gold-400{--tw-text-opacity:1;color:rgb(232 178 61/var(--tw-text-opacity,1))}.text-gold-400\/80{color:rgba(232,178,61,.8)}.text-ink{--tw-text-opacity:1;color:rgb(28 17 40/var(--tw-text-opacity,1))}.text-mint-400{--tw-text-opacity:1;color:rgb(47 191 113/var(--tw-text-opacity,1))}.text-smoke{--tw-text-opacity:1;color:rgb(169 155 192/var(--tw-text-opacity,1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.underline{text-decoration-line:underline}.shadow-\[0_0_24px_-4px_rgba\(232\2c 178\2c 61\2c 0\.45\)\]{--tw-shadow:0 0 24px -4px rgba(232,178,61,.45);--tw-shadow-colored:0 0 24px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-\[0_0_40px_-10px_rgba\(232\2c 178\2c 61\2c 0\.25\)\]{--tw-shadow:0 0 40px -10px rgba(232,178,61,.25);--tw-shadow-colored:0 0 40px -10px var(--tw-shadow-color)}.shadow-\[0_0_40px_-10px_rgba\(232\2c 178\2c 61\2c 0\.25\)\],.shadow-md{box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color),0 2px 4px -2px var(--tw-shadow-color)}.outline-none{outline:2px solid transparent;outline-offset:2px}.filter{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,-webkit-backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,-webkit-backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.placeholder\:text-smoke\/40::-moz-placeholder{color:rgba(169,155,192,.4)}.placeholder\:text-smoke\/40::placeholder{color:rgba(169,155,192,.4)}.placeholder\:text-smoke\/50::-moz-placeholder{color:rgba(169,155,192,.5)}.placeholder\:text-smoke\/50::placeholder{color:rgba(169,155,192,.5)}.placeholder\:text-smoke\/60::-moz-placeholder{color:rgba(169,155,192,.6)}.placeholder\:text-smoke\/60::placeholder{color:rgba(169,155,192,.6)}.focus-within\:border-gold-400:focus-within{--tw-border-opacity:1;border-color:rgb(232 178 61/var(--tw-border-opacity,1))}.focus-within\:ring-2:focus-within{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000)}.focus-within\:ring-gold-400\/20:focus-within{--tw-ring-color:rgba(232,178,61,.2)}.hover\:border-gold-500\/60:hover{border-color:rgba(200,148,48,.6)}.hover\:bg-felt-700\/60:hover{background-color:rgba(74,51,88,.6)}.hover\:bg-gold-500\/10:hover{background-color:rgba(200,148,48,.1)}.hover\:from-gold-200:hover{--tw-gradient-from:#f8dfa0 var(--tw-gradient-from-position);--tw-gradient-to:hsla(43,86%,80%,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.hover\:to-gold-400:hover{--tw-gradient-to:#e8b23d var(--tw-gradient-to-position)}.hover\:text-gold-300:hover{--tw-text-opacity:1;color:rgb(242 202 110/var(--tw-text-opacity,1))}.focus\:border-gold-400:focus{--tw-border-opacity:1;border-color:rgb(232 178 61/var(--tw-border-opacity,1))}.focus\:ring-2:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000)}.focus\:ring-gold-400\/20:focus{--tw-ring-color:rgba(232,178,61,.2)}.active\:scale-90:active{--tw-scale-x:.9;--tw-scale-y:.9}.active\:scale-90:active,.active\:scale-\[0\.97\]:active{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.active\:scale-\[0\.97\]:active{--tw-scale-x:0.97;--tw-scale-y:0.97}.disabled\:opacity-40:disabled{opacity:.4}</style>
+<style>
+  html, body { margin: 0; padding: 0; background: linear-gradient(160deg, #2E1B3D 0%, #1F1229 55%, #170E22 100%); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+
+const firebaseConfig = {
+  // IMPORTANT: use the SEPARATE Poker Ledger V2 Firebase project here.
+  // Do not paste the stable V1 project's config into this beta build.
+  apiKey: "AIzaSyB9t4vdX7ujw5SQYWA1V75mNdW0wHbKs3w",
+  authDomain: "pokerledger-v2.firebaseapp.com",
+  projectId: "pokerledger-v2",
+  storageBucket: "pokerledger-v2.firebasestorage.app",
+  messagingSenderId: "429956996222",
+  appId: "1:429956996222:web:df05fb1474c1b13b398c2f"
+};
+firebase.initializeApp(firebaseConfig);
+
+</script>
+<script>
+const QRLib = function () {
+  const QRMath = function () {
+    const EXP = new Array(256),
+      LOG = new Array(256);
+    for (let i = 0; i < 8; i++) EXP[i] = 1 << i;
+    for (let i = 8; i < 256; i++) EXP[i] = EXP[i - 4] ^ EXP[i - 5] ^ EXP[i - 6] ^ EXP[i - 8];
+    for (let i = 0; i < 255; i++) LOG[EXP[i]] = i;
+    return {
+      glog: n => LOG[n],
+      gexp: n => {
+        while (n < 0) n += 255;
+        while (n >= 256) n -= 255;
+        return EXP[n];
+      }
+    };
+  }();
+  function Poly(num, shift) {
+    let offset = 0;
+    while (offset < num.length && num[offset] === 0) offset++;
+    const _num = new Array(num.length - offset + shift).fill(0);
+    for (let i = 0; i < num.length - offset; i++) _num[i] = num[i + offset];
+    return {
+      get: i => _num[i],
+      len: () => _num.length,
+      multiply(e) {
+        const out = new Array(this.len() + e.len() - 1).fill(0);
+        for (let i = 0; i < this.len(); i++) for (let j = 0; j < e.len(); j++) out[i + j] ^= QRMath.gexp(QRMath.glog(this.get(i)) + QRMath.glog(e.get(j)));
+        return Poly(out, 0);
+      },
+      mod(e) {
+        if (this.len() - e.len() < 0) return this;
+        const ratio = QRMath.glog(this.get(0)) - QRMath.glog(e.get(0));
+        const out = new Array(this.len());
+        for (let i = 0; i < this.len(); i++) out[i] = this.get(i);
+        for (let i = 0; i < e.len(); i++) out[i] ^= QRMath.gexp(QRMath.glog(e.get(i)) + ratio);
+        return Poly(out, 0).mod(e);
+      }
+    };
+  }
+  const PATTERN_POS = [[], [6, 18], [6, 22], [6, 26], [6, 30], [6, 34], [6, 22, 38], [6, 24, 42], [6, 26, 46], [6, 28, 50], [6, 30, 54], [6, 32, 58], [6, 34, 62], [6, 26, 46, 66], [6, 26, 48, 70], [6, 26, 50, 74], [6, 30, 54, 78], [6, 30, 56, 82], [6, 30, 58, 86], [6, 34, 62, 90], [6, 28, 50, 72, 94], [6, 26, 50, 74, 98], [6, 30, 54, 78, 102], [6, 28, 54, 80, 106], [6, 32, 58, 84, 110], [6, 30, 58, 86, 114], [6, 34, 62, 90, 118], [6, 26, 50, 74, 98, 122], [6, 30, 54, 78, 102, 126], [6, 26, 52, 78, 104, 130], [6, 30, 56, 82, 108, 134], [6, 34, 60, 86, 112, 138], [6, 30, 58, 86, 114, 142], [6, 34, 62, 90, 118, 146], [6, 30, 54, 78, 102, 126, 150], [6, 24, 50, 76, 102, 128, 154], [6, 28, 54, 80, 106, 132, 158], [6, 32, 58, 84, 110, 136, 162], [6, 26, 54, 82, 110, 138, 166], [6, 30, 58, 86, 114, 142, 170]];
+  const G15 = 1 << 10 | 1 << 8 | 1 << 5 | 1 << 4 | 1 << 2 | 1 << 1 | 1;
+  const G18 = 1 << 12 | 1 << 11 | 1 << 10 | 1 << 9 | 1 << 8 | 1 << 5 | 1 << 2 | 1;
+  const G15_MASK = 1 << 14 | 1 << 12 | 1 << 10 | 1 << 4 | 1 << 1;
+  function bchDigit(d) {
+    let n = 0;
+    while (d !== 0) {
+      n++;
+      d >>>= 1;
+    }
+    return n;
+  }
+  const QRUtil = {
+    getBCHTypeInfo(data) {
+      let d = data << 10;
+      while (bchDigit(d) - bchDigit(G15) >= 0) d ^= G15 << bchDigit(d) - bchDigit(G15);
+      return (data << 10 | d) ^ G15_MASK;
+    },
+    getBCHTypeNumber(data) {
+      let d = data << 12;
+      while (bchDigit(d) - bchDigit(G18) >= 0) d ^= G18 << bchDigit(d) - bchDigit(G18);
+      return data << 12 | d;
+    },
+    getPatternPosition: t => PATTERN_POS[t - 1],
+    getMaskFunction(p) {
+      switch (p) {
+        case 0:
+          return (i, j) => (i + j) % 2 === 0;
+        case 1:
+          return i => i % 2 === 0;
+        case 2:
+          return (i, j) => j % 3 === 0;
+        case 3:
+          return (i, j) => (i + j) % 3 === 0;
+        case 4:
+          return (i, j) => (Math.floor(i / 2) + Math.floor(j / 3)) % 2 === 0;
+        case 5:
+          return (i, j) => i * j % 2 + i * j % 3 === 0;
+        case 6:
+          return (i, j) => (i * j % 2 + i * j % 3) % 2 === 0;
+        case 7:
+          return (i, j) => (i * j % 3 + (i + j) % 2) % 2 === 0;
+        default:
+          throw new Error("bad mask");
+      }
+    },
+    getErrorCorrectPolynomial(len) {
+      let a = Poly([1], 0);
+      for (let i = 0; i < len; i++) a = a.multiply(Poly([1, QRMath.gexp(i)], 0));
+      return a;
+    },
+    getLengthInBits(type) {
+      return type < 10 ? 8 : 16;
+    },
+    getLostPoint(qr) {
+      const n = qr.getModuleCount();
+      let lost = 0;
+      for (let row = 0; row < n; row++) for (let col = 0; col < n; col++) {
+        let same = 0;
+        const dark = qr.isDark(row, col);
+        for (let r = -1; r <= 1; r++) for (let c = -1; c <= 1; c++) {
+          if (row + r < 0 || n <= row + r || col + c < 0 || n <= col + c || r === 0 && c === 0) continue;
+          if (dark === qr.isDark(row + r, col + c)) same++;
+        }
+        if (same > 5) lost += 3 + same - 5;
+      }
+      for (let row = 0; row < n - 1; row++) for (let col = 0; col < n - 1; col++) {
+        let cnt = 0;
+        if (qr.isDark(row, col)) cnt++;
+        if (qr.isDark(row + 1, col)) cnt++;
+        if (qr.isDark(row, col + 1)) cnt++;
+        if (qr.isDark(row + 1, col + 1)) cnt++;
+        if (cnt === 0 || cnt === 4) lost += 3;
+      }
+      for (let row = 0; row < n; row++) for (let col = 0; col < n - 6; col++) {
+        if (qr.isDark(row, col) && !qr.isDark(row, col + 1) && qr.isDark(row, col + 2) && qr.isDark(row, col + 3) && qr.isDark(row, col + 4) && !qr.isDark(row, col + 5) && qr.isDark(row, col + 6)) lost += 40;
+      }
+      for (let col = 0; col < n; col++) for (let row = 0; row < n - 6; row++) {
+        if (qr.isDark(row, col) && !qr.isDark(row + 1, col) && qr.isDark(row + 2, col) && qr.isDark(row + 3, col) && qr.isDark(row + 4, col) && !qr.isDark(row + 5, col) && qr.isDark(row + 6, col)) lost += 40;
+      }
+      let dark = 0;
+      for (let col = 0; col < n; col++) for (let row = 0; row < n; row++) if (qr.isDark(row, col)) dark++;
+      lost += Math.abs(100 * dark / n / n - 50) / 5 * 10;
+      return lost;
+    }
+  };
+  const RS_BLOCK_TABLE = [[1, 26, 19], [1, 26, 16], [1, 26, 13], [1, 26, 9], [1, 44, 34], [1, 44, 28], [1, 44, 22], [1, 44, 16], [1, 70, 55], [1, 70, 44], [2, 35, 17], [2, 35, 13], [1, 100, 80], [2, 50, 32], [2, 50, 24], [4, 25, 9], [1, 134, 108], [2, 67, 43], [2, 33, 15, 2, 34, 16], [2, 33, 11, 2, 34, 12], [2, 86, 68], [4, 43, 27], [4, 43, 19], [4, 43, 15], [2, 98, 78], [4, 49, 31], [2, 32, 14, 4, 33, 15], [4, 39, 13, 1, 40, 14], [2, 121, 97], [2, 60, 38, 2, 61, 39], [4, 40, 18, 2, 41, 19], [4, 40, 14, 2, 41, 15], [2, 146, 116], [3, 58, 36, 2, 59, 37], [4, 36, 16, 4, 37, 17], [4, 36, 12, 4, 37, 13], [2, 86, 68, 2, 87, 69], [4, 69, 43, 1, 70, 44], [6, 43, 19, 2, 44, 20], [6, 43, 15, 2, 44, 16], [4, 101, 81], [1, 80, 50, 4, 81, 51], [4, 50, 22, 4, 51, 23], [3, 36, 12, 8, 37, 13], [2, 116, 92, 2, 117, 93], [6, 58, 36, 2, 59, 37], [4, 46, 20, 6, 47, 21], [7, 42, 14, 4, 43, 15], [4, 133, 107], [8, 59, 37, 1, 60, 38], [8, 44, 20, 4, 45, 21], [12, 33, 11, 4, 34, 12], [3, 145, 115, 1, 146, 116], [4, 64, 40, 5, 65, 41], [11, 36, 16, 5, 37, 17], [11, 36, 12, 5, 37, 13], [5, 109, 87, 1, 110, 88], [5, 65, 41, 5, 66, 42], [5, 54, 24, 7, 55, 25], [11, 36, 12, 7, 37, 13], [5, 122, 98, 1, 123, 99], [7, 73, 45, 3, 74, 46], [15, 43, 19, 2, 44, 20], [3, 45, 15, 13, 46, 16], [1, 135, 107, 5, 136, 108], [10, 74, 46, 1, 75, 47], [1, 50, 22, 15, 51, 23], [2, 42, 14, 17, 43, 15], [5, 150, 120, 1, 151, 121], [9, 69, 43, 4, 70, 44], [17, 50, 22, 1, 51, 23], [2, 42, 14, 19, 43, 15], [3, 141, 113, 4, 142, 114], [3, 70, 44, 11, 71, 45], [17, 47, 21, 4, 48, 22], [9, 39, 13, 16, 40, 14], [3, 135, 107, 5, 136, 108], [3, 67, 41, 13, 68, 42], [15, 54, 24, 5, 55, 25], [15, 43, 15, 10, 44, 16], [4, 144, 116, 4, 145, 117], [17, 68, 42], [17, 50, 22, 6, 51, 23], [19, 46, 16, 6, 47, 17], [2, 139, 111, 7, 140, 112], [17, 74, 46], [7, 54, 24, 16, 55, 25], [34, 37, 13], [4, 151, 121, 5, 152, 122], [4, 75, 47, 14, 76, 48], [11, 54, 24, 14, 55, 25], [16, 45, 15, 14, 46, 16], [6, 147, 117, 4, 148, 118], [6, 73, 45, 14, 74, 46], [11, 54, 24, 16, 55, 25], [30, 46, 16, 2, 47, 17], [8, 132, 106, 4, 133, 107], [8, 75, 47, 13, 76, 48], [7, 54, 24, 22, 55, 25], [22, 45, 15, 13, 46, 16], [10, 142, 114, 2, 143, 115], [19, 74, 46, 4, 75, 47], [28, 50, 22, 6, 51, 23], [33, 46, 16, 4, 47, 17], [8, 152, 122, 4, 153, 123], [22, 73, 45, 3, 74, 46], [8, 53, 23, 26, 54, 24], [12, 45, 15, 28, 46, 16], [3, 147, 117, 10, 148, 118], [3, 73, 45, 23, 74, 46], [4, 54, 24, 31, 55, 25], [11, 45, 15, 31, 46, 16], [7, 146, 116, 7, 147, 117], [21, 73, 45, 7, 74, 46], [1, 53, 23, 37, 54, 24], [19, 45, 15, 26, 46, 16], [5, 145, 115, 10, 146, 116], [19, 75, 47, 10, 76, 48], [15, 54, 24, 25, 55, 25], [23, 45, 15, 25, 46, 16], [13, 145, 115, 3, 146, 116], [2, 74, 46, 29, 75, 47], [42, 54, 24, 1, 55, 25], [23, 45, 15, 28, 46, 16], [17, 145, 115], [10, 74, 46, 23, 75, 47], [10, 54, 24, 35, 55, 25], [19, 45, 15, 35, 46, 16], [17, 145, 115, 1, 146, 116], [14, 74, 46, 21, 75, 47], [29, 54, 24, 19, 55, 25], [11, 45, 15, 46, 46, 16], [13, 145, 115, 6, 146, 116], [14, 74, 46, 23, 75, 47], [44, 54, 24, 7, 55, 25], [59, 46, 16, 1, 47, 17], [12, 151, 121, 7, 152, 122], [12, 75, 47, 26, 76, 48], [39, 54, 24, 14, 55, 25], [22, 45, 15, 41, 46, 16], [6, 151, 121, 14, 152, 122], [6, 75, 47, 34, 76, 48], [46, 54, 24, 10, 55, 25], [2, 45, 15, 64, 46, 16], [17, 152, 122, 4, 153, 123], [29, 74, 46, 14, 75, 47], [49, 54, 24, 10, 55, 25], [24, 45, 15, 46, 46, 16], [4, 152, 122, 18, 153, 123], [13, 74, 46, 32, 75, 47], [48, 54, 24, 14, 55, 25], [42, 45, 15, 32, 46, 16], [20, 147, 117, 4, 148, 118], [40, 75, 47, 7, 76, 48], [43, 54, 24, 22, 55, 25], [10, 45, 15, 67, 46, 16], [19, 148, 118, 6, 149, 119], [18, 75, 47, 31, 76, 48], [34, 54, 24, 34, 55, 25], [20, 45, 15, 61, 46, 16]];
+  const EC_INDEX = {
+    L: 0,
+    M: 1,
+    Q: 2,
+    H: 3
+  };
+  function getRSBlocks(typeNumber, ecLevel) {
+    const row = RS_BLOCK_TABLE[(typeNumber - 1) * 4 + EC_INDEX[ecLevel]];
+    if (!row) throw new Error("bad rs block");
+    const list = [];
+    for (let i = 0; i < row.length / 3; i++) {
+      const count = row[i * 3],
+        total = row[i * 3 + 1],
+        dc = row[i * 3 + 2];
+      for (let j = 0; j < count; j++) list.push({
+        totalCount: total,
+        dataCount: dc
+      });
+    }
+    return list;
+  }
+  function BitBuffer() {
+    let buffer = [],
+      length = 0;
+    return {
+      getBuffer: () => buffer,
+      getLengthInBits: () => length,
+      putBit(bit) {
+        const idx = Math.floor(length / 8);
+        if (buffer.length <= idx) buffer.push(0);
+        if (bit) buffer[idx] |= 0x80 >>> length % 8;
+        length++;
+      },
+      put(num, len) {
+        for (let i = 0; i < len; i++) this.putBit((num >>> len - i - 1 & 1) === 1);
+      }
+    };
+  }
+  function stringToBytes(s) {
+    return Array.from(unescape(encodeURIComponent(s))).map(c => c.charCodeAt(0) & 0xff);
+  }
+  const EC_LEVEL_NUM = {
+    L: 1,
+    M: 0,
+    Q: 3,
+    H: 2
+  };
+  function makeQR(typeNumber, ecLevel, text) {
+    const moduleCount = typeNumber * 4 + 17;
+    const modules = Array.from({
+      length: moduleCount
+    }, () => new Array(moduleCount).fill(null));
+    function setupPositionProbePattern(row, col) {
+      for (let r = -1; r <= 7; r++) {
+        if (row + r <= -1 || moduleCount <= row + r) continue;
+        for (let c = -1; c <= 7; c++) {
+          if (col + c <= -1 || moduleCount <= col + c) continue;
+          modules[row + r][col + c] = 0 <= r && r <= 6 && (c === 0 || c === 6) || 0 <= c && c <= 6 && (r === 0 || r === 6) || 2 <= r && r <= 4 && 2 <= c && c <= 4;
+        }
+      }
+    }
+    function setupTimingPattern() {
+      for (let r = 8; r < moduleCount - 8; r++) if (modules[r][6] === null) modules[r][6] = r % 2 === 0;
+      for (let c = 8; c < moduleCount - 8; c++) if (modules[6][c] === null) modules[6][c] = c % 2 === 0;
+    }
+    function setupPositionAdjustPattern() {
+      const pos = QRUtil.getPatternPosition(typeNumber);
+      for (let i = 0; i < pos.length; i++) for (let j = 0; j < pos.length; j++) {
+        const row = pos[i],
+          col = pos[j];
+        if (modules[row][col] !== null) continue;
+        for (let r = -2; r <= 2; r++) for (let c = -2; c <= 2; c++) {
+          modules[row + r][col + c] = r === -2 || r === 2 || c === -2 || c === 2 || r === 0 && c === 0;
+        }
+      }
+    }
+    function setupTypeNumber(test) {
+      const bits = QRUtil.getBCHTypeNumber(typeNumber);
+      for (let i = 0; i < 18; i++) {
+        const mod = !test && (bits >> i & 1) === 1;
+        modules[Math.floor(i / 3)][i % 3 + moduleCount - 8 - 3] = mod;
+      }
+      for (let i = 0; i < 18; i++) {
+        const mod = !test && (bits >> i & 1) === 1;
+        modules[i % 3 + moduleCount - 8 - 3][Math.floor(i / 3)] = mod;
+      }
+    }
+    function setupTypeInfo(test, maskPattern) {
+      const data = EC_LEVEL_NUM[ecLevel] << 3 | maskPattern;
+      const bits = QRUtil.getBCHTypeInfo(data);
+      for (let i = 0; i < 15; i++) {
+        const mod = !test && (bits >> i & 1) === 1;
+        if (i < 6) modules[i][8] = mod;else if (i < 8) modules[i + 1][8] = mod;else modules[moduleCount - 15 + i][8] = mod;
+      }
+      for (let i = 0; i < 15; i++) {
+        const mod = !test && (bits >> i & 1) === 1;
+        if (i < 8) modules[8][moduleCount - i - 1] = mod;else if (i < 9) modules[8][15 - i - 1 + 1] = mod;else modules[8][15 - i - 1] = mod;
+      }
+      modules[moduleCount - 8][8] = !test;
+    }
+    function createData() {
+      const rsBlocks = getRSBlocks(typeNumber, ecLevel);
+      const buffer = BitBuffer();
+      const bytes = stringToBytes(text);
+      buffer.put(QRMode_8BIT, 4);
+      buffer.put(bytes.length, QRUtil.getLengthInBits(typeNumber));
+      for (let i = 0; i < bytes.length; i++) buffer.put(bytes[i], 8);
+      let totalDataCount = 0;
+      for (let i = 0; i < rsBlocks.length; i++) totalDataCount += rsBlocks[i].dataCount;
+      if (buffer.getLengthInBits() > totalDataCount * 8) throw new Error("overflow");
+      if (buffer.getLengthInBits() + 4 <= totalDataCount * 8) buffer.put(0, 4);
+      while (buffer.getLengthInBits() % 8 !== 0) buffer.putBit(false);
+      while (true) {
+        if (buffer.getLengthInBits() >= totalDataCount * 8) break;
+        buffer.put(0xEC, 8);
+        if (buffer.getLengthInBits() >= totalDataCount * 8) break;
+        buffer.put(0x11, 8);
+      }
+      let offset = 0,
+        maxDc = 0,
+        maxEc = 0;
+      const dcdata = new Array(rsBlocks.length),
+        ecdata = new Array(rsBlocks.length);
+      for (let r = 0; r < rsBlocks.length; r++) {
+        const dcCount = rsBlocks[r].dataCount,
+          ecCount = rsBlocks[r].totalCount - dcCount;
+        maxDc = Math.max(maxDc, dcCount);
+        maxEc = Math.max(maxEc, ecCount);
+        dcdata[r] = new Array(dcCount);
+        for (let i = 0; i < dcdata[r].length; i++) dcdata[r][i] = 0xff & buffer.getBuffer()[i + offset];
+        offset += dcCount;
+        const rsPoly = QRUtil.getErrorCorrectPolynomial(ecCount);
+        const rawPoly = Poly(dcdata[r], rsPoly.len() - 1);
+        const modPoly = rawPoly.mod(rsPoly);
+        ecdata[r] = new Array(rsPoly.len() - 1);
+        for (let i = 0; i < ecdata[r].length; i++) {
+          const idx = i + modPoly.len() - ecdata[r].length;
+          ecdata[r][i] = idx >= 0 ? modPoly.get(idx) : 0;
+        }
+      }
+      let totalCodeCount = 0;
+      for (let i = 0; i < rsBlocks.length; i++) totalCodeCount += rsBlocks[i].totalCount;
+      const data = new Array(totalCodeCount);
+      let index = 0;
+      for (let i = 0; i < maxDc; i++) for (let r = 0; r < rsBlocks.length; r++) if (i < dcdata[r].length) data[index++] = dcdata[r][i];
+      for (let i = 0; i < maxEc; i++) for (let r = 0; r < rsBlocks.length; r++) if (i < ecdata[r].length) data[index++] = ecdata[r][i];
+      return data;
+    }
+    const QRMode_8BIT = 4;
+    function mapData(data, maskPattern) {
+      let inc = -1,
+        row = moduleCount - 1,
+        bitIndex = 7,
+        byteIndex = 0;
+      const maskFunc = QRUtil.getMaskFunction(maskPattern);
+      for (let col = moduleCount - 1; col > 0; col -= 2) {
+        if (col === 6) col -= 1;
+        while (true) {
+          for (let c = 0; c < 2; c++) {
+            if (modules[row][col - c] === null) {
+              let dark = false;
+              if (byteIndex < data.length) dark = (data[byteIndex] >>> bitIndex & 1) === 1;
+              if (maskFunc(row, col - c)) dark = !dark;
+              modules[row][col - c] = dark;
+              bitIndex--;
+              if (bitIndex === -1) {
+                byteIndex++;
+                bitIndex = 7;
+              }
+            }
+          }
+          row += inc;
+          if (row < 0 || moduleCount <= row) {
+            row -= inc;
+            inc = -inc;
+            break;
+          }
+        }
+      }
+    }
+    let dataCache = null;
+    const qr = {
+      getModuleCount: () => moduleCount,
+      isDark: (r, c) => modules[r][c]
+    };
+    function makeImpl(test, maskPattern) {
+      for (let r = 0; r < moduleCount; r++) for (let c = 0; c < moduleCount; c++) modules[r][c] = null;
+      setupPositionProbePattern(0, 0);
+      setupPositionProbePattern(moduleCount - 7, 0);
+      setupPositionProbePattern(0, moduleCount - 7);
+      setupPositionAdjustPattern();
+      setupTimingPattern();
+      setupTypeInfo(test, maskPattern);
+      if (typeNumber >= 7) setupTypeNumber(test);
+      if (dataCache === null) dataCache = createData();
+      mapData(dataCache, maskPattern);
+    }
+    function getBestMaskPattern() {
+      let minLost = 0,
+        pattern = 0;
+      for (let i = 0; i < 8; i++) {
+        makeImpl(true, i);
+        const lost = QRUtil.getLostPoint(qr);
+        if (i === 0 || minLost > lost) {
+          minLost = lost;
+          pattern = i;
+        }
+      }
+      return pattern;
+    }
+    makeImpl(false, getBestMaskPattern());
+    return qr;
+  }
+  function generate(text, ecLevel) {
+    ecLevel = ecLevel || "M";
+    let lastErr = null;
+    for (let type = 1; type <= 40; type++) {
+      try {
+        return makeQR(type, ecLevel, text);
+      } catch (e) {
+        lastErr = e;
+      }
+    }
+    throw lastErr || new Error("QR generation failed");
+  }
+  return {
+    generate
+  };
+}();
+const {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo
+} = React;
+const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
+const round2 = n => Math.round(n * 100) / 100;
+const toCents = n => Math.round((Number(n) || 0) * 100);
+const fromCents = cents => (Number(cents) || 0) / 100;
+const money = n => n < 0 ? "-$" + Math.abs(n).toFixed(2) : "$" + n.toFixed(2);
+const moneyCents = cents => money(fromCents(cents));
+const firstName = n => (n || "").split(" ")[0];
+function buyInCentsForGame(g) { return g && Number.isInteger(g.buyInCents) ? g.buyInCents : toCents(g ? g.buyInAmount : 0); }
+function chipValueForGame(g) { return g && Number.isInteger(g.chipValueCents) ? fromCents(g.chipValueCents) : (g && g.chipsPerDollar ? 1 / g.chipsPerDollar : 1); }
+function chipsPerDollarFromValue(chipValue) {
+  return Math.round(1 / chipValue * 1e6) / 1e6;
+}
+function normalizePhone(s) {
+  return (s || "").replace(/\D/g, "");
+}
+function parseBulkNames(text) {
+  return text.split("\n").map(line => line.trim()).filter(Boolean).map(line => {
+    const parts = line.split(",");
+    const name = parts[0].trim();
+    const phone = parts.length > 1 ? parts.slice(1).join(",").trim() : "";
+    return {
+      name,
+      phone
+    };
+  }).filter(p => p.name.length > 0);
+}
+
+// ---------- Firestore backend (V2) ----------
+const db = firebase.firestore();
+const auth = firebase.auth();
+async function ensureAuth() {
+  if (auth.currentUser) return auth.currentUser;
+  const cred = await auth.signInAnonymously();
+  return cred.user;
+}
+function gamesCol() {
+  return db.collection("poker_games_v2");
+}
+async function fsCreateGame(code, gameObj) {
+  try {
+    const ref = gamesCol().doc(code);
+    const eventRef = ref.collection("events").doc(uid());
+    await db.runTransaction(async tx => {
+      const snap = await tx.get(ref);
+      if (snap.exists) {
+        const err = new Error("CODE_COLLISION");
+        err.code = "CODE_COLLISION";
+        throw err;
+      }
+      tx.set(ref, gameObj);
+      tx.set(eventRef, {
+        type: "game_created",
+        actorUid: auth.currentUser ? auth.currentUser.uid : null,
+        actorPlayerId: gameObj.hostId,
+        actorName: gameObj.players[gameObj.hostId] ? gameObj.players[gameObj.hostId].name : "Host",
+        clientTs: Date.now(),
+        serverTs: firebase.firestore.FieldValue.serverTimestamp(),
+        schemaVersion: 2
+      });
+    });
+    return { ok: true };
+  } catch (e) {
+    if (e && (e.code === "CODE_COLLISION" || e.message === "CODE_COLLISION")) {
+      return { ok: false, collision: true, message: "That game code was already used. Trying another one." };
+    }
+    console.error("create game failed", e);
+    return { ok: false, message: "Couldn't create the game — check your connection, Firebase Anonymous Auth, and Firestore Rules." };
+  }
+}
+async function fsGetGame(code) {
+  try {
+    await ensureAuth();
+    const snap = await gamesCol().doc(code).get();
+    return { ok: true, value: snap.exists ? snap.data() : null };
+  } catch (e) {
+    console.error("get game failed", e);
+    return { ok: false, network: true, message: "Couldn't reach the game — check your connection and try again." };
+  }
+}
+function genCode() {
+  const chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"; // no 0/O/1/I/L ambiguity
+  let s = "";
+  for (let i = 0; i < 7; i++) s += chars[Math.floor(Math.random() * chars.length)];
+  return s;
+}
+
+// ---------- local per-device identity + leaderboard history ----------
+const ROLE_KEY = "pokerRole";
+const HISTORY_KEY = "pokiriKurrolluHistory";
+function loadRole() {
+  try {
+    const raw = localStorage.getItem(ROLE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+function saveRole(role) {
+  try {
+    localStorage.setItem(ROLE_KEY, JSON.stringify(role));
+  } catch {}
+}
+function clearRole() {
+  try {
+    localStorage.removeItem(ROLE_KEY);
+  } catch {}
+}
+function loadHistory() {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return null;
+  }
+}
+function saveHistory(history) {
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    return true;
+  } catch {
+    return false;
+  }
+}
+function buyInTotalCents(buyins) {
+  return (buyins || []).reduce((sum, b) => {
+    if (b && b.voided) return sum;
+    return sum + (Number.isInteger(b && b.amountCents) ? b.amountCents : toCents(b && b.amount));
+  }, 0);
+}
+function buyInTotal(buyins) {
+  return fromCents(buyInTotalCents(buyins));
+}
+function buildSummaryText(game, nets, transactions) {
+  const players = Object.values(game.players);
+  const lines = [];
+  lines.push(`${game.name} — Settlement`);
+  lines.push(new Date().toLocaleString());
+  lines.push("");
+  lines.push("Results:");
+  players.forEach(p => {
+    const net = nets[p.id];
+    lines.push(`  ${p.name}: ${net >= 0 ? "+" : ""}${money(net)}`);
+  });
+  lines.push("");
+  if (transactions.length === 0) {
+    lines.push("Everyone's even — no payments needed.");
+  } else {
+    lines.push("Who pays who:");
+    transactions.forEach(t => {
+      const from = game.players[t.from],
+        to = game.players[t.to];
+      const toPhone = to.phone ? ` (${to.phone})` : "";
+      lines.push(`  ${from.name} pays ${to.name}${toPhone}: ${money(t.amount)}`);
+    });
+  }
+  return lines.join("\n");
+}
+function settleDebtsCents(netsCents) {
+  const creditors = [], debtors = [];
+  Object.entries(netsCents).forEach(([id, centsRaw]) => {
+    const cents = Math.trunc(centsRaw);
+    if (cents > 0) creditors.push({ id, cents });
+    else if (cents < 0) debtors.push({ id, cents: -cents });
+  });
+  creditors.sort((a, b) => b.cents - a.cents);
+  debtors.sort((a, b) => b.cents - a.cents);
+  const txns = [];
+  let i = 0, j = 0;
+  while (i < debtors.length && j < creditors.length) {
+    const d = debtors[i], c = creditors[j];
+    const cents = Math.min(d.cents, c.cents);
+    if (cents > 0) txns.push({ from: d.id, to: c.id, amountCents: cents, amount: fromCents(cents) });
+    d.cents -= cents;
+    c.cents -= cents;
+    if (d.cents === 0) i++;
+    if (c.cents === 0) j++;
+  }
+  const leftover = debtors.slice(i).reduce((x, d) => x + d.cents, 0) + creditors.slice(j).reduce((x, c) => x + c.cents, 0);
+  if (leftover !== 0) throw new Error("Settlement does not balance to zero.");
+  return txns;
+}
+function settleDebts(nets) {
+  const cents = {};
+  Object.entries(nets).forEach(([id, amt]) => { cents[id] = toCents(amt); });
+  return settleDebtsCents(cents);
+}
+function tapFeedback() {
+  try {
+    if (navigator.vibrate) navigator.vibrate(35);
+  } catch {}
+  try {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return;
+    const ctx = new Ctx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = 880;
+    gain.gain.setValueAtTime(0.14, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.15);
+  } catch {}
+}
+const fontStyle = /*#__PURE__*/React.createElement("style", null, `
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .font-display { font-family: 'Space Grotesk', sans-serif; }
+    .font-data { font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+    .bg-app-gradient { background: linear-gradient(160deg, #2E1B3D 0%, #1F1229 55%, #170E22 100%); }
+  `);
+
+// ---------- QR code component ----------
+function QRCode({
+  text,
+  size = 220
+}) {
+  const cells = useMemo(() => {
+    try {
+      const qr = QRLib.generate(text, "M");
+      const count = qr.getModuleCount();
+      const dark = [];
+      for (let r = 0; r < count; r++) for (let c = 0; c < count; c++) if (qr.isDark(r, c)) dark.push([r, c]);
+      return {
+        count,
+        dark
+      };
+    } catch {
+      return null;
+    }
+  }, [text]);
+  if (!cells) {
+    return /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: size,
+        height: size
+      },
+      className: "bg-felt-800 rounded-2xl flex items-center justify-center p-4"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "font-data text-coral-400 text-xs text-center"
+    }, "Couldn't generate QR — use the code below instead."));
+  }
+  const cellSize = size / cells.count;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "bg-white p-3 rounded-2xl inline-block"
+  }, /*#__PURE__*/React.createElement("svg", {
+    width: size,
+    height: size,
+    viewBox: `0 0 ${size} ${size}`
+  }, cells.dark.map(([r, c], i) => /*#__PURE__*/React.createElement("rect", {
+    key: i,
+    x: c * cellSize,
+    y: r * cellSize,
+    width: cellSize + 0.6,
+    height: cellSize + 0.6,
+    fill: "#170E22"
+  }))));
+}
+
+function randomQrSecret() {
+  try {
+    const bytes = new Uint8Array(18);
+    crypto.getRandomValues(bytes);
+    let raw = "";
+    bytes.forEach(b => raw += String.fromCharCode(b));
+    return btoa(raw).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+  } catch {
+    return uid() + uid();
+  }
+}
+function makeRebuyQrPayload({ gameCode, requestId, challengeId, secret }) {
+  return ["PL2R", gameCode, requestId, challengeId, secret].join("|");
+}
+function parseRebuyQrPayload(text) {
+  const parts = String(text || "").trim().split("|");
+  if (parts.length !== 5 || parts[0] !== "PL2R") return null;
+  const [, gameCode, requestId, challengeId, secret] = parts;
+  if (!gameCode || !requestId || !challengeId || !secret) return null;
+  return { gameCode, requestId, challengeId, secret };
+}
+function QRScanner({ onDecoded, onError }) {
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  useEffect(() => {
+    let stream = null;
+    let raf = null;
+    let stopped = false;
+    let locked = false;
+    let lastAttempt = 0;
+    const stop = () => {
+      stopped = true;
+      if (raf) cancelAnimationFrame(raf);
+      if (stream) stream.getTracks().forEach(t => t.stop());
+      if (videoRef.current) videoRef.current.srcObject = null;
+    };
+    (async () => {
+      try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error("Camera scanning requires HTTPS and camera access in this browser.");
+        }
+        if (typeof window.jsQR !== "function") {
+          throw new Error("QR scanner failed to load. Check the internet connection and reopen the scanner.");
+        }
+        stream = await navigator.mediaDevices.getUserMedia({
+          audio: false,
+          video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 1280 } }
+        });
+        const video = videoRef.current;
+        if (!video || stopped) return;
+        video.srcObject = stream;
+        video.setAttribute("playsinline", "true");
+        video.muted = true;
+        await video.play();
+        const scan = async ts => {
+          if (stopped) return;
+          if (!locked && ts - lastAttempt > 180 && video.readyState >= 2 && video.videoWidth > 0) {
+            lastAttempt = ts;
+            const canvas = canvasRef.current;
+            const ctx = canvas && canvas.getContext("2d", { willReadFrequently: true });
+            if (canvas && ctx) {
+              const maxSide = 720;
+              const scale = Math.min(1, maxSide / Math.max(video.videoWidth, video.videoHeight));
+              canvas.width = Math.max(1, Math.round(video.videoWidth * scale));
+              canvas.height = Math.max(1, Math.round(video.videoHeight * scale));
+              ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+              const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+              const code = window.jsQR(frame.data, frame.width, frame.height, { inversionAttempts: "dontInvert" });
+              if (code && code.data) {
+                locked = true;
+                try { await onDecoded(code.data); } catch (e) {}
+                setTimeout(() => { locked = false; }, 1200);
+              }
+            }
+          }
+          raf = requestAnimationFrame(scan);
+        };
+        raf = requestAnimationFrame(scan);
+      } catch (e) {
+        if (!stopped && onError) onError(e && e.message ? e.message : "Couldn't start the camera.");
+      }
+    })();
+    return stop;
+  }, []);
+  return /*#__PURE__*/React.createElement("div", { className: "space-y-2" },
+    /*#__PURE__*/React.createElement("div", { className: "rounded-2xl border border-gold-500/40 bg-felt-900 p-2 overflow-hidden" },
+      /*#__PURE__*/React.createElement("video", {
+        ref: videoRef,
+        style: { width: "100%", height: "280px", objectFit: "cover", borderRadius: "12px" },
+        autoPlay: true,
+        muted: true,
+        playsInline: true
+      })
+    ),
+    /*#__PURE__*/React.createElement("canvas", { ref: canvasRef, className: "hidden" }),
+    /*#__PURE__*/React.createElement("p", { className: "font-data text-smoke text-xs text-center" }, "Point the camera at the player's one-time rebuy QR")
+  );
+}
+function PokerLedger() {
+  const [screen, setScreen] = useState("loading");
+  const [role, setRole] = useState(null);
+  const [game, setGame] = useState(null);
+  const [error, setError] = useState("");
+  const [showQR, setShowQR] = useState(false);
+  const [rebuyQR, setRebuyQR] = useState(null);
+  const [rebuyScanner, setRebuyScanner] = useState(null);
+  const [rebuyScanCandidate, setRebuyScanCandidate] = useState(null);
+  const [rebuyScanError, setRebuyScanError] = useState("");
+  const [qrTick, setQrTick] = useState(Date.now());
+  const [showCoHostPicker, setShowCoHostPicker] = useState(false);
+  const [cName, setCName] = useState(() => defaultGameName([]));
+  const [cBuyIn, setCBuyIn] = useState("40");
+  const [cChipValue, setCChipValue] = useState("1");
+  const [cHostName, setCHostName] = useState("");
+  const [cHostPhone, setCHostPhone] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [jCode, setJCode] = useState("");
+  const [jName, setJName] = useState("");
+  const [jPhone, setJPhone] = useState("");
+  const [joining, setJoining] = useState(false);
+  const [pendingRejoin, setPendingRejoin] = useState(null);
+  const [activity, setActivity] = useState([]);
+  const [pendingRequests, setPendingRequests] = useState([]);
+  const [finalInputs, setFinalInputs] = useState({});
+  const [expandedId, setExpandedId] = useState(null);
+  const [editingNameId, setEditingNameId] = useState(null);
+  const [nameInput, setNameInput] = useState("");
+  const [cashingOutId, setCashingOutId] = useState(null);
+  const [cashOutAmount, setCashOutAmount] = useState("");
+  const [customBuyInId, setCustomBuyInId] = useState(null);
+  const [customAmount, setCustomAmount] = useState("");
+  const [confirmingRebuyId, setConfirmingRebuyId] = useState(null);
+  const [showAddPlayer, setShowAddPlayer] = useState(false);
+  const [lateName, setLateName] = useState("");
+  const [latePhone, setLatePhone] = useState("");
+  const [showBulkLate, setShowBulkLate] = useState(false);
+  const [bulkLateText, setBulkLateText] = useState("");
+  const [showSpotCheck, setShowSpotCheck] = useState(false);
+  const [spotCheckInput, setSpotCheckInput] = useState("");
+  const [spotCheckResult, setSpotCheckResult] = useState(null);
+  const [nowTick, setNowTick] = useState(Date.now());
+  useEffect(() => {
+    if (!game || game.phase !== "active") return;
+    const iv = setInterval(() => setNowTick(Date.now()), 60000);
+    return () => clearInterval(iv);
+  }, [game && game.phase]);
+  useEffect(() => {
+    if (!rebuyQR) return;
+    setQrTick(Date.now());
+    const iv = setInterval(() => setQrTick(Date.now()), 1000);
+    return () => clearInterval(iv);
+  }, [rebuyQR && rebuyQR.challengeId]);
+  useEffect(() => {
+    if (!rebuyQR) return;
+    const stillPending = pendingRequests.some(r => r.id === rebuyQR.requestId && r.status === "pending");
+    if (pendingRequests.length > 0 && !stillPending) setRebuyQR(null);
+  }, [pendingRequests, rebuyQR && rebuyQR.requestId]);
+  const [history, setHistory] = useState(() => loadHistory() || []);
+  const [storageOK, setStorageOK] = useState(true);
+  const [confirmingClear, setConfirmingClear] = useState(false);
+  const [importStatus, setImportStatus] = useState("");
+  const importFileRef = useRef(null);
+  function defaultGameName(hist) {
+    const now = new Date();
+    const base = `${now.getDate()} ${now.toLocaleString("en-US", {
+      month: "short"
+    })} ${String(now.getFullYear()).slice(-2)}`;
+    const todayStr = now.toDateString();
+    const countToday = (hist || []).filter(h => new Date(h.date).toDateString() === todayStr).length;
+    return countToday > 0 ? `${base} (${countToday + 1})` : base;
+  }
+  useEffect(() => {
+    const h = loadHistory();
+    if (h === null) setStorageOK(false);else setHistory(h);
+  }, []);
+  function recordGameResult(entry) {
+    setHistory(prev => {
+      const idx = prev.findIndex(h => h.id === entry.id);
+      const next = idx >= 0 ? [...prev.slice(0, idx), entry, ...prev.slice(idx + 1)] : [...prev, entry];
+      if (!saveHistory(next)) setStorageOK(false);
+      return next;
+    });
+  }
+  function clearHistory() {
+    setHistory([]);
+    saveHistory([]);
+    setConfirmingClear(false);
+  }
+  function exportHistory() {
+    const blob = new Blob([JSON.stringify(history, null, 2)], {
+      type: "application/json"
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `poker-ledger-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+  function importHistoryFile(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const imported = JSON.parse(reader.result);
+        if (!Array.isArray(imported)) throw new Error("not an array");
+        setHistory(prev => {
+          const map = {};
+          prev.forEach(h => {
+            map[h.id] = h;
+          });
+          imported.forEach(h => {
+            if (h && h.id) map[h.id] = h;
+          });
+          const merged = Object.values(map);
+          if (!saveHistory(merged)) setStorageOK(false);
+          return merged;
+        });
+        setImportStatus(`Imported ${imported.length} game(s) — merged with existing history.`);
+      } catch {
+        setImportStatus("Couldn't read that file — make sure it's a Poker Ledger backup JSON.");
+      }
+      setTimeout(() => setImportStatus(""), 4000);
+      if (importFileRef.current) importFileRef.current.value = "";
+    };
+    reader.readAsText(file);
+  }
+  const leaderboard = useMemo(() => {
+    const map = {};
+    history.forEach(h => h.players.forEach(p => {
+      const key = p.name.trim().toLowerCase();
+      if (!map[key]) map[key] = {
+        name: p.name.trim(),
+        games: 0,
+        net: 0,
+        wins: 0,
+        losses: 0,
+        best: 0,
+        worst: 0
+      };
+      const e = map[key];
+      e.games += 1;
+      e.net = round2(e.net + p.net);
+      if (p.net > 0.001) e.wins += 1;else if (p.net < -0.001) e.losses += 1;
+      e.best = Math.max(e.best, p.net);
+      e.worst = Math.min(e.worst, p.net);
+    }));
+    return Object.values(map).sort((a, b) => b.net - a.net);
+  }, [history]);
+  const recentGames = useMemo(() => [...history].sort((a, b) => new Date(b.date) - new Date(a.date)), [history]);
+
+  // ---------- bootstrap ----------
+  const unsubRef = useRef(null);
+  const activityUnsubRef = useRef(null);
+  const requestsUnsubRef = useRef(null);
+  useEffect(() => {
+    (async () => {
+      try {
+        await ensureAuth();
+      } catch (e) {
+        console.error(e);
+        setError("Firebase Anonymous Authentication is not enabled yet. Enable it in Firebase Console → Authentication → Sign-in method.");
+        setScreen("home");
+        return;
+      }
+      // A scanned/shared invite must win over an old game saved on this device.
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const codeParam = params.get("code");
+        if (codeParam) {
+          const inviteCode = codeParam.toUpperCase();
+          const saved = loadRole();
+          if (!saved || saved.code !== inviteCode) {
+            setJCode(inviteCode);
+            setScreen("join");
+            return;
+          }
+        }
+      } catch {}
+
+      const r = loadRole();
+      if (r && r.code) {
+        const res = await fsGetGame(r.code);
+        if (res.ok && res.value) {
+          const p = res.value.players && res.value.players[r.playerId];
+          const sameIdentity = p && (!p.authUid || p.authUid === auth.currentUser.uid);
+          if (sameIdentity) {
+            setRole(r);
+            setGame(res.value);
+            listenTo(r.code);
+            setScreen("game");
+            return;
+          }
+          clearRole();
+        } else if (res.ok && !res.value) {
+          // Only clear the role when the server positively says the game does not exist.
+          clearRole();
+        } else {
+          setError(res.message || "Couldn't reconnect to your previous game.");
+        }
+      }
+      setScreen("home");
+    })();
+    return () => {
+      if (unsubRef.current) unsubRef.current();
+      if (activityUnsubRef.current) activityUnsubRef.current();
+      if (requestsUnsubRef.current) requestsUnsubRef.current();
+    };
+  }, []);
+  function listenTo(code) {
+    if (unsubRef.current) unsubRef.current();
+    if (activityUnsubRef.current) activityUnsubRef.current();
+    if (requestsUnsubRef.current) requestsUnsubRef.current();
+    unsubRef.current = gamesCol().doc(code).onSnapshot(snap => {
+      if (snap.exists) setGame(snap.data());
+    }, () => setError("Lost connection to the game — check your internet."));
+    activityUnsubRef.current = gamesCol().doc(code).collection("events").orderBy("clientTs", "desc").limit(30).onSnapshot(snap => {
+      setActivity(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    }, () => {});
+    requestsUnsubRef.current = gamesCol().doc(code).collection("requests").where("status", "==", "pending").onSnapshot(snap => {
+      setPendingRequests(snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (a.ts || 0) - (b.ts || 0)));
+    }, () => {});
+  }
+
+  // Every game mutation is a Firestore transaction. If another phone writes
+  // after our read, Firestore retries against the new version rather than
+  // silently overwriting that device's change.
+  async function mutateGame(mutator, eventType = "game_updated", eventMeta = {}) {
+    if (!role) {
+      setError("Not connected to the game yet.");
+      return { ok: false };
+    }
+    try {
+      await ensureAuth();
+      const ref = gamesCol().doc(role.code);
+      const eventRef = ref.collection("events").doc(uid());
+      let optimistic = null;
+      await db.runTransaction(async tx => {
+        const snap = await tx.get(ref);
+        if (!snap.exists) throw new Error("This game no longer exists.");
+        const base = snap.data();
+        const next = JSON.parse(JSON.stringify(base));
+        const result = mutator(next, base);
+        if (result === false) throw new Error("That action is no longer valid. The table changed on another device.");
+        next.revision = (base.revision || 0) + 1;
+        next.updatedAtMs = Date.now();
+        optimistic = next;
+        tx.set(ref, next);
+        const actor = next.players && next.players[role.playerId] ? next.players[role.playerId] : (base.players && base.players[role.playerId]);
+        tx.set(eventRef, {
+          type: eventType,
+          actorUid: auth.currentUser ? auth.currentUser.uid : null,
+          actorPlayerId: role.playerId,
+          actorName: actor ? actor.name : "Player",
+          clientTs: Date.now(),
+          serverTs: firebase.firestore.FieldValue.serverTimestamp(),
+          meta: eventMeta,
+          revision: next.revision,
+          schemaVersion: 2
+        });
+      });
+      if (optimistic) setGame(optimistic);
+      return { ok: true };
+    } catch (e) {
+      console.error("transaction failed", e);
+      setError(e && e.message ? e.message : "That didn't save — check your connection and try again.");
+      return { ok: false };
+    }
+  }
+  async function handleCreate() {
+    setError("");
+    const buyIn = parseFloat(cBuyIn), chipValue = parseFloat(cChipValue);
+    if (!cName.trim()) return setError("Give the game a name.");
+    if (!Number.isFinite(buyIn) || buyIn <= 0) return setError("Buy-in amount must be a positive number.");
+    if (!Number.isFinite(chipValue) || chipValue <= 0) return setError("Chip value must be a positive number.");
+    if (toCents(buyIn) <= 0 || toCents(chipValue) <= 0) return setError("Amounts must be at least $0.01.");
+    if (!cHostName.trim()) return setError("Enter your name.");
+    if (cHostName.trim().length > 60 || cName.trim().length > 80) return setError("Please shorten the game/player name.");
+    setCreating(true);
+    try {
+      const user = await ensureAuth();
+      const playerId = uid();
+      let created = null;
+      let code = null;
+      for (let attempt = 0; attempt < 8; attempt++) {
+        code = genCode();
+        const buyInCents = toCents(buyIn);
+        const newGame = {
+          schemaVersion: 2,
+          code,
+          name: cName.trim(),
+          buyInAmount: fromCents(buyInCents),
+          buyInCents,
+          chipValueCents: toCents(chipValue),
+          chipsPerDollar: chipsPerDollarFromValue(chipValue),
+          hostId: playerId,
+          hostUid: user.uid,
+          coHostId: null,
+          coHostUid: null,
+          members: { [user.uid]: playerId },
+          phase: "active",
+          lastVerifiedRequestId: null,
+          revision: 1,
+          createdAtMs: Date.now(),
+          updatedAtMs: Date.now(),
+          players: {
+            [playerId]: {
+              id: playerId,
+              authUid: user.uid,
+              name: cHostName.trim(),
+              phone: cHostPhone.trim().slice(0, 30),
+              buyins: [{ id: uid(), ts: Date.now(), amountCents: buyInCents, amount: fromCents(buyInCents), kind: "initial", approved: true, approvedBy: user.uid }],
+              cashedOut: false,
+              finalAmount: null,
+              finalCents: null
+            }
+          },
+          settlement: null
+        };
+        const saveRes = await fsCreateGame(code, newGame);
+        if (saveRes.ok) { created = newGame; break; }
+        if (!saveRes.collision) throw new Error(saveRes.message);
+      }
+      if (!created) throw new Error("Couldn't reserve a unique game code. Please try again.");
+      const r = { code, playerId, isHost: true, authUid: user.uid };
+      saveRole(r);
+      setRole(r);
+      setGame(created);
+      listenTo(code);
+      setScreen("game");
+    } catch (e) {
+      setError(e && e.message ? e.message : "Couldn't create the game.");
+    } finally {
+      setCreating(false);
+    }
+  }
+  function findExistingPlayer(g, name, phone) {
+    const normPhone = normalizePhone(phone);
+    if (normPhone) {
+      const byPhone = Object.values(g.players).find(p => normalizePhone(p.phone) === normPhone);
+      if (byPhone) return {
+        player: byPhone,
+        matchedBy: "phone"
+      };
+    }
+    const byName = Object.values(g.players).find(p => p.name.trim().toLowerCase() === name.trim().toLowerCase());
+    if (byName) return {
+      player: byName,
+      matchedBy: "name"
+    };
+    return null;
+  }
+  async function handleJoin() {
+    setError("");
+    const code = jCode.trim().toUpperCase();
+    if (!code) return setError("Enter the game code.");
+    if (!jName.trim()) return setError("Enter your name.");
+    if (jName.trim().length > 60) return setError("Please shorten your name.");
+    setJoining(true);
+    try {
+      await ensureAuth();
+      const res = await fsGetGame(code);
+      if (!res.ok) return setError(res.message);
+      if (!res.value) return setError("No game found with that code.");
+      const g = res.value;
+      if (g.phase !== "active") return setError(g.phase === "settled" ? "That game has already been settled." : "That game is already counting chips and is closed to new joins.");
+      const match = findExistingPlayer(g, jName, jPhone);
+      if (match) {
+        setPendingRejoin({
+          game: g,
+          existingPlayer: match.player,
+          matchedBy: match.matchedBy,
+          sameIdentity: !!(match.player.authUid && match.player.authUid === auth.currentUser.uid)
+        });
+        return;
+      }
+      await joinAsNewPlayer(g, code);
+    } finally {
+      setJoining(false);
+    }
+  }
+  async function joinAsNewPlayer(g, code) {
+    setJoining(true);
+    try {
+      const user = await ensureAuth();
+      const ref = gamesCol().doc(code);
+      const eventRef = ref.collection("events").doc(uid());
+      const playerId = uid();
+      let baseAfter = null;
+      await db.runTransaction(async tx => {
+        const snap = await tx.get(ref);
+        if (!snap.exists) throw new Error("No game found with that code.");
+        const base = snap.data();
+        if (base.phase !== "active") throw new Error("This game is no longer open for joining.");
+        if (base.members && base.members[user.uid]) throw new Error("This device is already connected to a player in this game.");
+        const next = JSON.parse(JSON.stringify(base));
+        const buyInCents = buyInCentsForGame(base);
+        next.players[playerId] = {
+          id: playerId,
+          authUid: user.uid,
+          name: jName.trim(),
+          phone: jPhone.trim().slice(0, 30),
+          buyins: [{ id: uid(), ts: Date.now(), amountCents: buyInCents, amount: fromCents(buyInCents), kind: "initial", approved: true, approvedBy: base.hostUid || null }],
+          cashedOut: false,
+          finalAmount: null,
+          finalCents: null
+        };
+        next.members = next.members || {};
+        next.members[user.uid] = playerId;
+        next.revision = (base.revision || 0) + 1;
+        next.updatedAtMs = Date.now();
+        baseAfter = next;
+        tx.set(ref, next);
+        tx.set(eventRef, {
+          type: "player_joined",
+          actorUid: user.uid,
+          actorPlayerId: playerId,
+          actorName: jName.trim(),
+          clientTs: Date.now(),
+          serverTs: firebase.firestore.FieldValue.serverTimestamp(),
+          meta: { playerId }, revision: next.revision, schemaVersion: 2
+        });
+      });
+      const r = { code, playerId, isHost: baseAfter.hostId === playerId, authUid: user.uid };
+      saveRole(r);
+      setRole(r);
+      setGame(baseAfter);
+      listenTo(code);
+      setScreen("game");
+    } catch (e) {
+      setError(e && e.message ? e.message : "Couldn't join the game.");
+    } finally {
+      setJoining(false);
+    }
+  }
+  function confirmRejoinAsExisting() {
+    if (!pendingRejoin) return;
+    if (!pendingRejoin.sameIdentity) {
+      setError("For security, this player is already bound to another device identity. Use the original device, or have the host add you as a separate player for now.");
+      return;
+    }
+    const { game: g, existingPlayer } = pendingRejoin;
+    const r = { code: jCode.trim().toUpperCase(), playerId: existingPlayer.id, isHost: g.hostId === existingPlayer.id, authUid: auth.currentUser.uid };
+    saveRole(r);
+    setRole(r);
+    setGame(g);
+    listenTo(r.code);
+    setScreen("game");
+    setPendingRejoin(null);
+  }
+  async function declineRejoinAsExisting() {
+    if (!pendingRejoin) return;
+    const { game: g } = pendingRejoin;
+    const code = jCode.trim().toUpperCase();
+    setPendingRejoin(null);
+    await joinAsNewPlayer(g, code);
+  }
+  async function assignCoHost(playerId) {
+    await mutateGame(g => {
+      const p = g.players[playerId];
+      if (!p || !p.authUid) throw new Error("That player must join from their own device before becoming co-host.");
+      g.coHostId = playerId;
+      g.coHostUid = p.authUid;
+    }, "cohost_assigned", { playerId });
+    setShowCoHostPicker(false);
+  }
+  async function removeCoHost() {
+    await mutateGame(g => {
+      g.coHostId = null;
+      g.coHostUid = null;
+    }, "cohost_removed");
+  }
+  function approverFor(targetId) {
+    if (!game) return null;
+    if (targetId === game.coHostId) return game.hostId;
+    return game.coHostId || null;
+  }
+  async function createPendingRequest(type, targetId, cents) {
+    if (!role || !game) return setError("Not connected to the game yet.");
+    if (game.phase !== "active") return setError("Requests can only be made while the game is active.");
+    const target = game.players[targetId];
+    if (!target) return setError("Player no longer exists.");
+    if (type === "buyin" && targetId !== role.playerId) {
+      return setError("For QR verification, the player must request their own rebuy from their phone. The host can use Manual Rebuy only as an emergency override.");
+    }
+    const approverId = game.coHostId && targetId === game.coHostId ? game.hostId : game.coHostId || null;
+    if (!approverId) return setError("Assign a co-host first — every money change needs a second person to verify it.");
+    const approver = game.players[approverId];
+    if (!approver || !approver.authUid) return setError("The verifier must be connected from their own device.");
+    const duplicate = pendingRequests.some(r => r.type === type && r.targetId === targetId && r.status === "pending");
+    if (duplicate) return setError(type === "buyin" ? "You already have a rebuy awaiting verification." : "That player already has a cash-out awaiting verification.");
+    try {
+      await ensureAuth();
+      const parent = gamesCol().doc(role.code);
+      const reqRef = parent.collection("requests").doc(uid());
+      const eventRef = parent.collection("events").doc(uid());
+      const requester = game.players[role.playerId];
+      const req = {
+        schemaVersion: 2,
+        type,
+        status: "pending",
+        targetId,
+        targetUid: target.authUid || null,
+        amountCents: cents,
+        amount: fromCents(cents),
+        approverId,
+        approverUid: approver.authUid,
+        requesterId: role.playerId,
+        requesterUid: auth.currentUser.uid,
+        ts: Date.now()
+      };
+      const batch = db.batch();
+      let challenge = null;
+      if (type === "buyin") {
+        const challengeId = uid();
+        const secret = randomQrSecret();
+        const displayExpiresAtMs = Date.now() + 60000;
+        req.approvalMode = "qr";
+        req.challengeId = challengeId;
+        req.challengeExpiresAtMs = displayExpiresAtMs;
+        const challengeRef = parent.collection("rebuy_challenges").doc(challengeId);
+        batch.set(challengeRef, {
+          schemaVersion: 2,
+          requestId: reqRef.id,
+          challengeId,
+          secret,
+          requesterUid: auth.currentUser.uid,
+          approverUid: approver.authUid,
+          targetId,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          displayExpiresAtMs,
+          used: false
+        });
+        challenge = { challengeId, secret, displayExpiresAtMs };
+      }
+      batch.set(reqRef, req);
+      batch.set(eventRef, {
+        type: type === "buyin" ? "buyin_qr_requested" : "cashout_requested",
+        actorUid: auth.currentUser.uid,
+        actorPlayerId: role.playerId,
+        actorName: requester ? requester.name : "Player",
+        clientTs: Date.now(),
+        serverTs: firebase.firestore.FieldValue.serverTimestamp(),
+        meta: { requestId: reqRef.id, targetId, amountCents: cents, approvalMode: type === "buyin" ? "qr" : "standard" },
+        schemaVersion: 2
+      });
+      await batch.commit();
+      if (type === "buyin" && challenge) {
+        setRebuyQR({
+          gameCode: role.code,
+          requestId: reqRef.id,
+          challengeId: challenge.challengeId,
+          secret: challenge.secret,
+          expiresAtMs: challenge.displayExpiresAtMs,
+          targetId,
+          amountCents: cents
+        });
+      }
+      return { ok: true, requestId: reqRef.id };
+    } catch (e) {
+      console.error(e);
+      setError(e && e.message ? e.message : "Couldn't submit the request.");
+      return { ok: false };
+    }
+  }
+  async function requestBuyInForOther(targetId, amount) {
+    const cents = amount == null ? buyInCentsForGame(game) : toCents(amount);
+    if (cents <= 0) return setError("Enter a valid buy-in amount.");
+    return await createPendingRequest("buyin", targetId, cents);
+  }
+  async function showRebuyQRForRequest(pending) {
+    try {
+      if (!pending || pending.requesterUid !== (auth.currentUser && auth.currentUser.uid)) return setError("Only the requesting player can display this QR.");
+      const parent = gamesCol().doc(role.code);
+      const snap = await parent.collection("rebuy_challenges").doc(pending.challengeId).get();
+      if (!snap.exists) return setError("That one-time QR is no longer available. Cancel the request and start a new rebuy.");
+      const ch = snap.data();
+      const createdMs = ch.createdAt && ch.createdAt.toMillis ? ch.createdAt.toMillis() : ((ch.displayExpiresAtMs || Date.now()) - 60000);
+      const expiresAtMs = Math.min(ch.displayExpiresAtMs || createdMs + 60000, createdMs + 60000);
+      if (ch.used) return setError("That QR was already used.");
+      if (Date.now() >= expiresAtMs) return setError("That rebuy QR expired. Cancel the request and tap Rebuy again for a fresh QR.");
+      setRebuyQR({ gameCode: role.code, requestId: pending.id, challengeId: pending.challengeId, secret: ch.secret, expiresAtMs, targetId: pending.targetId, amountCents: pending.amountCents });
+    } catch (e) {
+      console.error(e); setError("Couldn't reopen the rebuy QR.");
+    }
+  }
+  async function approvePendingBuyIn(requestId, scanProof) {
+    tapFeedback();
+    try {
+      const parent = gamesCol().doc(role.code);
+      const gameRef = parent;
+      const reqRef = parent.collection("requests").doc(requestId);
+      const challengeRef = parent.collection("rebuy_challenges").doc(scanProof.challengeId);
+      const eventRef = parent.collection("events").doc(uid());
+      await db.runTransaction(async tx => {
+        const gameSnap = await tx.get(gameRef);
+        const reqSnap = await tx.get(reqRef);
+        if (!gameSnap.exists || !reqSnap.exists) throw new Error("That request no longer exists.");
+        const g = gameSnap.data(), req = reqSnap.data();
+        if (g.phase !== "active") throw new Error("The game is no longer accepting buy-ins.");
+        if (req.type !== "buyin" || req.status !== "pending") throw new Error("That buy-in was already resolved.");
+        if (req.approvalMode !== "qr" || req.challengeId !== scanProof.challengeId) throw new Error("This QR does not match the active rebuy request.");
+        if (req.approverUid !== auth.currentUser.uid || req.approverId !== role.playerId) throw new Error("You are not the verifier for this buy-in.");
+        if (Number.isFinite(req.challengeExpiresAtMs) && Date.now() > req.challengeExpiresAtMs + 30000) throw new Error("That rebuy QR has expired. Ask the player to create a fresh request.");
+        const next = JSON.parse(JSON.stringify(g));
+        const player = next.players[req.targetId];
+        if (!player || player.cashedOut) throw new Error("That player is no longer active.");
+        player.buyins.push({
+          id: uid(), ts: Date.now(), amountCents: req.amountCents, amount: fromCents(req.amountCents),
+          kind: "rebuy", approved: true, approvedBy: role.playerId, requestId,
+          approvalMethod: "qr", challengeId: scanProof.challengeId
+        });
+        next.lastVerifiedRequestId = requestId;
+        next.revision = (g.revision || 0) + 1;
+        next.updatedAtMs = Date.now();
+        tx.set(gameRef, next);
+        tx.update(reqRef, { status: "approved", decidedAt: Date.now(), decidedByUid: auth.currentUser.uid, decidedByPlayerId: role.playerId });
+        // The verifier cannot read the secret from Firestore. Security Rules compare
+        // this presented secret against the hidden challenge document and its age.
+        tx.update(challengeRef, {
+          used: true,
+          usedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          usedByUid: auth.currentUser.uid,
+          usedByPlayerId: role.playerId,
+          presentedSecret: scanProof.secret
+        });
+        const actor = next.players[role.playerId];
+        tx.set(eventRef, {
+          type: "buyin_qr_approved", actorUid: auth.currentUser.uid, actorPlayerId: role.playerId,
+          actorName: actor ? actor.name : "Verifier", clientTs: Date.now(),
+          serverTs: firebase.firestore.FieldValue.serverTimestamp(),
+          meta: { requestId, targetId: req.targetId, amountCents: req.amountCents, challengeId: scanProof.challengeId, approvalMethod: "qr" },
+          revision: next.revision, schemaVersion: 2
+        });
+      });
+      return { ok: true };
+    } catch (e) {
+      console.error(e); setError(e && e.message ? e.message : "Couldn't approve the buy-in.");
+      return { ok: false };
+    }
+  }
+  async function resolvePendingRequest(requestId, rejectedLabel) {
+    const req = pendingRequests.find(r => r.id === requestId);
+    if (!req) return;
+    const iAmApprover = req.approverUid === (auth.currentUser && auth.currentUser.uid);
+    const iAmRequester = req.requesterUid === (auth.currentUser && auth.currentUser.uid);
+    const hostCanCancel = isHost;
+    const status = iAmApprover ? "rejected" : (iAmRequester || hostCanCancel ? "cancelled" : null);
+    if (!status) return setError("You can't change that request.");
+    try {
+      const parent = gamesCol().doc(role.code);
+      const reqRef = parent.collection("requests").doc(requestId);
+      const eventRef = parent.collection("events").doc(uid());
+      const batch = db.batch();
+      batch.update(reqRef, { status, decidedAt: Date.now(), decidedByUid: auth.currentUser.uid, decidedByPlayerId: role.playerId });
+      batch.set(eventRef, { type: `${req.type}_${status}`, actorUid: auth.currentUser.uid, actorPlayerId: role.playerId, actorName: game.players[role.playerId] ? game.players[role.playerId].name : "Player", clientTs: Date.now(), serverTs: firebase.firestore.FieldValue.serverTimestamp(), meta: { requestId, targetId: req.targetId }, schemaVersion: 2 });
+      await batch.commit();
+      if (rebuyQR && rebuyQR.requestId === requestId) setRebuyQR(null);
+    } catch (e) { console.error(e); setError(e && e.message ? e.message : rejectedLabel); }
+  }
+  async function rejectPendingBuyIn(requestId) {
+    await resolvePendingRequest(requestId, "Couldn't resolve that buy-in request.");
+  }
+  function requestRebuy(targetId) {
+    if (targetId !== role.playerId) {
+      setError("The player must request their own QR rebuy from their phone. Use Manual Rebuy only if their phone is unavailable.");
+      return;
+    }
+    const approverId = approverFor(targetId);
+    if (!approverId) {
+      setError("Assign a co-host first — every buy-in needs a second person to verify it.");
+      return;
+    }
+    setConfirmingRebuyId(targetId);
+  }
+  async function confirmRebuy(targetId) {
+    setConfirmingRebuyId(null);
+    tapFeedback();
+    await requestBuyInForOther(targetId);
+  }
+  function openRebuyScanner(requestId) {
+    setRebuyScanCandidate(null);
+    setRebuyScanError("");
+    setRebuyScanner({ expectedRequestId: requestId });
+  }
+  function closeRebuyScanner() {
+    setRebuyScanner(null);
+    setRebuyScanCandidate(null);
+    setRebuyScanError("");
+  }
+  async function handleRebuyScan(raw) {
+    setRebuyScanError("");
+    const parsed = parseRebuyQrPayload(raw);
+    if (!parsed) return setRebuyScanError("That isn't a Poker Ledger rebuy QR.");
+    if (!role || parsed.gameCode !== role.code) return setRebuyScanError("That QR belongs to a different poker game.");
+    if (rebuyScanner && rebuyScanner.expectedRequestId && parsed.requestId !== rebuyScanner.expectedRequestId) return setRebuyScanError("That QR is for a different pending rebuy.");
+    try {
+      const snap = await gamesCol().doc(role.code).collection("requests").doc(parsed.requestId).get();
+      if (!snap.exists) return setRebuyScanError("That rebuy request no longer exists.");
+      const req = { id: snap.id, ...snap.data() };
+      if (req.type !== "buyin" || req.status !== "pending") return setRebuyScanError("That rebuy was already resolved.");
+      if (req.approverUid !== auth.currentUser.uid || req.approverId !== role.playerId) return setRebuyScanError("You are not the designated verifier for this rebuy.");
+      if (req.challengeId !== parsed.challengeId) return setRebuyScanError("That is an old or replaced QR for this rebuy.");
+      if (Number.isFinite(req.challengeExpiresAtMs) && Date.now() >= req.challengeExpiresAtMs) return setRebuyScanError("That QR expired. Ask the player to cancel and request a fresh rebuy QR.");
+      const target = game.players[req.targetId];
+      if (!target) return setRebuyScanError("Player no longer exists.");
+      setRebuyScanCandidate({ req, target, parsed });
+      tapFeedback();
+    } catch (e) {
+      console.error(e); setRebuyScanError("Couldn't verify that QR. Check the connection and try again.");
+    }
+  }
+  async function confirmScannedRebuy() {
+    if (!rebuyScanCandidate) return;
+    const { req, parsed } = rebuyScanCandidate;
+    const result = await approvePendingBuyIn(req.id, { challengeId: parsed.challengeId, secret: parsed.secret });
+    if (result && result.ok) closeRebuyScanner();
+  }
+  async function removeBuyIn(targetId, buyinId) {
+    if (!isHost) return setError("Only the host can void an approved buy-in.");
+    const reason = window.prompt("Why are you voiding this buy-in?", "Duplicate / entry mistake");
+    if (reason === null) return;
+    await mutateGame(g => {
+      const p = g.players[targetId];
+      const b = p && p.buyins.find(x => x.id === buyinId);
+      if (!b || b.voided) return false;
+      b.voided = true;
+      b.voidedAt = Date.now();
+      b.voidedBy = role.playerId;
+      b.voidReason = (reason || "Host correction").slice(0, 120);
+    }, "buyin_voided", { targetId, buyinId, reason: (reason || "Host correction").slice(0, 120) });
+  }
+  function startCustomBuyIn(targetId) {
+    setError("");
+    if (targetId !== role.playerId) {
+      if (!isHost) return setError("Only the player can request a QR rebuy.");
+      setCustomBuyInId(targetId);
+      setCustomAmount(game ? String(fromCents(buyInCentsForGame(game))) : "");
+      return;
+    }
+    const approverId = approverFor(targetId);
+    if (!approverId) {
+      setError("Assign a co-host first — every buy-in needs a second person to verify it.");
+      return;
+    }
+    setCustomBuyInId(targetId);
+    setCustomAmount(game ? String(fromCents(buyInCentsForGame(game))) : "");
+  }
+  async function confirmCustomBuyIn() {
+    const amt = parseFloat(customAmount);
+    if (!amt || amt <= 0) return setError("Enter a valid buy-in amount.");
+    setError("");
+    const targetId = customBuyInId;
+    if (targetId !== role.playerId) {
+      if (!isHost) return setError("Only the host can use a manual rebuy override.");
+      const reason = window.prompt("Manual override reason", "Player phone unavailable");
+      if (reason === null) return;
+      const cents = toCents(amt);
+      await mutateGame(g => {
+        const p = g.players[targetId];
+        if (!p || p.cashedOut) return false;
+        p.buyins.push({
+          id: uid(), ts: Date.now(), amountCents: cents, amount: fromCents(cents),
+          kind: "rebuy", approved: true, approvedBy: role.playerId,
+          approvalMethod: "host_override", overrideReason: (reason || "Host override").slice(0, 120)
+        });
+      }, "buyin_manual_override", { targetId, amountCents: cents, reason: (reason || "Host override").slice(0, 120) });
+    } else {
+      await requestBuyInForOther(targetId, amt);
+    }
+    setCustomBuyInId(null);
+    setCustomAmount("");
+  }
+  function startEditName(targetId, currentName) {
+    setEditingNameId(targetId);
+    setNameInput(currentName);
+  }
+  async function confirmEditName() {
+    if (!nameInput.trim()) return setError("Name can't be empty.");
+    setError("");
+    const targetId = editingNameId;
+    await mutateGame(g => {
+      g.players[targetId].name = nameInput.trim();
+    });
+    setEditingNameId(null);
+  }
+  function startCashOut(targetId) {
+    setError("");
+    const approverId = approverFor(targetId);
+    if (!approverId) return setError("Assign a co-host first — cash-outs need a second person to verify them.");
+    setCashingOutId(targetId);
+    setCashOutAmount("");
+  }
+  async function confirmCashOut() {
+    const amt = parseFloat(cashOutAmount);
+    if (!Number.isFinite(amt) || amt < 0) return setError("Enter a valid dollar amount.");
+    const cents = toCents(amt);
+    setError("");
+    const targetId = cashingOutId;
+    await createPendingRequest("cashout", targetId, cents);
+    setCashingOutId(null);
+    setCashOutAmount("");
+  }
+  async function approvePendingCashOut(requestId) {
+    tapFeedback();
+    try {
+      const parent = gamesCol().doc(role.code);
+      const gameRef = parent;
+      const reqRef = parent.collection("requests").doc(requestId);
+      const eventRef = parent.collection("events").doc(uid());
+      await db.runTransaction(async tx => {
+        const gameSnap = await tx.get(gameRef);
+        const reqSnap = await tx.get(reqRef);
+        if (!gameSnap.exists || !reqSnap.exists) throw new Error("That request no longer exists.");
+        const g = gameSnap.data(), req = reqSnap.data();
+        if (g.phase !== "active") throw new Error("The game is no longer accepting cash-outs.");
+        if (req.type !== "cashout" || req.status !== "pending") throw new Error("That cash-out was already resolved.");
+        if (req.approverUid !== auth.currentUser.uid || req.approverId !== role.playerId) throw new Error("You are not the verifier for this cash-out.");
+        const next = JSON.parse(JSON.stringify(g));
+        const player = next.players[req.targetId];
+        if (!player) throw new Error("Player no longer exists.");
+        player.cashedOut = true;
+        player.finalCents = req.amountCents;
+        player.finalAmount = fromCents(req.amountCents);
+        next.lastVerifiedRequestId = requestId;
+        next.revision = (g.revision || 0) + 1;
+        next.updatedAtMs = Date.now();
+        tx.set(gameRef, next);
+        tx.update(reqRef, { status: "approved", decidedAt: Date.now(), decidedByUid: auth.currentUser.uid, decidedByPlayerId: role.playerId });
+        const actor = next.players[role.playerId];
+        tx.set(eventRef, { type: "cashout_approved", actorUid: auth.currentUser.uid, actorPlayerId: role.playerId, actorName: actor ? actor.name : "Verifier", clientTs: Date.now(), serverTs: firebase.firestore.FieldValue.serverTimestamp(), meta: { requestId, targetId: req.targetId, amountCents: req.amountCents }, revision: next.revision, schemaVersion: 2 });
+      });
+    } catch (e) { console.error(e); setError(e && e.message ? e.message : "Couldn't approve the cash-out."); }
+  }
+  async function rejectPendingCashOut(requestId) {
+    await resolvePendingRequest(requestId, "Couldn't resolve that cash-out request.");
+  }
+  async function reopenPlayer(targetId) {
+    if (!isHost) return setError("Only the host can reopen a verified cash-out.");
+    await mutateGame(g => {
+      g.players[targetId].cashedOut = false;
+      g.players[targetId].finalAmount = null;
+      g.players[targetId].finalCents = null;
+    }, "cashout_reopened", { targetId });
+  }
+  async function addLatePlayer() {
+    if (!lateName.trim()) return;
+    await mutateGame(g => {
+      const playerId = uid();
+      g.players[playerId] = {
+        id: playerId,
+        name: lateName.trim(),
+        phone: latePhone.trim(),
+        authUid: null,
+        buyins: [{
+          id: uid(),
+          ts: Date.now(),
+          amountCents: buyInCentsForGame(g),
+          amount: fromCents(buyInCentsForGame(g)),
+          kind: "initial", approved: true, approvedBy: role.playerId
+        }],
+        cashedOut: false,
+        finalAmount: null,
+        finalCents: null
+      };
+    }, "player_added_by_host", { name: lateName.trim() });
+    setLateName("");
+    setLatePhone("");
+    setShowAddPlayer(false);
+  }
+  async function addBulkLatePlayers() {
+    const parsed = parseBulkNames(bulkLateText);
+    if (parsed.length === 0) return setError("Enter at least one name.");
+    if (parsed.length > 30) return setError("Add at most 30 players at a time.");
+    setError("");
+    await mutateGame(g => {
+      parsed.forEach(p => {
+        const playerId = uid();
+        g.players[playerId] = {
+          id: playerId,
+          authUid: null,
+          name: p.name.slice(0, 60),
+          phone: p.phone.slice(0, 30),
+          buyins: [{
+            id: uid(),
+            ts: Date.now(),
+            amountCents: buyInCentsForGame(g),
+            amount: fromCents(buyInCentsForGame(g)),
+            kind: "initial", approved: true, approvedBy: role.playerId
+          }],
+          cashedOut: false,
+          finalAmount: null,
+          finalCents: null
+        };
+      });
+    }, "players_bulk_added", { count: parsed.length });
+    setBulkLateText("");
+    setShowBulkLate(false);
+    setShowAddPlayer(false);
+  }
+  async function startSettling() {
+    if (pendingRequests.length > 0) return setError("Resolve all pending buy-ins and cash-outs before counting chips.");
+    const prefill = {};
+    Object.values(game.players).forEach(p => {
+      if (p.finalAmount != null) prefill[p.id] = String(p.finalAmount);
+    });
+    setFinalInputs(prefill);
+    await mutateGame(g => {
+      g.phase = "settling";
+    }, "settlement_started");
+  }
+  async function backToActive() {
+    await mutateGame(g => {
+      g.phase = "active";
+    }, "settlement_cancelled");
+  }
+  async function editSettlement() {
+    const prefill = {};
+    Object.values(game.players).forEach(p => {
+      if (p.finalAmount != null) prefill[p.id] = String(p.finalAmount);
+    });
+    setFinalInputs(prefill);
+    await mutateGame(g => {
+      g.phase = "settling";
+    }, "settlement_reopened");
+  }
+  async function submitFinal(targetId) {
+    if (!isHost) return setError("Only the host can lock final chip counts in V2.");
+    const raw = finalInputs[targetId];
+    const amt = parseFloat(raw);
+    if (raw === undefined || raw === "" || !Number.isFinite(amt) || amt < 0) return setError("Enter a valid final dollar amount.");
+    const cents = toCents(amt);
+    setError("");
+    await mutateGame(g => {
+      g.players[targetId].finalCents = cents;
+      g.players[targetId].finalAmount = fromCents(cents);
+    }, "final_count_locked", { targetId, amountCents: cents });
+  }
+  async function finalizeSettlement() {
+    if (pendingRequests.length > 0) return setError("Resolve all pending requests before settling.");
+    await mutateGame(g => {
+      if (g.phase !== "settling") throw new Error("The game is not in settlement mode.");
+      const playersNow = Object.values(g.players);
+      if (!playersNow.length || playersNow.some(p => p.finalAmount === null || p.finalAmount === undefined)) throw new Error("Every player needs a final chip count.");
+      const totalInCents = playersNow.reduce((sum, p) => sum + buyInTotalCents(p.buyins), 0);
+      const totalFinalCents = playersNow.reduce((sum, p) => sum + (Number.isInteger(p.finalCents) ? p.finalCents : toCents(p.finalAmount)), 0);
+      const discrepancyCents = totalFinalCents - totalInCents;
+      if (discrepancyCents !== 0) throw new Error(`Table does not reconcile. ${moneyCents(Math.abs(discrepancyCents))} ${discrepancyCents > 0 ? "over" : "short"}. Fix the counts before settlement.`);
+      const netsCents = {}, nets = {};
+      playersNow.forEach(p => {
+        const finalCents = Number.isInteger(p.finalCents) ? p.finalCents : toCents(p.finalAmount);
+        const netCents = finalCents - buyInTotalCents(p.buyins);
+        netsCents[p.id] = netCents;
+        nets[p.id] = fromCents(netCents);
+      });
+      const sumNets = Object.values(netsCents).reduce((a, b) => a + b, 0);
+      if (sumNets !== 0) throw new Error("Internal settlement check failed: player nets do not sum to zero.");
+      const txns = settleDebtsCents(netsCents);
+      g.settlement = { nets, netsCents, transactions: txns, totalInCents, totalFinalCents, reconciled: true, version: (g.settlement && g.settlement.version ? g.settlement.version + 1 : 1) };
+      g.phase = "settled";
+      g.settledAt = Date.now();
+    }, "settlement_finalized");
+  }
+  const recordedRef = useRef(null);
+  useEffect(() => {
+    if (game && game.phase === "settled" && game.settlement && role && role.isHost && recordedRef.current !== game.code + game.settledAt) {
+      recordedRef.current = game.code + game.settledAt;
+      recordGameResult({
+        id: game.code,
+        name: game.name,
+        date: new Date(game.settledAt || Date.now()).toISOString(),
+        buyInAmount: fromCents(buyInCentsForGame(game)),
+        chipsPerDollar: game.chipsPerDollar,
+        players: Object.values(game.players).map(p => ({
+          name: p.name,
+          phone: p.phone,
+          net: game.settlement.nets[p.id],
+          buyins: (p.buyins || []).filter(b => !b.voided).length
+        })),
+        transactions: game.settlement.transactions
+      });
+    }
+  }, [game, role]);
+  async function leaveGame() {
+    if (unsubRef.current) {
+      unsubRef.current();
+      unsubRef.current = null;
+    }
+    if (activityUnsubRef.current) {
+      activityUnsubRef.current();
+      activityUnsubRef.current = null;
+    }
+    if (requestsUnsubRef.current) {
+      requestsUnsubRef.current();
+      requestsUnsubRef.current = null;
+    }
+    clearRole();
+    setRole(null);
+    setGame(null);
+    setScreen("home");
+    setCName(defaultGameName(history));
+  }
+  const players = game ? Object.values(game.players) : [];
+  const isHost = game && role && game.hostId === role.playerId && (!game.hostUid || game.hostUid === (auth.currentUser && auth.currentUser.uid));
+  const isCoHost = game && role && game.coHostId === role.playerId && (!game.coHostUid || game.coHostUid === (auth.currentUser && auth.currentUser.uid));
+  const me = game && role ? game.players[role.playerId] : null;
+  const pendingList = pendingRequests.filter(r => r.type === "buyin" && r.status === "pending");
+  const pendingCashOutList = pendingRequests.filter(r => r.type === "cashout" && r.status === "pending");
+  const totalBuyInCents = game ? players.reduce((s, p) => s + buyInTotalCents(p.buyins), 0) : 0;
+  const totalBuyInDollars = fromCents(totalBuyInCents);
+  const totalRebuyCount = game ? players.reduce((s, p) => s + Math.max(0, (p.buyins || []).filter(b => !b.voided).length - 1), 0) : 0;
+  const totalFinalCents = game ? players.reduce((s, p) => {
+    const raw = finalInputs[p.id];
+    const cents = raw !== undefined && raw !== "" ? toCents(parseFloat(raw) || 0) : (Number.isInteger(p.finalCents) ? p.finalCents : toCents(p.finalAmount || 0));
+    return s + cents;
+  }, 0) : 0;
+  const totalFinalDollars = fromCents(totalFinalCents);
+  const allFinalIn = players.length > 0 && players.every(p => p.finalAmount !== null && p.finalAmount !== undefined);
+  const discrepancyCents = game ? totalFinalCents - totalBuyInCents : 0;
+  const discrepancy = fromCents(discrepancyCents);
+  const maxBuyins = players.length ? Math.max(1, ...players.map(p => (p.buyins || []).filter(b => !b.voided).length)) : 1;
+  const phase = game ? game.phase : null;
+  const cashedOutCount = players.filter(p => p.cashedOut).length;
+  const cashedOutCents = players.filter(p => p.cashedOut).reduce((sum, p) => sum + (Number.isInteger(p.finalCents) ? p.finalCents : toCents(p.finalAmount || 0)), 0);
+  const currentInPlayCents = Math.max(0, totalBuyInCents - cashedOutCents);
+  const currentInPlayDollars = fromCents(currentInPlayCents);
+  const totalChipsInPlay = game ? round2(currentInPlayDollars * game.chipsPerDollar) : 0;
+  const minutesSinceLastBuyIn = useMemo(() => {
+    if (!game || phase !== "active") return null;
+    const allTs = players.flatMap(p => (p.buyins || []).filter(b => !b.voided).map(b => b.ts));
+    if (allTs.length === 0) return null;
+    return Math.floor((nowTick - Math.max(...allTs)) / 60000);
+  }, [game, phase, nowTick, players]);
+  function runSpotCheck() {
+    const amt = parseFloat(spotCheckInput);
+    if (isNaN(amt) || amt < 0) return setError("Enter the dollar value you counted.");
+    setError("");
+    setSpotCheckResult({
+      counted: round2(amt),
+      expected: currentInPlayDollars,
+      diffDollars: round2(amt - currentInPlayDollars)
+    });
+  }
+  function closeSpotCheck() {
+    setShowSpotCheck(false);
+    setSpotCheckInput("");
+    setSpotCheckResult(null);
+  }
+  const summaryText = useMemo(() => {
+    if (!game || phase !== "settled" || !game.settlement) return "";
+    return buildSummaryText(game, game.settlement.nets, game.settlement.transactions);
+  }, [game, phase]);
+  const [copyStatus, setCopyStatus] = useState("");
+  const summaryRef = useRef(null);
+  async function shareSummary() {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${game.name} — Settlement`,
+          text: summaryText
+        });
+        return;
+      } catch {}
+    }
+    copySummary();
+  }
+  async function copySummary() {
+    try {
+      await navigator.clipboard.writeText(summaryText);
+      setCopyStatus("Copied!");
+    } catch {
+      if (summaryRef.current) {
+        summaryRef.current.select();
+        try {
+          document.execCommand("copy");
+          setCopyStatus("Copied!");
+        } catch {
+          setCopyStatus("Select the text above and copy manually.");
+        }
+      }
+    }
+    setTimeout(() => setCopyStatus(""), 2500);
+  }
+  function downloadSummary() {
+    const blob = new Blob([summaryText], {
+      type: "text/plain"
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${game.name.replace(/[^a-z0-9]+/gi, "-")}-settlement.txt`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+  const underlineInput = "w-full bg-transparent text-bone font-data text-base border-0 border-b border-felt-600 pb-2 outline-none placeholder:text-smoke/50 focus:border-gold-400 transition";
+  const labelClass = "font-data text-xs tracking-[0.1em] text-smoke uppercase block mb-1.5";
+  const primaryBtn = "font-display font-semibold rounded-2xl transition active:scale-[0.97] shadow-[0_0_24px_-4px_rgba(232,178,61,0.45)]";
+  const goldBtn = `${primaryBtn} bg-gradient-to-b from-gold-300 to-gold-500 text-ink hover:from-gold-200 hover:to-gold-400`;
+  const ghostBtn = "font-data text-base rounded-2xl border border-felt-600 text-bone bg-felt-800/60 hover:bg-felt-700/60 transition active:scale-[0.97]";
+  const inputClass = "w-full bg-felt-800/70 text-bone font-data text-base rounded-2xl px-4 py-3.5 border border-felt-600 outline-none placeholder:text-smoke/60 focus:border-gold-400 focus:ring-2 focus:ring-gold-400/20 transition";
+  const textareaClass = "w-full bg-felt-800/70 text-bone font-data text-base rounded-2xl px-4 py-3.5 border border-felt-600 outline-none placeholder:text-smoke/60 focus:border-gold-400 focus:ring-2 focus:ring-gold-400/20 transition resize-none";
+  if (screen === "loading") {
+    return /*#__PURE__*/React.createElement("div", {
+      className: "min-h-screen bg-app-gradient flex items-center justify-center"
+    }, fontStyle, /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-gold-300 text-sm"
+    }, "shuffling..."));
+  }
+  if (screen === "home") {
+    return /*#__PURE__*/React.createElement("div", {
+      className: "min-h-screen bg-app-gradient flex flex-col items-center justify-center p-6"
+    }, fontStyle, /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-xs tracking-[0.2em] text-gold-400/80 uppercase mb-2"
+    }, "Table Ready"), /*#__PURE__*/React.createElement("h1", {
+      className: "font-display font-bold text-bone text-4xl mb-1 tracking-tight"
+    }, "Poker Ledger"), /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-gold-300 text-xs mb-1"
+    }, "V2 · verified ledger"), /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-smoke text-sm mb-10"
+    }, "everyone joins from their own phone"), /*#__PURE__*/React.createElement("div", {
+      className: "w-full max-w-sm space-y-3"
+    }, /*#__PURE__*/React.createElement("button", {
+      onClick: () => setScreen("create"),
+      className: `w-full ${goldBtn} text-lg py-4`
+    }, "Host a Game"), /*#__PURE__*/React.createElement("button", {
+      onClick: () => setScreen("join"),
+      className: `w-full ${ghostBtn} py-4 text-base`
+    }, "Join a Game"), /*#__PURE__*/React.createElement("button", {
+      onClick: () => setScreen("leaderboard"),
+      className: "w-full font-data text-sm text-gold-300 border border-gold-500/40 rounded-full py-2.5 hover:bg-gold-500/10 transition"
+    }, "🏆 Leaderboard")));
+  }
+  if (screen === "create") {
+    return /*#__PURE__*/React.createElement("div", {
+      className: "min-h-screen bg-app-gradient p-6"
+    }, fontStyle, /*#__PURE__*/React.createElement("button", {
+      onClick: () => setScreen("home"),
+      className: "font-data text-smoke text-sm mb-6"
+    }, "← back"), /*#__PURE__*/React.createElement("div", {
+      className: "max-w-sm mx-auto space-y-5"
+    }, /*#__PURE__*/React.createElement("h2", {
+      className: "font-display font-bold text-bone text-2xl tracking-tight mb-2"
+    }, "Set up the game"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+      className: labelClass
+    }, "Game Name"), /*#__PURE__*/React.createElement("input", {
+      value: cName,
+      onChange: e => setCName(e.target.value),
+      className: underlineInput
+    })), /*#__PURE__*/React.createElement("div", {
+      className: "flex gap-6"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "flex-1"
+    }, /*#__PURE__*/React.createElement("label", {
+      className: labelClass
+    }, "Buy-in ($)"), /*#__PURE__*/React.createElement("input", {
+      value: cBuyIn,
+      onChange: e => setCBuyIn(e.target.value),
+      inputMode: "decimal",
+      className: underlineInput
+    })), /*#__PURE__*/React.createElement("div", {
+      className: "flex-1"
+    }, /*#__PURE__*/React.createElement("label", {
+      className: labelClass
+    }, "Chip Value ($)"), /*#__PURE__*/React.createElement("input", {
+      value: cChipValue,
+      onChange: e => setCChipValue(e.target.value),
+      inputMode: "decimal",
+      placeholder: "0.25",
+      className: underlineInput
+    }))), /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-gold-300 text-sm"
+    }, Math.round((parseFloat(cBuyIn) || 0) / (parseFloat(cChipValue) || 1)), " chips per buy-in"), /*#__PURE__*/React.createElement("div", {
+      className: "border-t border-felt-700 pt-5"
+    }, /*#__PURE__*/React.createElement("label", {
+      className: labelClass
+    }, "Your Name"), /*#__PURE__*/React.createElement("input", {
+      value: cHostName,
+      onChange: e => setCHostName(e.target.value),
+      className: `${underlineInput} mb-4`
+    }), /*#__PURE__*/React.createElement("label", {
+      className: labelClass
+    }, "Your Mobile Number"), /*#__PURE__*/React.createElement("input", {
+      value: cHostPhone,
+      onChange: e => setCHostPhone(e.target.value),
+      inputMode: "tel",
+      className: underlineInput
+    }), /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-smoke text-xs mt-1.5"
+    }, "Used to reach you about this game, and to reconnect you if you switch devices mid-game.")), error && /*#__PURE__*/React.createElement("p", {
+      className: "text-coral-400 font-data text-base"
+    }, error), /*#__PURE__*/React.createElement("button", {
+      onClick: handleCreate,
+      disabled: creating,
+      className: `w-full ${goldBtn} text-lg py-4 mt-2`
+    }, creating ? "Creating..." : "Create Game")));
+  }
+  if (screen === "join") {
+    return /*#__PURE__*/React.createElement("div", {
+      className: "min-h-screen bg-app-gradient p-6"
+    }, fontStyle, /*#__PURE__*/React.createElement("button", {
+      onClick: () => setScreen("home"),
+      className: "font-data text-smoke text-sm mb-6"
+    }, "← back"), /*#__PURE__*/React.createElement("div", {
+      className: "max-w-sm mx-auto space-y-5"
+    }, /*#__PURE__*/React.createElement("h2", {
+      className: "font-display font-bold text-bone text-2xl tracking-tight mb-2"
+    }, "Join a game"), pendingRejoin ? /*#__PURE__*/React.createElement("div", {
+      className: "space-y-4"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "rounded-2xl border border-gold-500/40 bg-felt-900 p-4"
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-bone text-base"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "font-display font-semibold"
+    }, pendingRejoin.existingPlayer.name), " is already in this game with ", money(buyInTotal(pendingRejoin.existingPlayer.buyins)), " bought in."), /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-smoke text-sm mt-1.5"
+    }, pendingRejoin.sameIdentity ? "This is the same authenticated device identity — you can reconnect safely." : "That player is already bound to another device identity. V2 will not let a name or phone number alone take over their ledger.")), error && /*#__PURE__*/React.createElement("p", {
+      className: "text-coral-400 font-data text-base"
+    }, error), /*#__PURE__*/React.createElement("button", {
+      onClick: confirmRejoinAsExisting,
+      className: `w-full ${goldBtn} text-lg py-4`
+    }, pendingRejoin.sameIdentity ? "Reconnect" : "Can't securely reconnect on this device"), /*#__PURE__*/React.createElement("button", {
+      onClick: declineRejoinAsExisting,
+      className: `w-full ${ghostBtn} py-3.5 text-base`
+    }, joining ? "Joining..." : "No, I'm a different player"), /*#__PURE__*/React.createElement("button", {
+      onClick: () => setPendingRejoin(null),
+      className: "w-full font-data text-smoke text-sm underline text-center"
+    }, "cancel")) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+      className: labelClass
+    }, "Game Code"), /*#__PURE__*/React.createElement("input", {
+      value: jCode,
+      onChange: e => setJCode(e.target.value.toUpperCase()),
+      placeholder: "paste or scan the code",
+      className: underlineInput
+    })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+      className: labelClass
+    }, "Your Name"), /*#__PURE__*/React.createElement("input", {
+      value: jName,
+      onChange: e => setJName(e.target.value),
+      className: underlineInput
+    })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+      className: labelClass
+    }, "Your Mobile Number"), /*#__PURE__*/React.createElement("input", {
+      value: jPhone,
+      onChange: e => setJPhone(e.target.value),
+      inputMode: "tel",
+      className: underlineInput
+    }), /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-smoke text-xs mt-1.5"
+    }, "Helps others reach you about this game, and is the most reliable way to reconnect you if you switch devices — a shared name alone can be ambiguous.")), error && /*#__PURE__*/React.createElement("p", {
+      className: "text-coral-400 font-data text-base"
+    }, error), /*#__PURE__*/React.createElement("button", {
+      onClick: handleJoin,
+      disabled: joining,
+      className: `w-full ${goldBtn} text-lg py-4`
+    }, joining ? "Joining..." : "Join Game"))));
+  }
+  if (screen === "game" && game) {
+    let joinUrl = game.code;
+    try {
+      joinUrl = `${window.location.origin}${window.location.pathname}?code=${game.code}`;
+    } catch {}
+    const lastColWidth = phase === "active" ? "w-9" : "w-24";
+    const coHostName = game.coHostId && game.players[game.coHostId] ? game.players[game.coHostId].name : null;
+    return /*#__PURE__*/React.createElement("div", {
+      className: "min-h-screen bg-app-gradient pb-24"
+    }, fontStyle, /*#__PURE__*/React.createElement("div", {
+      className: "max-w-sm mx-auto px-5 pt-5 pb-2"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "flex items-start justify-between"
+    }, /*#__PURE__*/React.createElement("h1", {
+      className: "font-display font-bold text-bone text-xl tracking-tight"
+    }, game.name), /*#__PURE__*/React.createElement("div", {
+      className: "flex items-center gap-3 shrink-0"
+    }, phase !== "settled" && /*#__PURE__*/React.createElement("button", {
+      onClick: () => setShowQR(true),
+      className: "font-data text-sm text-gold-300 border border-gold-500/50 rounded-full px-3 py-1.5"
+    }, "Invite"), phase !== "settled" && isHost && /*#__PURE__*/React.createElement("button", {
+      onClick: () => setShowSpotCheck(true),
+      className: "font-data text-sm text-gold-300 border border-gold-500/50 rounded-full px-3 py-1.5"
+    }, "Spot Check"), phase !== "settled" && isHost && /*#__PURE__*/React.createElement("button", {
+      onClick: () => setShowCoHostPicker(true),
+      className: "font-data text-sm text-gold-300 border border-gold-500/50 rounded-full px-3 py-1.5"
+    }, coHostName ? `Co-Host ✓` : "Co-Host"), phase === "settled" && isHost && /*#__PURE__*/React.createElement("button", {
+      onClick: editSettlement,
+      className: "font-data text-sm text-gold-300 border border-gold-500/50 rounded-full px-3 py-1.5"
+    }, "Edit"), phase === "settled" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
+      onClick: () => setScreen("leaderboard"),
+      className: "font-data text-gold-300 text-sm"
+    }, "🏆"), /*#__PURE__*/React.createElement("button", {
+      onClick: leaveGame,
+      className: "font-data text-smoke text-sm"
+    }, "leave")))), /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-sm text-smoke mt-1"
+    }, "buy-in ", money(fromCents(buyInCentsForGame(game))), cashedOutCount > 0 && phase === "active" ? ` · ${cashedOutCount} cashed out` : ""), phase === "active" && !game.coHostId && /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-gold-300 text-xs mt-1.5"
+    }, isHost ? "Assign a co-host above — buy-ins can't be added until every rebuy has a second person to verify it." : "Waiting for the host to assign a co-host before buy-ins can be verified."), phase === "active" && game.coHostId && isHost && /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-gold-400 text-xs mt-1.5"
+    }, firstName(coHostName), " verifies rebuys; you verify ", firstName(coHostName), "'s."), phase === "active" && isCoHost && !isHost && /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-gold-400 text-xs mt-1.5"
+    }, "You're the co-host — you verify everyone's rebuys except your own.")), /*#__PURE__*/React.createElement("div", {
+      className: "max-w-sm mx-auto px-5 pb-2"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "rounded-3xl bg-gradient-to-br from-felt-800 to-felt-900 border border-felt-700 shadow-[0_0_40px_-10px_rgba(232,178,61,0.25)] p-5"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "grid grid-cols-3 gap-2"
+    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-xs tracking-[0.1em] text-smoke uppercase"
+    }, "In Play"), /*#__PURE__*/React.createElement("p", {
+      className: "font-display font-bold text-gold-300 text-2xl mt-1 tracking-tight"
+    }, money(currentInPlayDollars))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-xs tracking-[0.1em] text-smoke uppercase"
+    }, "Rebuys"), /*#__PURE__*/React.createElement("p", {
+      className: "font-display font-bold text-bone text-2xl mt-1 tracking-tight"
+    }, totalRebuyCount)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-xs tracking-[0.1em] text-smoke uppercase"
+    }, "Players"), /*#__PURE__*/React.createElement("p", {
+      className: "font-display font-bold text-bone text-2xl mt-1 tracking-tight"
+    }, players.length))), /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-smoke text-sm mt-3"
+    }, totalChipsInPlay.toLocaleString(), " chips in play", phase !== "active" && ` · ${money(totalFinalDollars)} final`))), pendingList.length > 0 && /*#__PURE__*/React.createElement("div", {
+      className: "max-w-sm mx-auto px-5 pb-2 space-y-2"
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-xs tracking-[0.1em] text-gold-300 uppercase"
+    }, "Awaiting Verification"), pendingList.map(pending => {
+      const target = game.players[pending.targetId];
+      const approver = game.players[pending.approverId];
+      const iAmApprover = role.playerId === pending.approverId;
+      const iAmRequester = pending.requesterUid === (auth.currentUser && auth.currentUser.uid);
+      const canCancel = iAmRequester || isHost;
+      if (!target) return null;
+      return /*#__PURE__*/React.createElement("div", {
+        key: pending.id,
+        className: "bg-gold-500/10 border border-gold-500/30 rounded-2xl p-3 flex items-center justify-between gap-2"
+      }, /*#__PURE__*/React.createElement("div", { className: "min-w-0" },
+        /*#__PURE__*/React.createElement("p", { className: "font-data text-bone text-sm" }, money(Number.isInteger(pending.amountCents) ? fromCents(pending.amountCents) : pending.amount), " rebuy for ", target.name),
+        /*#__PURE__*/React.createElement("p", { className: "font-data text-smoke text-[10px] mt-0.5" }, "one-time QR verification")
+      ), iAmApprover ? /*#__PURE__*/React.createElement("div", {
+        className: "flex gap-2 shrink-0"
+      }, /*#__PURE__*/React.createElement("button", {
+        onClick: () => openRebuyScanner(pending.id),
+        className: "font-data text-mint-400 text-xs underline"
+      }, "Scan QR"), /*#__PURE__*/React.createElement("button", {
+        onClick: () => rejectPendingBuyIn(pending.id),
+        className: "font-data text-coral-400 text-xs underline"
+      }, "Reject")) : iAmRequester ? /*#__PURE__*/React.createElement("div", {
+        className: "flex gap-2 shrink-0"
+      }, /*#__PURE__*/React.createElement("button", {
+        onClick: () => showRebuyQRForRequest(pending),
+        className: "font-data text-gold-300 text-xs underline"
+      }, "Show QR"), /*#__PURE__*/React.createElement("button", {
+        onClick: () => rejectPendingBuyIn(pending.id),
+        className: "font-data text-coral-400 text-xs underline"
+      }, "cancel")) : /*#__PURE__*/React.createElement("div", {
+        className: "flex items-center gap-2 shrink-0"
+      }, /*#__PURE__*/React.createElement("span", {
+        className: "font-data text-smoke text-xs"
+      }, "waiting on ", approver ? firstName(approver.name) : "verifier"), canCancel && /*#__PURE__*/React.createElement("button", {
+        onClick: () => rejectPendingBuyIn(pending.id),
+        className: "font-data text-coral-400 text-xs underline"
+      }, "cancel")));
+    })), pendingCashOutList.length > 0 && /*#__PURE__*/React.createElement("div", {
+      className: "max-w-sm mx-auto px-5 pb-2 space-y-2"
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-xs tracking-[0.1em] text-gold-300 uppercase"
+    }, "Cash-outs Awaiting Verification"), pendingCashOutList.map(pending => {
+      const target = game.players[pending.targetId];
+      const approver = game.players[pending.approverId];
+      const iAmApprover = role.playerId === pending.approverId;
+      const canCancel = role.playerId === pending.targetId || isHost;
+      if (!target) return null;
+      return /*#__PURE__*/React.createElement("div", {
+        key: pending.id,
+        className: "bg-gold-500/10 border border-gold-500/30 rounded-2xl p-3 flex items-center justify-between gap-2"
+      }, /*#__PURE__*/React.createElement("p", { className: "font-data text-bone text-sm" }, money(Number.isInteger(pending.amountCents) ? fromCents(pending.amountCents) : pending.amount), " cash-out for ", target.name), iAmApprover ? /*#__PURE__*/React.createElement("div", { className: "flex gap-2 shrink-0" }, /*#__PURE__*/React.createElement("button", { onClick: () => approvePendingCashOut(pending.id), className: "font-data text-mint-400 text-xs underline" }, "Approve"), /*#__PURE__*/React.createElement("button", { onClick: () => rejectPendingCashOut(pending.id), className: "font-data text-coral-400 text-xs underline" }, "Reject")) : /*#__PURE__*/React.createElement("div", { className: "flex items-center gap-2 shrink-0" }, /*#__PURE__*/React.createElement("span", { className: "font-data text-smoke text-xs" }, "waiting on ", approver ? firstName(approver.name) : "verifier"), canCancel && /*#__PURE__*/React.createElement("button", { onClick: () => rejectPendingCashOut(pending.id), className: "font-data text-coral-400 text-xs underline" }, "cancel")));
+    })), rebuyQR && /*#__PURE__*/React.createElement("div", {
+      className: "fixed inset-0 bg-felt-950/95 z-50 flex flex-col items-center justify-center p-6",
+      onClick: e => { if (e.target === e.currentTarget) setRebuyQR(null); }
+    }, /*#__PURE__*/React.createElement("div", { className: "w-full max-w-sm text-center" },
+      /*#__PURE__*/React.createElement("p", { className: "font-data text-xs tracking-[0.2em] text-gold-400/80 uppercase mb-2" }, "One-time rebuy verification"),
+      /*#__PURE__*/React.createElement("h3", { className: "font-display font-bold text-bone text-xl mb-1" }, game.players[rebuyQR.targetId] ? game.players[rebuyQR.targetId].name : "Player", " · ", money(fromCents(rebuyQR.amountCents))),
+      /*#__PURE__*/React.createElement("p", { className: "font-data text-smoke text-sm mb-4" }, "Have ", game.players[approverFor(rebuyQR.targetId)] ? firstName(game.players[approverFor(rebuyQR.targetId)].name) : "the verifier", " scan this QR from their phone."),
+      Math.max(0, Math.ceil((rebuyQR.expiresAtMs - qrTick) / 1000)) > 0 ? /*#__PURE__*/React.createElement(React.Fragment, null,
+        /*#__PURE__*/React.createElement(QRCode, { text: makeRebuyQrPayload(rebuyQR), size: 230 }),
+        /*#__PURE__*/React.createElement("p", { className: "font-data text-gold-300 text-sm mt-3" }, "Expires in ", Math.max(0, Math.ceil((rebuyQR.expiresAtMs - qrTick) / 1000)), " sec")
+      ) : /*#__PURE__*/React.createElement("div", { className: "rounded-2xl border border-coral-500/30 bg-coral-500/10 p-4" },
+        /*#__PURE__*/React.createElement("p", { className: "font-data text-coral-400 text-sm" }, "This QR expired. Cancel this request and tap Rebuy again to generate a fresh one.")
+      ),
+      /*#__PURE__*/React.createElement("div", { className: "flex gap-2 mt-5" },
+        /*#__PURE__*/React.createElement("button", { onClick: () => setRebuyQR(null), className: `flex-1 ${ghostBtn} py-3 text-sm` }, "Hide QR"),
+        /*#__PURE__*/React.createElement("button", { onClick: async () => { const id = rebuyQR.requestId; setRebuyQR(null); await rejectPendingBuyIn(id); }, className: "flex-1 font-data text-coral-400 border border-coral-500/30 rounded-2xl py-3 text-sm" }, "Cancel Rebuy")
+      )
+    )), rebuyScanner && /*#__PURE__*/React.createElement("div", {
+      className: "fixed inset-0 bg-felt-950/95 z-50 flex flex-col items-center justify-center p-6",
+      onClick: e => { if (e.target === e.currentTarget) closeRebuyScanner(); }
+    }, /*#__PURE__*/React.createElement("div", { className: "w-full max-w-sm" },
+      /*#__PURE__*/React.createElement("p", { className: "font-display font-bold text-bone text-xl mb-1" }, "Verify Rebuy"),
+      !rebuyScanCandidate ? /*#__PURE__*/React.createElement(React.Fragment, null,
+        /*#__PURE__*/React.createElement("p", { className: "font-data text-smoke text-sm mb-4" }, "Scan the one-time QR shown on the player's phone. Camera access is used only while this scanner is open."),
+        /*#__PURE__*/React.createElement(QRScanner, { onDecoded: handleRebuyScan, onError: msg => setRebuyScanError(msg) }),
+        rebuyScanError && /*#__PURE__*/React.createElement("div", { className: "mt-3 bg-coral-500/10 border border-coral-500/30 rounded-xl p-3" }, /*#__PURE__*/React.createElement("p", { className: "font-data text-coral-400 text-sm" }, rebuyScanError))
+      ) : /*#__PURE__*/React.createElement("div", { className: "space-y-4 mt-4" },
+        /*#__PURE__*/React.createElement("div", { className: "rounded-2xl border border-mint-500/40 bg-mint-500/10 p-4" },
+          /*#__PURE__*/React.createElement("p", { className: "font-data text-mint-400 text-xs uppercase tracking-[0.1em]" }, "QR verified"),
+          /*#__PURE__*/React.createElement("p", { className: "font-display font-bold text-bone text-xl mt-1" }, rebuyScanCandidate.target.name),
+          /*#__PURE__*/React.createElement("p", { className: "font-display font-bold text-gold-300 text-2xl mt-1" }, money(fromCents(rebuyScanCandidate.req.amountCents))),
+          /*#__PURE__*/React.createElement("p", { className: "font-data text-smoke text-xs mt-2" }, "Confirm the player and amount before adding this rebuy to the ledger.")
+        ),
+        /*#__PURE__*/React.createElement("button", { onClick: confirmScannedRebuy, className: `w-full ${goldBtn} py-4 text-base` }, "Approve ", money(fromCents(rebuyScanCandidate.req.amountCents)), " Rebuy"),
+        /*#__PURE__*/React.createElement("button", { onClick: () => { setRebuyScanCandidate(null); setRebuyScanError(""); }, className: `w-full ${ghostBtn} py-3 text-sm` }, "Scan Again")
+      ),
+      /*#__PURE__*/React.createElement("button", { onClick: closeRebuyScanner, className: "mt-4 w-full font-data text-smoke text-sm underline text-center" }, "cancel")
+    )), showQR && /*#__PURE__*/React.createElement("div", {
+      className: "fixed inset-0 bg-felt-950/95 z-50 flex flex-col items-center justify-center p-6",
+      onClick: e => {
+        if (e.target === e.currentTarget) setShowQR(false);
+      }
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "font-display font-bold text-bone text-xl mb-4"
+    }, "Scan to join ", game.name), /*#__PURE__*/React.createElement(QRCode, {
+      text: joinUrl,
+      size: 220
+    }), /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-smoke text-xs mt-4"
+    }, "or share this code"), /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-gold-300 text-lg mt-2 tracking-widest"
+    }, game.code), /*#__PURE__*/React.createElement("button", {
+      onClick: () => setShowQR(false),
+      className: "mt-8 font-data text-smoke text-sm underline"
+    }, "close")), showCoHostPicker && /*#__PURE__*/React.createElement("div", {
+      className: "fixed inset-0 bg-felt-950/95 z-50 flex flex-col items-center justify-center p-6",
+      onClick: e => {
+        if (e.target === e.currentTarget) setShowCoHostPicker(false);
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "w-full max-w-sm"
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "font-display font-bold text-bone text-xl mb-1"
+    }, "Co-Host"), /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-smoke text-sm mb-4"
+    }, "They'll verify every rebuy except their own — you verify theirs. Nothing gets added without one of you signing off."), coHostName && /*#__PURE__*/React.createElement("div", {
+      className: "flex items-center justify-between bg-felt-900 border border-gold-500/40 rounded-xl px-3.5 py-2.5 mb-3"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "font-data text-bone text-sm"
+    }, "Current: ", coHostName), /*#__PURE__*/React.createElement("button", {
+      onClick: removeCoHost,
+      className: "font-data text-coral-400 text-xs underline"
+    }, "remove")), /*#__PURE__*/React.createElement("div", {
+      className: "space-y-1.5 max-h-72 overflow-y-auto"
+    }, players.filter(p => p.id !== game.hostId).map(p => /*#__PURE__*/React.createElement("button", {
+      key: p.id,
+      onClick: () => assignCoHost(p.id),
+      className: `w-full text-left font-data text-sm rounded-xl px-3.5 py-2.5 border transition ${game.coHostId === p.id ? "border-gold-500/60 bg-gold-500/10 text-gold-300" : "border-felt-700 bg-felt-900/60 text-bone"}`
+    }, p.name)), players.filter(p => p.id !== game.hostId).length === 0 && /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-smoke text-sm"
+    }, "No other players yet — add players first.")), /*#__PURE__*/React.createElement("button", {
+      onClick: () => setShowCoHostPicker(false),
+      className: "mt-4 w-full font-data text-smoke text-sm underline text-center"
+    }, "close"))), showSpotCheck && /*#__PURE__*/React.createElement("div", {
+      className: "fixed inset-0 bg-felt-950/95 z-50 flex flex-col items-center justify-center p-6",
+      onClick: e => {
+        if (e.target === e.currentTarget) closeSpotCheck();
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "w-full max-w-sm"
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "font-display font-bold text-bone text-xl mb-1"
+    }, "Spot Check"), /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-smoke text-sm mb-5"
+    }, "Count out the total dollar value on the table right now. This won't end the game — just a quick reconciliation."), !spotCheckResult ? /*#__PURE__*/React.createElement("div", {
+      className: "space-y-3"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "flex items-center gap-2 bg-felt-800 rounded-2xl px-4 py-3.5 border border-felt-600 focus-within:border-gold-400 focus-within:ring-2 focus-within:ring-gold-400/20 transition"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "font-data text-smoke text-lg"
+    }, "$"), /*#__PURE__*/React.createElement("input", {
+      value: spotCheckInput,
+      onChange: e => setSpotCheckInput(e.target.value),
+      inputMode: "decimal",
+      placeholder: "value counted on the table",
+      className: "flex-1 bg-transparent text-bone font-data text-lg outline-none"
+    })), error && /*#__PURE__*/React.createElement("p", {
+      className: "text-coral-400 font-data text-base"
+    }, error), /*#__PURE__*/React.createElement("button", {
+      onClick: runSpotCheck,
+      className: `w-full ${goldBtn} py-3.5`
+    }, "Check"), /*#__PURE__*/React.createElement("button", {
+      onClick: closeSpotCheck,
+      className: "w-full font-data text-smoke text-base underline text-center"
+    }, "cancel")) : /*#__PURE__*/React.createElement("div", {
+      className: "space-y-3"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: `rounded-2xl p-4 border ${Math.abs(spotCheckResult.diffDollars) < 0.01 ? "border-mint-500/40 bg-mint-500/10" : "border-coral-500/30 bg-coral-500/10"}`
+    }, Math.abs(spotCheckResult.diffDollars) < 0.01 ? /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-mint-400 text-base"
+    }, "✓ Matches — ", money(spotCheckResult.counted), " counted, ", money(spotCheckResult.expected), " expected.") : /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-coral-400 text-base"
+    }, spotCheckResult.diffDollars > 0 ? `${money(spotCheckResult.diffDollars)} more on the table than logged.` : `${money(Math.abs(spotCheckResult.diffDollars))} short of what was logged.`)), /*#__PURE__*/React.createElement("button", {
+      onClick: closeSpotCheck,
+      className: `w-full ${ghostBtn} py-3`
+    }, "Done")))), minutesSinceLastBuyIn !== null && minutesSinceLastBuyIn >= 20 && /*#__PURE__*/React.createElement("div", {
+      className: "max-w-sm mx-auto mt-1 bg-gold-500/10 border border-gold-500/30 rounded-2xl p-3"
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-gold-300 text-sm"
+    }, "Been ", minutesSinceLastBuyIn, " min since the last logged buy-in.")), phase === "settling" && Math.abs(discrepancy) > 0.01 && /*#__PURE__*/React.createElement("div", {
+      className: "max-w-sm mx-auto mt-3 bg-coral-500/10 border border-coral-500/30 rounded-2xl p-3.5"
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-coral-400 text-base"
+    }, discrepancy > 0 ? `Table has ${money(discrepancy)} more than was bought in.` : `Table is ${money(Math.abs(discrepancy))} short of what was bought in.`)), phase === "settling" && allFinalIn && discrepancyCents === 0 && /*#__PURE__*/React.createElement("div", {
+      className: "max-w-sm mx-auto mt-3 bg-mint-500/10 border border-mint-500/40 rounded-2xl p-3.5"
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-mint-400 text-base font-semibold"
+    }, "✓ TABLE BALANCED — ", money(totalBuyInDollars), " bought in · ", money(totalFinalDollars), " counted")), error && /*#__PURE__*/React.createElement("div", {
+      className: "max-w-sm mx-auto mt-3 bg-coral-500/10 border border-coral-500/30 rounded-2xl p-3 flex items-center justify-between"
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-coral-400 text-sm"
+    }, error), /*#__PURE__*/React.createElement("button", {
+      onClick: () => setError(""),
+      className: "font-data text-coral-300 text-xs underline ml-3 shrink-0"
+    }, "dismiss")), /*#__PURE__*/React.createElement("div", {
+      className: "max-w-sm mx-auto px-5 mt-3"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "flex items-center px-3 gap-2 pb-1 font-data text-[10px] tracking-wide text-smoke uppercase"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "flex-1"
+    }, "Name"), /*#__PURE__*/React.createElement("span", {
+      className: "w-11 text-center shrink-0"
+    }, "Rebuys"), /*#__PURE__*/React.createElement("span", {
+      className: "w-14 text-center shrink-0"
+    }, "In"), /*#__PURE__*/React.createElement("span", {
+      className: `${lastColWidth} text-center shrink-0`
+    }, phase === "active" ? "" : phase === "settling" ? "Final $" : "Net")), /*#__PURE__*/React.createElement("div", {
+      className: "space-y-1"
+    }, players.map(p => {
+      const mine = p.id === role.playerId;
+      const canControl = mine || isHost;
+      const isExpanded = expandedId === p.id;
+      const rebuys = Math.max(0, p.buyins.length - 1);
+      const paidIn = buyInTotal(p.buyins);
+      const settledNet = game.settlement ? game.settlement.nets[p.id] : null;
+      const displayFinal = finalInputs[p.id] ?? (p.finalAmount != null ? String(p.finalAmount) : "");
+      const liveNet = canControl && phase === "settling" && displayFinal !== "" ? round2((parseFloat(displayFinal) || 0) - paidIn) : null;
+      const confirmingThisRebuy = confirmingRebuyId === p.id;
+      const approverForP = approverFor(p.id);
+      const approverName = approverForP && game.players[approverForP] ? game.players[approverForP].name : null;
+      return /*#__PURE__*/React.createElement("div", {
+        key: p.id,
+        className: `rounded-lg border ${mine ? "border-gold-500/50 bg-felt-900" : canControl ? "border-gold-500/25 bg-felt-900/80" : "border-felt-700 bg-felt-900/60"}`
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "flex items-center px-2.5 py-1.5 gap-2"
+      }, /*#__PURE__*/React.createElement("button", {
+        onClick: () => setExpandedId(isExpanded ? null : p.id),
+        className: "flex-1 min-w-0 flex items-center gap-1 text-left"
+      }, /*#__PURE__*/React.createElement("span", {
+        className: "font-data text-smoke text-[10px] shrink-0"
+      }, isExpanded ? "▾" : "▸"), /*#__PURE__*/React.createElement("span", {
+        className: "font-display font-semibold text-bone text-sm truncate"
+      }, p.name, mine && /*#__PURE__*/React.createElement("span", {
+        className: "text-gold-400 font-data text-[10px] ml-1"
+      }, "you"))), /*#__PURE__*/React.createElement("span", {
+        className: "w-11 text-center font-data text-smoke text-xs shrink-0"
+      }, rebuys), /*#__PURE__*/React.createElement("span", {
+        className: "w-14 text-center font-data text-gold-300 text-xs shrink-0"
+      }, money(paidIn)), phase === "active" ? mine && !p.cashedOut ? confirmingThisRebuy ? /*#__PURE__*/React.createElement("div", {
+        className: "flex items-center gap-1 shrink-0"
+      }, /*#__PURE__*/React.createElement("button", {
+        onClick: () => confirmRebuy(p.id),
+        "aria-label": "Confirm rebuy",
+        className: "w-7 h-7 rounded-full bg-gradient-to-b from-gold-300 to-gold-500 text-ink font-display font-bold text-sm flex items-center justify-center active:scale-90 transition shadow-md"
+      }, "✓"), /*#__PURE__*/React.createElement("button", {
+        onClick: () => setConfirmingRebuyId(null),
+        "aria-label": "Cancel rebuy",
+        className: "font-data text-smoke text-sm px-0.5"
+      }, "✕")) : /*#__PURE__*/React.createElement("button", {
+        onClick: () => requestRebuy(p.id),
+        "aria-label": "Add rebuy",
+        className: "shrink-0 w-8 h-8 rounded-full bg-gradient-to-b from-gold-300 to-gold-500 text-ink font-display font-bold text-base flex items-center justify-center active:scale-90 transition shadow-md"
+      }, "+") : /*#__PURE__*/React.createElement("span", {
+        className: "shrink-0 w-8"
+      }) : phase === "settling" ? isHost ? /*#__PURE__*/React.createElement("div", {
+        className: `${lastColWidth} shrink-0 flex items-center justify-center gap-0.5`
+      }, /*#__PURE__*/React.createElement("span", {
+        className: "font-data text-smoke text-xs"
+      }, "$"), /*#__PURE__*/React.createElement("input", {
+        value: displayFinal,
+        onChange: e => setFinalInputs(f => ({
+          ...f,
+          [p.id]: e.target.value
+        })),
+        inputMode: "decimal",
+        placeholder: "0",
+        className: "w-full min-w-0 bg-transparent text-bone font-data text-center text-sm border-0 border-b border-felt-600 pb-0.5 outline-none focus:border-gold-400 transition placeholder:text-smoke/40"
+      })) : /*#__PURE__*/React.createElement("span", {
+        className: `${lastColWidth} text-center font-data text-xs shrink-0 ${p.finalAmount != null ? "text-bone" : "text-smoke"}`
+      }, p.finalAmount != null ? money(p.finalAmount) : "…") : /*#__PURE__*/React.createElement("span", {
+        className: `${lastColWidth} text-center font-data text-xs font-medium shrink-0 ${settledNet >= 0 ? "text-mint-400" : "text-coral-400"}`
+      }, settledNet >= 0 ? "+" : "", money(settledNet))), confirmingThisRebuy && /*#__PURE__*/React.createElement("div", {
+        className: "px-2.5 pb-1.5 -mt-0.5"
+      }, /*#__PURE__*/React.createElement("span", {
+        className: "font-data text-gold-300 text-xs"
+      }, "Send ", money(fromCents(buyInCentsForGame(game))), " rebuy request for ", firstName(p.name), " to ", approverName ? firstName(approverName) : "verifier", "?")), isHost && phase === "settling" && liveNet !== null && /*#__PURE__*/React.createElement("div", {
+        className: "px-2.5 pb-1.5 -mt-0.5"
+      }, /*#__PURE__*/React.createElement("span", {
+        className: `font-data text-xs font-medium ${liveNet >= 0 ? "text-mint-400" : "text-coral-400"}`
+      }, liveNet >= 0 ? "+" : "", money(liveNet), " so far")), isHost && phase === "settling" && /*#__PURE__*/React.createElement("div", {
+        className: "px-2.5 pb-2"
+      }, /*#__PURE__*/React.createElement("button", {
+        onClick: () => submitFinal(p.id),
+        className: `w-full ${goldBtn} py-1.5 text-xs`
+      }, p.finalAmount == null ? mine ? "Submit My Amount" : `Submit for ${firstName(p.name)}` : mine ? "Update My Amount" : `Update for ${firstName(p.name)}`)), isExpanded && /*#__PURE__*/React.createElement("div", {
+        className: "px-2.5 pb-2.5 pt-1 border-t border-felt-700 space-y-2"
+      }, canControl && p.phone && /*#__PURE__*/React.createElement("div", {
+        className: "flex items-center gap-3"
+      }, /*#__PURE__*/React.createElement("a", {
+        href: `tel:${p.phone}`,
+        className: "font-data text-smoke text-xs underline"
+      }, p.phone), /*#__PURE__*/React.createElement("a", {
+        href: `sms:${p.phone}`,
+        className: "font-data text-gold-300 text-xs underline"
+      }, "text")), /*#__PURE__*/React.createElement("div", {
+        className: "space-y-1 bg-felt-800/60 rounded-lg p-2"
+      }, p.buyins.length === 0 && /*#__PURE__*/React.createElement("p", {
+        className: "font-data text-smoke text-xs"
+      }, "No buy-ins yet."), p.buyins.map(b => /*#__PURE__*/React.createElement("div", {
+        key: b.id,
+        className: "flex items-center justify-between font-data text-xs"
+      }, /*#__PURE__*/React.createElement("span", {
+        className: "text-smoke"
+      }, new Date(b.ts).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit"
+      }), " · ", money(Number.isInteger(b.amountCents) ? fromCents(b.amountCents) : b.amount), b.voided ? ` · VOID (${b.voidReason || "correction"})` : ""), isHost && phase === "active" && !p.cashedOut && !b.voided && /*#__PURE__*/React.createElement("button", {
+        onClick: () => removeBuyIn(p.id, b.id),
+        className: "text-coral-400 underline ml-2"
+      }, "void")))), canControl && (editingNameId === p.id ? /*#__PURE__*/React.createElement("div", {
+        className: "flex items-center gap-1.5"
+      }, /*#__PURE__*/React.createElement("input", {
+        value: nameInput,
+        onChange: e => setNameInput(e.target.value),
+        autoFocus: true,
+        className: "flex-1 min-w-0 bg-felt-800 text-bone font-display font-semibold rounded-lg px-2 py-1 border border-felt-600 outline-none focus:border-gold-400 text-sm"
+      }), /*#__PURE__*/React.createElement("button", {
+        onClick: confirmEditName,
+        className: "font-data text-gold-300 text-xs shrink-0"
+      }, "save"), /*#__PURE__*/React.createElement("button", {
+        onClick: () => setEditingNameId(null),
+        className: "font-data text-smoke text-xs shrink-0"
+      }, "✕")) : /*#__PURE__*/React.createElement("button", {
+        onClick: () => startEditName(p.id, p.name),
+        className: "font-data text-[11px] text-smoke underline"
+      }, "edit name")), canControl && phase === "active" && (p.cashedOut ? /*#__PURE__*/React.createElement("div", {
+        className: "flex items-center justify-between"
+      }, /*#__PURE__*/React.createElement("p", {
+        className: "font-data text-smoke text-xs"
+      }, "Verified cash-out: ", money(p.finalAmount)), isHost && /*#__PURE__*/React.createElement("button", {
+        onClick: () => reopenPlayer(p.id),
+        className: "font-data text-gold-300 text-xs underline"
+      }, "reopen")) : cashingOutId === p.id ? /*#__PURE__*/React.createElement("div", {
+        className: "space-y-1.5"
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "flex items-center gap-2 bg-felt-800 rounded-xl px-3 py-2 border border-felt-600 focus-within:border-gold-400 focus-within:ring-2 focus-within:ring-gold-400/20 transition"
+      }, /*#__PURE__*/React.createElement("span", {
+        className: "font-data text-smoke text-sm"
+      }, "$"), /*#__PURE__*/React.createElement("input", {
+        value: cashOutAmount,
+        onChange: e => setCashOutAmount(e.target.value),
+        inputMode: "decimal",
+        placeholder: "final amount",
+        className: "flex-1 bg-transparent text-bone font-data text-sm outline-none"
+      })), /*#__PURE__*/React.createElement("div", {
+        className: "flex gap-2"
+      }, /*#__PURE__*/React.createElement("button", {
+        onClick: confirmCashOut,
+        className: `flex-1 ${goldBtn} py-2 text-xs`
+      }, "Confirm Cash Out"), /*#__PURE__*/React.createElement("button", {
+        onClick: () => setCashingOutId(null),
+        className: `px-3 ${ghostBtn} text-xs`
+      }, "cancel"))) : customBuyInId === p.id ? /*#__PURE__*/React.createElement("div", {
+        className: "flex items-center gap-2"
+      }, /*#__PURE__*/React.createElement("span", {
+        className: "font-data text-smoke text-sm shrink-0"
+      }, "$"), /*#__PURE__*/React.createElement("input", {
+        value: customAmount,
+        onChange: e => setCustomAmount(e.target.value),
+        inputMode: "decimal",
+        placeholder: "amount",
+        autoFocus: true,
+        className: "flex-1 min-w-0 bg-transparent text-bone font-data text-sm border-0 border-b border-felt-600 pb-1 outline-none focus:border-gold-400 transition"
+      }), /*#__PURE__*/React.createElement("button", {
+        onClick: confirmCustomBuyIn,
+        "aria-label": "Confirm buy-in",
+        className: "shrink-0 w-7 h-7 rounded-full bg-gradient-to-b from-gold-300 to-gold-500 text-ink font-display font-bold flex items-center justify-center active:scale-90 transition"
+      }, "✓"), /*#__PURE__*/React.createElement("button", {
+        onClick: () => setCustomBuyInId(null),
+        className: "shrink-0 font-data text-smoke text-base"
+      }, "✕")) : /*#__PURE__*/React.createElement("div", {
+        className: "flex gap-2"
+      }, /*#__PURE__*/React.createElement("button", {
+        onClick: () => startCashOut(p.id),
+        className: `flex-1 ${ghostBtn} py-1.5 text-xs`
+      }, "Request Cash Out"), /*#__PURE__*/React.createElement("button", {
+        onClick: () => startCustomBuyIn(p.id),
+        className: `flex-1 ${ghostBtn} py-1.5 text-xs`
+      }, mine ? "Different Amount" : "Manual Rebuy")))));
+    })), phase === "active" && isHost && (showAddPlayer ? /*#__PURE__*/React.createElement("div", {
+      className: "mt-3 rounded-2xl p-4 border border-gold-500/50 bg-felt-900 space-y-2.5"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "flex items-center justify-between"
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-xs tracking-[0.1em] text-gold-300 uppercase"
+    }, "New Player", showBulkLate ? "s" : "", " Joining"), /*#__PURE__*/React.createElement("button", {
+      onClick: () => setShowBulkLate(v => !v),
+      className: "font-data text-sm text-gold-300 underline"
+    }, showBulkLate ? "single" : "add multiple")), showBulkLate ? /*#__PURE__*/React.createElement("div", {
+      className: "space-y-2"
+    }, /*#__PURE__*/React.createElement("textarea", {
+      value: bulkLateText,
+      onChange: e => setBulkLateText(e.target.value),
+      placeholder: "One name per line, e.g.\nRakesh\nSridhar, 555-1234",
+      rows: 4,
+      className: textareaClass
+    }), /*#__PURE__*/React.createElement("div", {
+      className: "flex gap-2"
+    }, /*#__PURE__*/React.createElement("button", {
+      onClick: addBulkLatePlayers,
+      className: `flex-1 ${goldBtn} py-3`
+    }, "Add All to game"), /*#__PURE__*/React.createElement("button", {
+      onClick: () => {
+        setShowAddPlayer(false);
+        setShowBulkLate(false);
+        setBulkLateText("");
+      },
+      className: `px-4 ${ghostBtn} text-sm`
+    }, "cancel"))) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("input", {
+      value: lateName,
+      onChange: e => setLateName(e.target.value),
+      placeholder: "Name",
+      onKeyDown: e => e.key === "Enter" && addLatePlayer(),
+      className: inputClass
+    }), /*#__PURE__*/React.createElement("input", {
+      value: latePhone,
+      onChange: e => setLatePhone(e.target.value),
+      placeholder: "Mobile (optional)",
+      inputMode: "tel",
+      onKeyDown: e => e.key === "Enter" && addLatePlayer(),
+      className: inputClass
+    }), /*#__PURE__*/React.createElement("div", {
+      className: "flex gap-2"
+    }, /*#__PURE__*/React.createElement("button", {
+      onClick: addLatePlayer,
+      className: `flex-1 ${goldBtn} py-3`
+    }, "Add to game"), /*#__PURE__*/React.createElement("button", {
+      onClick: () => {
+        setShowAddPlayer(false);
+        setLateName("");
+        setLatePhone("");
+      },
+      className: `px-4 ${ghostBtn} text-sm`
+    }, "cancel")))) : /*#__PURE__*/React.createElement("button", {
+      onClick: () => setShowAddPlayer(true),
+      className: "w-full mt-3 border border-dashed border-felt-600 text-smoke font-data text-sm py-2.5 rounded-xl hover:border-gold-500/60 hover:text-gold-300 transition"
+    }, "+ Add Player"))), phase === "settled" && /*#__PURE__*/React.createElement("div", {
+      className: "max-w-sm mx-auto px-5 mt-5"
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-xs tracking-[0.1em] text-gold-300 uppercase mb-2"
+    }, "Transactions"), game.settlement.transactions.length === 0 ? /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-mint-400 text-sm"
+    }, "Everyone's even — no payments needed.") : /*#__PURE__*/React.createElement("div", {
+      className: "space-y-2"
+    }, game.settlement.transactions.map((t, i) => {
+      const from = game.players[t.from],
+        to = game.players[t.to];
+      const iAmFrom = t.from === role.playerId;
+      const iAmTo = t.to === role.playerId;
+      const otherParty = iAmFrom ? to : iAmTo ? from : null;
+      return /*#__PURE__*/React.createElement("div", {
+        key: i,
+        className: "bg-gradient-to-br from-gold-500/10 to-transparent border border-gold-500/30 rounded-2xl p-3.5"
+      }, /*#__PURE__*/React.createElement("p", {
+        className: "font-display font-medium text-bone text-sm"
+      }, from.name, " ", /*#__PURE__*/React.createElement("span", {
+        className: "text-smoke font-normal"
+      }, "pays"), " ", to.name, " ", /*#__PURE__*/React.createElement("span", {
+        className: "text-gold-300 font-data"
+      }, money(t.amount))), /*#__PURE__*/React.createElement("div", {
+        className: "flex items-center gap-3 mt-1.5 flex-wrap"
+      }, otherParty ? otherParty.phone && /*#__PURE__*/React.createElement("a", {
+        href: `sms:${otherParty.phone}`,
+        className: "font-data text-gold-300 text-xs underline"
+      }, "text ", firstName(otherParty.name), iAmFrom ? " (them)" : "") : isHost && /*#__PURE__*/React.createElement(React.Fragment, null, from.phone && /*#__PURE__*/React.createElement("a", {
+        href: `sms:${from.phone}`,
+        className: "font-data text-smoke text-xs underline"
+      }, "text ", firstName(from.name)), to.phone && /*#__PURE__*/React.createElement("a", {
+        href: `sms:${to.phone}`,
+        className: "font-data text-smoke text-xs underline"
+      }, "text ", firstName(to.name)))));
+    }))), activity.length > 0 && /*#__PURE__*/React.createElement("div", {
+      className: "max-w-sm mx-auto px-5 mt-5 pt-4 border-t border-felt-700"
+    }, /*#__PURE__*/React.createElement("p", { className: "font-data text-xs tracking-[0.1em] text-gold-300 uppercase mb-2" }, "Recent Activity"), /*#__PURE__*/React.createElement("div", { className: "space-y-1.5" }, activity.slice(0, 8).map(ev => /*#__PURE__*/React.createElement("div", { key: ev.id, className: "flex items-start justify-between gap-3 bg-felt-900/60 border border-felt-700 rounded-xl px-3 py-2" }, /*#__PURE__*/React.createElement("p", { className: "font-data text-smoke text-xs" }, ev.actorName || "Player", " · ", String(ev.type || "update").replaceAll("_", " ")), /*#__PURE__*/React.createElement("span", { className: "font-data text-smoke text-[10px] shrink-0" }, new Date(ev.clientTs || Date.now()).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })))))), phase === "active" && isHost && /*#__PURE__*/React.createElement("div", {
+      className: "fixed bottom-0 left-0 right-0 p-4 bg-felt-950/80 backdrop-blur-md border-t border-felt-700"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "max-w-sm mx-auto"
+    }, /*#__PURE__*/React.createElement("button", {
+      onClick: startSettling,
+      className: `w-full ${ghostBtn} py-3 text-base`
+    }, "End Game & Count Chips"))), phase === "active" && !isHost && /*#__PURE__*/React.createElement("div", {
+      className: "fixed bottom-0 left-0 right-0 p-4 bg-felt-950/80 backdrop-blur-md border-t border-felt-700"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "max-w-sm mx-auto"
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-smoke text-sm text-center"
+    }, "Waiting for the host to end the game when ready."))), phase === "settling" && isHost && /*#__PURE__*/React.createElement("div", {
+      className: "fixed bottom-0 left-0 right-0 p-4 bg-felt-950/80 backdrop-blur-md border-t border-felt-700"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "max-w-sm mx-auto flex gap-2"
+    }, /*#__PURE__*/React.createElement("button", {
+      onClick: backToActive,
+      className: `${ghostBtn} py-3 px-4 text-base`
+    }, "back"), /*#__PURE__*/React.createElement("button", {
+      onClick: finalizeSettlement,
+      disabled: !allFinalIn || discrepancyCents !== 0 || pendingList.length > 0 || pendingCashOutList.length > 0,
+      className: `flex-1 ${goldBtn} py-3 text-base disabled:opacity-40`
+    }, game.settlement ? "Recalculate Settlement" : "Calculate Settlement")), (!allFinalIn || discrepancyCents !== 0 || pendingList.length > 0 || pendingCashOutList.length > 0) && /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-gold-300 text-xs text-center mt-2"
+    }, pendingList.length > 0 || pendingCashOutList.length > 0 ? "Resolve pending verifications first." : !allFinalIn ? "Host: enter and lock every final chip count." : `Reconcile ${money(Math.abs(discrepancy))} before settlement.`)), phase === "settled" && /*#__PURE__*/React.createElement("div", {
+      className: "max-w-sm mx-auto px-5 mt-5 pt-4 border-t border-felt-700 space-y-3"
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-xs tracking-[0.1em] text-gold-300 uppercase"
+    }, "Export & Share"), /*#__PURE__*/React.createElement("div", {
+      className: "flex gap-2"
+    }, /*#__PURE__*/React.createElement("button", {
+      onClick: shareSummary,
+      className: `flex-1 ${goldBtn} py-3 text-sm`
+    }, "Share"), /*#__PURE__*/React.createElement("button", {
+      onClick: copySummary,
+      className: `flex-1 ${ghostBtn} py-3 text-sm`
+    }, "Copy Text"), /*#__PURE__*/React.createElement("button", {
+      onClick: downloadSummary,
+      className: `flex-1 ${ghostBtn} py-3 text-sm`
+    }, "Download")), copyStatus && /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-mint-400 text-xs"
+    }, copyStatus), /*#__PURE__*/React.createElement("textarea", {
+      ref: summaryRef,
+      readOnly: true,
+      value: summaryText,
+      className: "w-full h-40 bg-felt-900 text-smoke font-data text-xs rounded-2xl p-3.5 border border-felt-700 outline-none"
+    })));
+  }
+  if (screen === "leaderboard") {
+    const backTarget = role && game ? "game" : "home";
+    return /*#__PURE__*/React.createElement("div", {
+      className: "min-h-screen bg-app-gradient p-5"
+    }, fontStyle, /*#__PURE__*/React.createElement("div", {
+      className: "max-w-sm mx-auto"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "flex items-center justify-between mb-1"
+    }, /*#__PURE__*/React.createElement("h2", {
+      className: "font-display font-bold text-bone text-2xl tracking-tight"
+    }, "🏆 Leaderboard"), /*#__PURE__*/React.createElement("button", {
+      onClick: () => setScreen(backTarget),
+      className: "font-data text-smoke text-sm"
+    }, "close")), /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-smoke text-sm mb-5"
+    }, "Games you've hosted on this device: ", history.length, "."), !storageOK && /*#__PURE__*/React.createElement("div", {
+      className: "bg-coral-500/10 border border-coral-500/30 rounded-2xl p-3.5 mb-4"
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-coral-400 text-sm"
+    }, "Browser storage isn't available right now, so results won't be saved once you close this page.")), leaderboard.length === 0 ? /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-smoke text-base mb-6"
+    }, "No games recorded yet on this device. Host one and settle up to start the leaderboard.") : /*#__PURE__*/React.createElement("div", {
+      className: "space-y-2 mb-6"
+    }, leaderboard.map((p, i) => /*#__PURE__*/React.createElement("div", {
+      key: p.name,
+      className: "flex items-center gap-3 bg-felt-900 border border-felt-700 rounded-2xl px-4 py-3"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "font-display font-bold text-smoke text-base w-5 shrink-0"
+    }, i + 1), /*#__PURE__*/React.createElement("div", {
+      className: "flex-1 min-w-0"
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "font-display font-semibold text-bone text-base truncate"
+    }, p.name), /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-smoke text-sm mt-0.5"
+    }, p.games, " game", p.games === 1 ? "" : "s", " · ", p.wins, "W–", p.losses, "L · best ", money(p.best), " · worst ", money(p.worst))), /*#__PURE__*/React.createElement("span", {
+      className: `font-data text-base font-medium shrink-0 ${p.net >= 0 ? "text-mint-400" : "text-coral-400"}`
+    }, p.net >= 0 ? "+" : "", money(p.net))))), recentGames.length > 0 && /*#__PURE__*/React.createElement("div", {
+      className: "mb-6"
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-xs tracking-[0.1em] text-smoke uppercase mb-2"
+    }, "Recent Games"), /*#__PURE__*/React.createElement("div", {
+      className: "space-y-2"
+    }, recentGames.map(h => {
+      const top = [...h.players].sort((a, b) => b.net - a.net)[0];
+      return /*#__PURE__*/React.createElement("div", {
+        key: h.id,
+        className: "flex items-center justify-between bg-felt-900/60 border border-felt-700 rounded-xl px-3.5 py-2.5"
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "min-w-0"
+      }, /*#__PURE__*/React.createElement("p", {
+        className: "font-display text-bone text-base truncate"
+      }, h.name), /*#__PURE__*/React.createElement("p", {
+        className: "font-data text-smoke text-sm mt-0.5"
+      }, new Date(h.date).toLocaleDateString(), " · ", h.players.length, " players")), top && /*#__PURE__*/React.createElement("span", {
+        className: "font-data text-gold-300 text-sm shrink-0 ml-2"
+      }, top.name, " +", money(top.net).replace("$", "")));
+    }))), /*#__PURE__*/React.createElement("div", {
+      className: "pt-4 border-t border-felt-700 space-y-3"
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-xs tracking-[0.1em] text-gold-300 uppercase"
+    }, "Backup"), /*#__PURE__*/React.createElement("div", {
+      className: "flex gap-2"
+    }, /*#__PURE__*/React.createElement("button", {
+      onClick: exportHistory,
+      disabled: history.length === 0,
+      className: `flex-1 ${ghostBtn} py-2.5 text-sm disabled:opacity-40`
+    }, "Export Backup"), /*#__PURE__*/React.createElement("button", {
+      onClick: () => importFileRef.current && importFileRef.current.click(),
+      className: `flex-1 ${ghostBtn} py-2.5 text-sm`
+    }, "Import Backup"), /*#__PURE__*/React.createElement("input", {
+      ref: importFileRef,
+      type: "file",
+      accept: "application/json",
+      onChange: importHistoryFile,
+      className: "hidden"
+    })), importStatus && /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-gold-300 text-xs"
+    }, importStatus)), history.length > 0 && /*#__PURE__*/React.createElement("div", {
+      className: "pt-4 mt-4 border-t border-felt-700"
+    }, confirmingClear ? /*#__PURE__*/React.createElement("div", {
+      className: "bg-coral-500/10 border border-coral-500/30 rounded-2xl p-3.5"
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-coral-400 text-sm mb-2.5"
+    }, "Clear all leaderboard history on this device? This can't be undone."), /*#__PURE__*/React.createElement("div", {
+      className: "flex gap-2"
+    }, /*#__PURE__*/React.createElement("button", {
+      onClick: clearHistory,
+      className: "flex-1 bg-coral-500 text-white font-data text-sm py-2.5 rounded-xl"
+    }, "Yes, clear it"), /*#__PURE__*/React.createElement("button", {
+      onClick: () => setConfirmingClear(false),
+      className: `flex-1 ${ghostBtn} py-2.5 text-sm`
+    }, "Cancel"))) : /*#__PURE__*/React.createElement("button", {
+      onClick: () => setConfirmingClear(true),
+      className: "font-data text-smoke text-sm underline"
+    }, "Clear history"))));
+  }
+  return null;
+}
+ReactDOM.createRoot(document.getElementById('root')).render(/*#__PURE__*/React.createElement(PokerLedger, null));
+</script>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("sw.js?v=2").catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>
