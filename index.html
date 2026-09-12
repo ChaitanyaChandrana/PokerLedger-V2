@@ -759,6 +759,39 @@ function QRScanner({ onDecoded, onError }) {
     /*#__PURE__*/React.createElement("p", { className: "font-data text-smoke text-xs text-center" }, "Point the camera at the player's one-time buy-in QR")
   );
 }
+function BuyInHistoryPanel({ entries }) {
+  const rows = entries.map(entry => /*#__PURE__*/React.createElement("div", {
+    key: entry.id,
+    className: "flex items-center justify-between gap-3 rounded-xl border border-felt-700 bg-felt-900 px-3.5 py-2.5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "min-w-0"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "font-display font-semibold text-bone text-sm truncate"
+  }, entry.playerName), /*#__PURE__*/React.createElement("p", {
+    className: "font-data text-smoke text-[11px] mt-0.5"
+  }, new Date(entry.ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), " · ", entry.buyInNumber === 1 ? "Initial buy-in" : `Rebuy #${entry.buyInNumber - 1}`)), /*#__PURE__*/React.createElement("div", {
+    className: "shrink-0 text-right"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "font-data text-gold-300 text-sm"
+  }, money(fromCents(entry.amountCents))), /*#__PURE__*/React.createElement("p", {
+    className: "font-data text-smoke text-[10px]"
+  }, "Buy-in #", entry.buyInNumber))));
+  const body = entries.length === 0
+    ? /*#__PURE__*/React.createElement("p", { className: "font-data text-smoke text-xs py-2" }, "No completed buy-ins yet.")
+    : /*#__PURE__*/React.createElement("div", { className: "space-y-1.5 max-h-72 overflow-y-auto" }, rows);
+  const header = /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between mb-2"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "font-display font-semibold text-bone text-sm"
+  }, "Buy-in history"), /*#__PURE__*/React.createElement("span", {
+    className: "font-data text-smoke text-[10px]"
+  }, entries.length, " completed"));
+  return /*#__PURE__*/React.createElement("div", {
+    className: "max-w-sm mx-auto px-5 pb-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "rounded-2xl border border-felt-700 bg-felt-900/60 p-3"
+  }, header, body));
+}
 function PokerLedger() {
   const [screen, setScreen] = useState("loading");
   const [role, setRole] = useState(null);
@@ -799,6 +832,7 @@ function PokerLedger() {
   const [showBulkLate, setShowBulkLate] = useState(false);
   const [bulkLateText, setBulkLateText] = useState("");
   const [showSpotCheck, setShowSpotCheck] = useState(false);
+  const [showBuyInHistory, setShowBuyInHistory] = useState(false);
   const [spotCheckInput, setSpotCheckInput] = useState("");
   const [spotCheckResult, setSpotCheckResult] = useState(null);
   const [nowTick, setNowTick] = useState(Date.now());
@@ -1829,6 +1863,21 @@ function PokerLedger() {
   const pendingBuyInCountFor = playerId => pendingList.filter(r => r.targetId === playerId).length;
   const buyInIntentCountFor = p => Math.max(1, completedBuyInCountFor(p) + pendingBuyInCountFor(p.id));
   const totalBuyInCount = players.reduce((sum, p) => sum + buyInIntentCountFor(p), 0);
+  const buyInHistoryEntries = players.flatMap(p => {
+    let buyInNumber = 0;
+    return (p.buyins || []).filter(b => !b.voided).map(b => {
+      buyInNumber += 1;
+      return {
+        id: `${p.id}-${b.id}`,
+        playerId: p.id,
+        playerName: p.name,
+        buyInNumber,
+        kind: b.kind || (buyInNumber === 1 ? "initial" : "rebuy"),
+        ts: b.ts || b.chipsReceivedAt || 0,
+        amountCents: Number.isInteger(b.amountCents) ? b.amountCents : toCents(b.amount || 0)
+      };
+    });
+  }).sort((a, b) => b.ts - a.ts);
   const totalRebuyCount = Math.max(0, totalBuyInCount - players.length);
   const playersNeedingInitialApproval = players.filter(p => completedBuyInCountFor(p) === 0 && pendingBuyInCountFor(p.id) === 0);
   const buyInsNeedingAction = pendingList.length + playersNeedingInitialApproval.length;
@@ -2131,17 +2180,22 @@ function PokerLedger() {
       className: "font-data text-xs tracking-[0.1em] text-smoke uppercase"
     }, "In Play"), /*#__PURE__*/React.createElement("p", {
       className: "font-display font-bold text-gold-300 text-2xl mt-1 tracking-tight"
-    }, money(currentInPlayDollars))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    }, money(currentInPlayDollars))), /*#__PURE__*/React.createElement("button", {
+      onClick: () => setShowBuyInHistory(v => !v),
+      className: "text-left"
+    }, /*#__PURE__*/React.createElement("p", {
       className: "font-data text-xs tracking-[0.1em] text-smoke uppercase"
-    }, "Buy-ins"), /*#__PURE__*/React.createElement("p", {
+    }, "Buy-ins ", showBuyInHistory ? "▴" : "▾"), /*#__PURE__*/React.createElement("p", {
       className: "font-display font-bold text-bone text-2xl mt-1 tracking-tight"
-    }, totalBuyInCount)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    }, totalBuyInCount), /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-[10px] text-gold-400 mt-0.5"
+    }, "view history")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
       className: "font-data text-xs tracking-[0.1em] text-smoke uppercase"
     }, "Players"), /*#__PURE__*/React.createElement("p", {
       className: "font-display font-bold text-bone text-2xl mt-1 tracking-tight"
     }, players.length))), /*#__PURE__*/React.createElement("p", {
       className: "font-data text-smoke text-sm mt-3"
-    }, totalChipsInPlay.toLocaleString(), " chips in play", totalRebuyCount > 0 ? ` · ${totalRebuyCount} rebuy${totalRebuyCount === 1 ? "" : "s"}` : "", buyInsNeedingAction > 0 && phase === "active" ? ` · ${buyInsNeedingAction} need${buyInsNeedingAction === 1 ? "s" : ""} action` : "", phase !== "active" && ` · ${money(totalFinalDollars)} final`))), phase === "active" && me && !me.cashedOut && completedBuyInCountFor(me) === 0 && pendingBuyInCountFor(me.id) === 0 && /*#__PURE__*/React.createElement("div", {
+    }, totalChipsInPlay.toLocaleString(), " chips in play", totalRebuyCount > 0 ? ` · ${totalRebuyCount} rebuy${totalRebuyCount === 1 ? "" : "s"}` : "", buyInsNeedingAction > 0 && phase === "active" ? ` · ${buyInsNeedingAction} need${buyInsNeedingAction === 1 ? "s" : ""} action` : "", phase !== "active" && ` · ${money(totalFinalDollars)} final`))), showBuyInHistory && /*#__PURE__*/React.createElement(BuyInHistoryPanel, { entries: buyInHistoryEntries }), phase === "active" && me && !me.cashedOut && completedBuyInCountFor(me) === 0 && pendingBuyInCountFor(me.id) === 0 && /*#__PURE__*/React.createElement("div", {
       className: "max-w-sm mx-auto px-5 pb-2"
     }, /*#__PURE__*/React.createElement("div", {
       className: "rounded-2xl border border-gold-500/60 bg-gold-500/10 p-4"
