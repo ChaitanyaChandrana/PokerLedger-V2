@@ -1,32 +1,42 @@
-# Poker Ledger V2.6.7 — Host End Game
+# Poker Ledger V2.6.8 — Refresh Recovery
 
-UI-only fix. No Firestore rules change is required.
+Critical reliability/UI hotfix. No Firestore rules change is required.
 
-## Fixed
-The host's own cash-out status no longer replaces the host's table controls.
+## Refresh/reopen fix
+The game code is now kept in the page URL:
 
-During an active game, the host ALWAYS retains:
+`...?code=ABCDEFG`
 
-**End Game & Settle**
+On startup the app fetches that game and uses the current Firebase anonymous UID
+against the game's server-side `members` map to recover the exact player/host seat.
 
-regardless of whether the host's own cash-out is:
-- not submitted,
-- waiting for co-host approval, or
-- already confirmed.
+This is stronger than relying on localStorage alone.
 
-The host's personal cash-out status appears above the End Game button.
+The app also:
+- saves role data in both localStorage and sessionStorage,
+- repairs a stale local `playerId` from the Firestore UID mapping,
+- never automatically creates a replacement game during recovery,
+- removes the `?code=` only when the user intentionally chooses Leave.
 
-After tapping **End Game & Settle**, the game moves to the normal settling screen where:
-- players can submit their own cash-outs,
-- host can complete missing non-host cash-outs,
-- host/co-host approvals are resolved,
-- table reconciliation is shown,
-- and the host can finalize/show the settlement.
+## Settlement balance visibility
+During end-game counting:
+- before all counts are in: `4/6 cash-outs recorded · $... counted so far`
+- if totals mismatch: clear short/over warning
+- when exact: `✓ ALL BALANCED — $X bought in = $X cashed out`
+- after host shows settlement: every device sees `✓ Table Balanced` and the payment instructions.
+
+## Important limitation
+If a user closes ALL Incognito/Private windows, the browser intentionally destroys
+its anonymous Firebase identity. No refresh-only solution can preserve that identity.
+For normal tabs/PWA and ordinary refreshes, V2.6.8 should recover automatically.
+If the host loses their identity entirely, use the co-host takeover flow.
 
 ## Deploy
 1. Replace GitHub `index.html`.
 2. Replace GitHub `sw.js`.
 3. Commit to `main`.
-4. No Firebase rules change.
-5. Fully close and reopen the site.
-6. Confirm it says `V2.6.7 · host end-game`.
+4. No Firebase Rules change.
+5. Fully close/reopen Poker Ledger.
+6. Confirm `V2.6.8 · refresh recovery`.
+7. Create a test game, refresh host/player/co-host several times, and verify they
+   always return to the same game.

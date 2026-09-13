@@ -524,6 +524,10 @@ const HISTORY_KEY = "pokiriKurrolluHistory";
 function loadRole() {
   try {
     const raw = localStorage.getItem(ROLE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  try {
+    const raw = sessionStorage.getItem(ROLE_KEY);
     return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
@@ -533,10 +537,31 @@ function saveRole(role) {
   try {
     localStorage.setItem(ROLE_KEY, JSON.stringify(role));
   } catch {}
+  try {
+    sessionStorage.setItem(ROLE_KEY, JSON.stringify(role));
+  } catch {}
 }
 function clearRole() {
   try {
     localStorage.removeItem(ROLE_KEY);
+  } catch {}
+  try {
+    sessionStorage.removeItem(ROLE_KEY);
+  } catch {}
+}
+function setGameUrl(code) {
+  if (!code) return;
+  try {
+    const url = new URL(window.location.href);
+    url.searchParams.set("code", String(code).toUpperCase());
+    window.history.replaceState({}, "", url.pathname + url.search + url.hash);
+  } catch {}
+}
+function clearGameUrl() {
+  try {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("code");
+    window.history.replaceState({}, "", url.pathname + url.search + url.hash);
   } catch {}
 }
 function loadHistory() {
@@ -1075,63 +1100,125 @@ function PokerLedger() {
   const requestsUnsubRef = useRef(null);
   useEffect(() => {
     (async () => {
+      let user;
       try {
-        await ensureAuth();
+        user = await ensureAuth();
       } catch (e) {
         console.error(e);
         setError("Firebase Anonymous Authentication is not enabled yet. Enable it in Firebase Console → Authentication → Sign-in method.");
         setScreen("home");
         return;
       }
-      // A scanned/shared invite must win over an old game saved on this device.
+
+      // Strongest recovery path: keep the active game code in the URL and use
+      // Firebase UID -> game.members -> playerId as the authoritative identity.
+      // This means a normal refresh does NOT depend on the local pokerRole key.
+      let urlCode = "";
       try {
         const params = new URLSearchParams(window.location.search);
-        const codeParam = params.get("code");
-        if (codeParam) {
-          const inviteCode = codeParam.toUpperCase();
-          const saved = loadRole();
-          if (!saved || saved.code !== inviteCode) {
-            setJCode(inviteCode);
-            setScreen("join");
-            return;
-          }
-        }
+        urlCode = (params.get("code") || "").trim().toUpperCase();
       } catch {}
 
-      const r = loadRole();
-      if (r && r.code) {
-        const res = await fsGetGame(r.code);
+      if (urlCode) {
+        const res = await fsGetGame(urlCode);
         if (res.ok && res.value) {
-          if (!gameIsCompatible(res.value)) {
-            setJCode(r.code);
-            setError(`This saved game was created with ${res.value.appVersion || "an older Poker Ledger version"}. V${APP_VERSION} will not write to it. Start a fresh V${APP_VERSION} game or reopen it with the matching older app.`);
+          const g = res.value;
+          if (!gameIsCompatible(g)) {
+            setJCode(urlCode);
+            setError(`This game was created with ${g.appVersion || "an older Poker Ledger version"}. V${APP_VERSION} will not write to it.`);
             setScreen("join");
             return;
           }
-          const p = res.value.players && res.value.players[r.playerId];
-          const sameIdentity = p && (!p.authUid || p.authUid === auth.currentUser.uid);
-          if (sameIdentity) {
-            setRole(r);
-            setGame(res.value);
-            listenTo(r.code);
+
+          const mappedPlayerId = g.members && g.members[user.uid];
+          const mappedPlayer = mappedPlayerId && g.players && g.players[mappedPlayerId];
+          if (mappedPlayer && !mappedPlayer.removed) {
+            const recoveredRole = {
+              code: urlCode,
+              playerId: mappedPlayerId,
+              isHost: g.hostId === mappedPlayerId,
+              authUid: user.uid
+            };
+            saveRole(recoveredRole);
+            setRole(recoveredRole);
+            setGame(g);
+            listenTo(urlCode);
             setScreen("game");
             return;
           }
-          // Never erase the saved game pointer merely because Firebase identity
-          // differs. Preserve the code/playerId so recovery remains possible.
-          setJCode(r.code);
-          setError("Your saved game is still in Firebase, but this browser's identity changed. Do not start a new game. Use the original browser/device or recover the host/player identity.");
+
+          // This device is not yet a member of this game. Keep the invite open
+          // rather than ever creating/replacing a game automatically.
+          setJCode(urlCode);
+          setScreen("join");
+          return;
+        }
+
+        if (!res.ok) {
+          setError(res.message || "Couldn't reconnect to the game.");
+          setJCode(urlCode);
+          setScreen("join");
+          return;
+        }
+
+        setError("That saved game code no longer exists.");
+        clearGameUrl();
+      }
+
+      // Fallback for older links that do not yet have ?code= in the URL.
+      const saved = loadRole();
+      if (saved && saved.code) {
+        const code = String(saved.code).toUpperCase();
+        const res = await fsGetGame(code);
+        if (res.ok && res.value) {
+          const g = res.value;
+          if (!gameIsCompatible(g)) {
+            setJCode(code);
+            setError(`This saved game was created with ${g.appVersion || "an older Poker Ledger version"}. V${APP_VERSION} will not write to it.`);
+            setScreen("join");
+            return;
+          }
+
+          // Prefer the server's UID mapping over a possibly stale local playerId.
+          const recoveredPlayerId =
+            (g.members && g.members[user.uid]) ||
+            (g.players && g.players[saved.playerId] &&
+             (!g.players[saved.playerId].authUid || g.players[saved.playerId].authUid === user.uid)
+              ? saved.playerId
+              : null);
+
+          const recoveredPlayer = recoveredPlayerId && g.players && g.players[recoveredPlayerId];
+          if (recoveredPlayer && !recoveredPlayer.removed) {
+            const recoveredRole = {
+              code,
+              playerId: recoveredPlayerId,
+              isHost: g.hostId === recoveredPlayerId,
+              authUid: user.uid
+            };
+            saveRole(recoveredRole);
+            setGameUrl(code);
+            setRole(recoveredRole);
+            setGame(g);
+            listenTo(code);
+            setScreen("game");
+            return;
+          }
+
+          setJCode(code);
+          setError("The game still exists, but this browser is no longer bound to that seat. Do not create a replacement game; use host/co-host recovery.");
           setScreen("join");
           return;
         } else if (res.ok && !res.value) {
-          // Only clear the role when the server positively says the game does not exist.
           clearRole();
+          clearGameUrl();
         } else {
           setError(res.message || "Couldn't reconnect to your previous game.");
         }
       }
+
       setScreen("home");
     })();
+
     return () => {
       if (unsubRef.current) unsubRef.current();
       if (activityUnsubRef.current) activityUnsubRef.current();
@@ -1278,6 +1365,7 @@ function PokerLedger() {
       if (!created) throw new Error("Couldn't reserve a unique game code. Please try again.");
       const r = { code, playerId, isHost: true, authUid: user.uid };
       saveRole(r);
+      setGameUrl(code);
       setRole(r);
       setGame(created);
       listenTo(code);
@@ -1392,6 +1480,7 @@ function PokerLedger() {
       });
       const r = { code, playerId, isHost: baseAfter.hostId === playerId, authUid: user.uid };
       saveRole(r);
+      setGameUrl(code);
       setRole(r);
       setGame(baseAfter);
       listenTo(code);
@@ -1411,6 +1500,7 @@ function PokerLedger() {
     const { game: g, existingPlayer } = pendingRejoin;
     const r = { code: jCode.trim().toUpperCase(), playerId: existingPlayer.id, isHost: g.hostId === existingPlayer.id, authUid: auth.currentUser.uid };
     saveRole(r);
+    setGameUrl(r.code);
     setRole(r);
     setGame(g);
     listenTo(r.code);
@@ -2215,6 +2305,7 @@ function PokerLedger() {
       requestsUnsubRef.current = null;
     }
     clearRole();
+    clearGameUrl();
     setRole(null);
     setGame(null);
     setScreen("home");
@@ -2412,7 +2503,7 @@ function PokerLedger() {
       className: "font-display font-bold text-bone text-4xl mb-1 tracking-tight"
     }, "Poker Ledger"), /*#__PURE__*/React.createElement("p", {
       className: "font-data text-gold-300 text-xs mb-1"
-    }, "V2.6.7 · host end-game"), /*#__PURE__*/React.createElement("p", {
+    }, "V2.6.8 · refresh recovery"), /*#__PURE__*/React.createElement("p", {
       className: "font-data text-smoke text-sm mb-10"
     }, "everyone joins from their own phone"), /*#__PURE__*/React.createElement("div", {
       className: "w-full max-w-sm space-y-3"
@@ -3131,11 +3222,15 @@ function PokerLedger() {
       className: "max-w-sm mx-auto mt-3 bg-coral-500/10 border border-coral-500/30 rounded-2xl p-3.5"
     }, /*#__PURE__*/React.createElement("p", {
       className: "font-data text-coral-400 text-base"
-    }, discrepancy > 0 ? `Table has ${money(discrepancy)} more than was bought in.` : `Table is ${money(Math.abs(discrepancy))} short of what was bought in.`)), phase === "settling" && allFinalIn && discrepancyCents === 0 && /*#__PURE__*/React.createElement("div", {
+    }, discrepancy > 0 ? `Table has ${money(discrepancy)} more than was bought in.` : `Table is ${money(Math.abs(discrepancy))} short of what was bought in.`)), phase === "settling" && !allFinalIn && /*#__PURE__*/React.createElement("div", {
+      className: "max-w-sm mx-auto mt-3 bg-felt-900/60 border border-felt-700 rounded-2xl p-3"
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-smoke text-sm"
+    }, players.filter(p => p.finalAmount != null).length, "/", players.length, " cash-outs recorded · ", money(totalFinalDollars), " counted so far")), phase === "settling" && allFinalIn && discrepancyCents === 0 && /*#__PURE__*/React.createElement("div", {
       className: "max-w-sm mx-auto mt-3 bg-mint-500/10 border border-mint-500/40 rounded-2xl p-3.5"
     }, /*#__PURE__*/React.createElement("p", {
       className: "font-data text-mint-400 text-base font-semibold"
-    }, "✓ TABLE BALANCED — ", money(totalBuyInDollars), " bought in · ", money(totalFinalDollars), " counted")), error && /*#__PURE__*/React.createElement("div", {
+    }, "✓ ALL BALANCED — ", money(totalBuyInDollars), " bought in = ", money(totalFinalDollars), " cashed out")), error && /*#__PURE__*/React.createElement("div", {
       className: "max-w-sm mx-auto mt-3 bg-coral-500/10 border border-coral-500/30 rounded-2xl p-3 flex items-center justify-between"
     }, /*#__PURE__*/React.createElement("p", {
       className: "font-data text-coral-400 text-sm"
