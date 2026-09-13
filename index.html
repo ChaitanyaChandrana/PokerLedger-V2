@@ -2225,6 +2225,7 @@ function PokerLedger() {
   const isHost = game && role && game.hostId === role.playerId && (!game.hostUid || game.hostUid === (auth.currentUser && auth.currentUser.uid));
   const isCoHost = game && role && game.coHostId === role.playerId && (!game.coHostUid || game.coHostUid === (auth.currentUser && auth.currentUser.uid));
   const me = game && role ? game.players[role.playerId] : null;
+  const phase = game ? game.phase : null;
   const pendingList = pendingRequests.filter(r => r.type === "buyin" && r.status === "pending");
   const approverPendingBuyIns = role
     ? pendingList.filter(r => r.approverId === role.playerId)
@@ -2286,7 +2287,6 @@ function PokerLedger() {
     : [];
   const missingFinalCount = players.filter(p => p.finalAmount == null).length;
   const maxBuyins = players.length ? Math.max(1, ...players.map(p => (p.buyins || []).filter(b => !b.voided).length)) : 1;
-  const phase = game ? game.phase : null;
   useEffect(() => {
     if (!game || !role || (phase !== "active" && phase !== "settling")) {
       if (typeof document !== "undefined") document.title = "Poker Ledger — Poker Buy-ins & Settlement";
@@ -2412,7 +2412,7 @@ function PokerLedger() {
       className: "font-display font-bold text-bone text-4xl mb-1 tracking-tight"
     }, "Poker Ledger"), /*#__PURE__*/React.createElement("p", {
       className: "font-data text-gold-300 text-xs mb-1"
-    }, "V2.6.5 · host-completable settlement"), /*#__PURE__*/React.createElement("p", {
+    }, "V2.6.6 · blank-screen fix"), /*#__PURE__*/React.createElement("p", {
       className: "font-data text-smoke text-sm mb-10"
     }, "everyone joins from their own phone"), /*#__PURE__*/React.createElement("div", {
       className: "w-full max-w-sm space-y-3"
