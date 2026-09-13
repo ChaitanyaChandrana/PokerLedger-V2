@@ -5,7 +5,7 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // This is the separate V2 Firebase project. V1 data should not live here.
+    // V1 is not used in the separate V2 Firebase project.
     match /poker_games/{gameCode} {
       allow read, write: if false;
     }
@@ -31,77 +31,132 @@ service cloud.firestore {
       function isCoHost() {
         return signedIn() && resource.data.coHostUid == request.auth.uid;
       }
+      function currentClientWrite() {
+        return request.resource.data.lastClientVersion == '2.6'
+          && request.resource.data.writeNonce is string
+          && request.resource.data.writeNonce != resource.data.writeNonce;
+      }
       function immutableCoreUnchanged() {
         return request.resource.data.code == resource.data.code
           && request.resource.data.schemaVersion == resource.data.schemaVersion
+          && request.resource.data.appVersion == resource.data.appVersion
+          && request.resource.data.protocolVersion == resource.data.protocolVersion
           && request.resource.data.hostUid == resource.data.hostUid
           && request.resource.data.hostId == resource.data.hostId;
       }
+      function validAutomaticInitial(player, cents) {
+        return player.buyins is list
+          && player.buyins.size() == 1
+          && player.buyins[0].amountCents == cents
+          && player.buyins[0].kind == 'initial'
+          && player.buyins[0].approved == true
+          && player.buyins[0].approvalMethod == 'join';
+      }
+
+      // The host is the authority for the table, but cannot alter their own
+      // approved buy-ins. Host buy-ins are verified/corrected by the co-host.
       function hostUpdate() {
-        return isHost() && immutableCoreUnchanged();
+        return isHost()
+          && currentClientWrite()
+          && immutableCoreUnchanged()
+          && request.resource.data.players[resource.data.hostId].buyins
+              == resource.data.players[resource.data.hostId].buyins
+          && request.resource.data.players[resource.data.hostId].cashedOut
+                == resource.data.players[resource.data.hostId].cashedOut
+          && request.resource.data.players[resource.data.hostId].finalCents
+                == resource.data.players[resource.data.hostId].finalCents
+          && request.resource.data.players[resource.data.hostId].finalAmount
+                == resource.data.players[resource.data.hostId].finalAmount;
       }
-      function linkedVerifiedRequest(requestId) {
-        let verified = getAfter(/databases/$(database)/documents/poker_games_v2/$(gameCode)/requests/$(requestId));
-        return verified.data.status == 'approved'
-          && verified.data.approverUid == request.auth.uid
-          && verified.data.approverId == resource.data.members[request.auth.uid]
-          && request.resource.data.players.diff(resource.data.players).affectedKeys().hasOnly([verified.data.targetId]);
+
+      function linkedApprovedRequest(requestId) {
+        let approved = getAfter(/databases/$(database)/documents/poker_games_v2/$(gameCode)/requests/$(requestId));
+        return approved.data.status == 'approved'
+          && approved.data.approverUid == request.auth.uid
+          && approved.data.approverId == resource.data.members[request.auth.uid]
+          && approved.data.targetId == resource.data.hostId
+          && request.resource.data.players.diff(resource.data.players).affectedKeys()
+              .hasOnly([resource.data.hostId]);
       }
+
+      // Co-host may write the host's buy-in only as part of an approved QR
+      // request. This prevents the host from approving their own rebuy.
       function coHostLedgerUpdate() {
         let requestId = request.resource.data.lastVerifiedRequestId;
         return isCoHost()
-          && resource.data.phase == 'active'
-          && request.resource.data.phase == 'active'
+          && currentClientWrite()
+          && (resource.data.phase == 'active' || resource.data.phase == 'settling')
+          && request.resource.data.phase == resource.data.phase
           && immutableCoreUnchanged()
           && requestId is string
           && requestId != resource.data.lastVerifiedRequestId
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-            'players', 'revision', 'updatedAtMs', 'lastVerifiedRequestId'
+            'players', 'revision', 'updatedAtMs', 'lastVerifiedRequestId', 'lastClientVersion', 'writeNonce'
           ])
-          && linkedVerifiedRequest(requestId);
+          && linkedApprovedRequest(requestId);
       }
-      function validMemberBuyinReceipt(requestId, pid) {
-        let verified = getAfter(/databases/$(database)/documents/poker_games_v2/$(gameCode)/requests/$(requestId));
-        let beforeList = resource.data.players[pid].buyins;
-        let afterList = request.resource.data.players[pid].buyins;
-        let added = afterList[beforeList.size()];
-        return request.resource.data.players.diff(resource.data.players).affectedKeys().hasOnly([pid])
-          && request.resource.data.players[pid].diff(resource.data.players[pid]).affectedKeys().hasOnly(['buyins'])
-          && afterList.size() == beforeList.size() + 1
-          && verified.data.type == 'buyin'
-          && verified.data.status == 'approved'
-          && verified.data.targetId == pid
-          && verified.data.targetUid == request.auth.uid
-          && verified.data.chipsReceivedByUid == request.auth.uid
-          && verified.data.chipsReceivedByPlayerId == pid
-          && added.requestId == requestId
-          && added.amountCents == verified.data.amountCents
-          && added.approved == true
-          && added.approvedBy == verified.data.approverId
-          && added.approvalMethod == 'qr'
-          && added.challengeId == verified.data.challengeId
-          && added.chipsReceivedBy == pid;
-      }
-      function memberBuyinReceiptUpdate() {
-        let pid = memberPlayerId();
-        let requestId = request.resource.data.lastVerifiedRequestId;
-        return isMember()
+
+      // Co-host may correct/void the host's buy-in history. The app only
+      // exposes a reasoned VOID action; players cannot alter their own ledger.
+      function coHostHostCorrectionUpdate() {
+        return isCoHost()
+          && currentClientWrite()
           && resource.data.phase == 'active'
           && request.resource.data.phase == 'active'
           && immutableCoreUnchanged()
-          && requestId is string
-          && requestId != resource.data.lastVerifiedRequestId
+          && request.resource.data.lastVerifiedRequestId == resource.data.lastVerifiedRequestId
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-            'players', 'revision', 'updatedAtMs', 'lastVerifiedRequestId'
+            'players', 'revision', 'updatedAtMs', 'lastClientVersion', 'writeNonce'
           ])
-          && request.resource.data.revision == resource.data.revision + 1
-          && validMemberBuyinReceipt(requestId, pid);
+          && request.resource.data.players.diff(resource.data.players).affectedKeys()
+              .hasOnly([resource.data.hostId])
+          && request.resource.data.players[resource.data.hostId]
+              .diff(resource.data.players[resource.data.hostId]).affectedKeys()
+              .hasOnly(['buyins']);
       }
+
+      function coHostHostCashoutCorrectionUpdate() {
+        return isCoHost()
+          && currentClientWrite()
+          && (resource.data.phase == 'active' || resource.data.phase == 'settling')
+          && request.resource.data.phase == resource.data.phase
+          && immutableCoreUnchanged()
+          && request.resource.data.lastVerifiedRequestId == resource.data.lastVerifiedRequestId
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'players', 'revision', 'updatedAtMs', 'lastClientVersion', 'writeNonce'
+          ])
+          && request.resource.data.players.diff(resource.data.players).affectedKeys()
+              .hasOnly([resource.data.hostId])
+          && request.resource.data.players[resource.data.hostId]
+              .diff(resource.data.players[resource.data.hostId]).affectedKeys()
+              .hasOnly(['cashedOut', 'finalCents', 'finalAmount']);
+      }
+
+      function coHostTakeoverUpdate() {
+        return isCoHost()
+          && currentClientWrite()
+          && resource.data.phase == 'active'
+          && request.resource.data.phase == 'active'
+          && request.resource.data.code == resource.data.code
+          && request.resource.data.schemaVersion == resource.data.schemaVersion
+          && request.resource.data.appVersion == resource.data.appVersion
+          && request.resource.data.protocolVersion == resource.data.protocolVersion
+          && request.resource.data.hostId == resource.data.coHostId
+          && request.resource.data.hostUid == resource.data.coHostUid
+          && request.resource.data.coHostId == resource.data.hostId
+          && request.resource.data.coHostUid == resource.data.hostUid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'hostId', 'hostUid', 'coHostId', 'coHostUid',
+            'revision', 'updatedAtMs', 'lastClientVersion', 'writeNonce'
+          ]);
+      }
+
       function memberSelfUpdate() {
         return isMember()
+          && currentClientWrite()
           && immutableCoreUnchanged()
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-            'players', 'revision', 'updatedAtMs'
+            'players', 'revision', 'updatedAtMs', 'lastClientVersion', 'writeNonce'
           ])
           && request.resource.data.players.diff(resource.data.players).affectedKeys()
               .hasOnly([memberPlayerId()])
@@ -110,17 +165,22 @@ service cloud.firestore {
               .diff(resource.data.players[memberPlayerId()]).affectedKeys()
               .hasOnly(['name', 'phone']);
       }
+
+      // Everyone joins the same way: joining automatically creates the
+      // standard initial buy-in. Rebuys use the one-time QR flow below.
       function firstJoinUpdate() {
         let pid = request.resource.data.members[request.auth.uid];
         return signedIn()
+          && currentClientWrite()
           && !isMember()
           && incomingHasMembersMap()
           && request.resource.data.members.keys().hasAny([request.auth.uid])
           && resource.data.phase == 'active'
+          && resource.data.joinLocked == false
           && request.resource.data.phase == 'active'
           && immutableCoreUnchanged()
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-            'players', 'members', 'revision', 'updatedAtMs'
+            'players', 'members', 'revision', 'updatedAtMs', 'lastClientVersion', 'writeNonce'
           ])
           && request.resource.data.members.diff(resource.data.members).affectedKeys()
               .hasOnly([request.auth.uid])
@@ -129,35 +189,43 @@ service cloud.firestore {
               .hasOnly([pid])
           && request.resource.data.players[pid].id == pid
           && request.resource.data.players[pid].authUid == request.auth.uid
-          && request.resource.data.players[pid].buyins is list
-          && request.resource.data.players[pid].buyins.size() == 0
+          && validAutomaticInitial(request.resource.data.players[pid], resource.data.buyInCents)
           && request.resource.data.players[pid].cashedOut == false
-          && request.resource.data.players[pid].finalAmount == null;
+          && request.resource.data.players[pid].finalAmount == null
+          && request.resource.data.players[pid].finalCents == null;
       }
 
-      // An invite code is effectively the lookup secret. Auth is still required.
       allow get: if signedIn();
       allow list: if false;
 
       allow create: if signedIn()
         && request.resource.data.schemaVersion == 2
+        && request.resource.data.appVersion == '2.6'
+        && request.resource.data.protocolVersion == 26
+        && request.resource.data.lastClientVersion == '2.6'
+        && request.resource.data.writeNonce is string
         && request.resource.data.code == gameCode
+        && request.resource.data.joinLocked == false
         && request.resource.data.phase == 'active'
         && request.resource.data.hostUid == request.auth.uid
         && request.resource.data.members is map
         && request.resource.data.members.keys().hasAny([request.auth.uid])
         && request.resource.data.hostId == request.resource.data.members[request.auth.uid]
-        && request.resource.data.players[request.resource.data.hostId].authUid == request.auth.uid;
+        && request.resource.data.players[request.resource.data.hostId].authUid == request.auth.uid
+        && validAutomaticInitial(
+             request.resource.data.players[request.resource.data.hostId],
+             request.resource.data.buyInCents
+           );
 
       allow update: if hostUpdate()
         || coHostLedgerUpdate()
-        || memberBuyinReceiptUpdate()
+        || coHostHostCorrectionUpdate()
+        || coHostHostCashoutCorrectionUpdate()
+        || coHostTakeoverUpdate()
         || memberSelfUpdate()
         || firstJoinUpdate();
       allow delete: if false;
 
-      // Rebuy and cash-out requests are separate documents so ordinary members
-      // never need permission to edit the shared ledger to ask for money changes.
       match /requests/{requestId} {
         function parentNow() {
           return get(/databases/$(database)/documents/poker_games_v2/$(gameCode));
@@ -171,12 +239,12 @@ service cloud.firestore {
             && g.data.members is map
             && g.data.members.keys().hasAny([request.auth.uid]);
         }
-        function myPlayerId() {
-          return parentNow().data.members[request.auth.uid];
+        function playerActive(player) {
+          return !player.keys().hasAny(['removed']) || player.removed == false;
         }
         function requestShapeValid() {
           return request.resource.data.keys().hasOnly([
-            'schemaVersion', 'type', 'status', 'targetId', 'targetUid',
+            'schemaVersion', 'clientVersion', 'type', 'status', 'targetId', 'targetUid',
             'amountCents', 'amount', 'approverId', 'approverUid',
             'requesterId', 'requesterUid', 'ts',
             'approvalMode', 'challengeId', 'challengeExpiresAtMs'
@@ -195,14 +263,18 @@ service cloud.firestore {
           let isBuyin = request.resource.data.type == 'buyin';
           let isCashout = request.resource.data.type == 'cashout';
           return isParentMember()
-            && g.phase == 'active'
+            && ((isBuyin && g.phase == 'active')
+              || (isCashout && (g.phase == 'active' || g.phase == 'settling')))
             && requestShapeValid()
             && request.resource.data.schemaVersion == 2
+            && request.resource.data.clientVersion == '2.6'
             && request.resource.data.status == 'pending'
             && (isBuyin || isCashout)
             && request.resource.data.requesterUid == request.auth.uid
             && request.resource.data.requesterId == mine
             && g.players.keys().hasAny([request.resource.data.targetId])
+            && playerActive(g.players[request.resource.data.targetId])
+            && request.resource.data.targetId == mine
             && request.resource.data.targetUid == g.players[request.resource.data.targetId].authUid
             && request.resource.data.amountCents is int
             && ((isBuyin && request.resource.data.amountCents > 0)
@@ -210,23 +282,31 @@ service cloud.firestore {
             && correctApprover()
             && (
               (isBuyin
-                && request.resource.data.targetId == mine
                 && request.resource.data.approvalMode == 'qr'
                 && request.resource.data.challengeId is string
                 && request.resource.data.challengeExpiresAtMs is int)
               ||
-              (isCashout
-                && (g.hostUid == request.auth.uid || request.resource.data.targetId == mine))
+              isCashout
             );
+        }
+        function validQrRefresh() {
+          let g = parentNow().data;
+          return isParentMember()
+            && resource.data.type == 'buyin'
+            && resource.data.status == 'pending'
+            && resource.data.requesterUid == request.auth.uid
+            && playerActive(g.players[resource.data.targetId])
+            && request.resource.data.status == 'pending'
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'challengeId', 'challengeExpiresAtMs'
+            ])
+            && request.resource.data.challengeId is string
+            && request.resource.data.challengeId != resource.data.challengeId
+            && request.resource.data.challengeExpiresAtMs is int;
         }
         function decisionFieldsOnly() {
           return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
             'status', 'decidedAt', 'decidedByUid', 'decidedByPlayerId'
-          ]);
-        }
-        function chipReceiptFieldsOnly() {
-          return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-            'status', 'chipsReceivedAt', 'chipsReceivedByUid', 'chipsReceivedByPlayerId'
           ]);
         }
         function validRejectOrCancel() {
@@ -256,16 +336,6 @@ service cloud.firestore {
             && ch.usedByUid == request.auth.uid
             && ch.usedByPlayerId == resource.data.approverId;
         }
-        function validBuyinVerification() {
-          return resource.data.type == 'buyin'
-            && resource.data.status == 'pending'
-            && request.resource.data.status == 'verified'
-            && decisionFieldsOnly()
-            && resource.data.approverUid == request.auth.uid
-            && request.resource.data.decidedByUid == request.auth.uid
-            && request.resource.data.decidedByPlayerId == resource.data.approverId
-            && validQrProof();
-        }
         function validBuyinAppend(before, after, target) {
           let beforeList = before.players[target].buyins;
           let afterList = after.players[target].buyins;
@@ -273,32 +343,33 @@ service cloud.firestore {
           return afterList.size() == beforeList.size() + 1
             && added.requestId == requestId
             && added.amountCents == resource.data.amountCents
+            && added.kind == 'rebuy'
             && added.approved == true
             && added.approvedBy == resource.data.approverId
             && added.approvalMethod == 'qr'
-            && added.challengeId == resource.data.challengeId
-            && added.chipsReceivedBy == resource.data.targetId;
+            && added.challengeId == resource.data.challengeId;
         }
-        function validBuyinReceipt() {
+        function validBuyinApproval() {
           let before = parentNow().data;
           let after = parentAfter().data;
           let target = resource.data.targetId;
           let playerFields = after.players[target].diff(before.players[target]).affectedKeys();
           return resource.data.type == 'buyin'
-            && resource.data.status == 'verified'
+            && resource.data.status == 'pending'
             && request.resource.data.status == 'approved'
-            && chipReceiptFieldsOnly()
-            && resource.data.targetUid == request.auth.uid
-            && target == before.members[request.auth.uid]
-            && request.resource.data.chipsReceivedByUid == request.auth.uid
-            && request.resource.data.chipsReceivedByPlayerId == target
+            && decisionFieldsOnly()
+            && resource.data.approverUid == request.auth.uid
+            && request.resource.data.decidedByUid == request.auth.uid
+            && request.resource.data.decidedByPlayerId == resource.data.approverId
             && before.phase == 'active'
+            && playerActive(before.players[target])
             && after.phase == 'active'
             && after.revision == before.revision + 1
             && after.lastVerifiedRequestId == requestId
             && after.players.diff(before.players).affectedKeys().hasOnly([target])
             && playerFields.hasOnly(['buyins'])
-            && validBuyinAppend(before, after, target);
+            && validBuyinAppend(before, after, target)
+            && validQrProof();
         }
         function validCashoutApproval() {
           let before = parentNow().data;
@@ -312,8 +383,9 @@ service cloud.firestore {
             && resource.data.approverUid == request.auth.uid
             && request.resource.data.decidedByUid == request.auth.uid
             && request.resource.data.decidedByPlayerId == resource.data.approverId
-            && before.phase == 'active'
-            && after.phase == 'active'
+            && (before.phase == 'active' || before.phase == 'settling')
+            && playerActive(before.players[target])
+            && after.phase == before.phase
             && after.revision == before.revision + 1
             && after.lastVerifiedRequestId == requestId
             && after.players.diff(before.players).affectedKeys().hasOnly([target])
@@ -325,12 +397,13 @@ service cloud.firestore {
 
         allow get, list: if isParentMember();
         allow create: if validCreate();
-        allow update: if signedIn() && (validRejectOrCancel() || validBuyinVerification() || validBuyinReceipt() || validCashoutApproval());
+        allow update: if signedIn()
+          && (validQrRefresh() || validRejectOrCancel() || validBuyinApproval() || validCashoutApproval());
         allow delete: if false;
       }
 
-      // Hidden one-time rebuy challenge. The verifier cannot read the secret
-      // from Firestore; they only receive it by scanning the player's QR.
+      // One-time QR challenge. The verifier only receives the secret by
+      // physically scanning the player's screen.
       match /buyin_challenges/{challengeId} {
         function linkedRequestAfter() {
           return getAfter(/databases/$(database)/documents/poker_games_v2/$(gameCode)/requests/$(request.resource.data.requestId));
@@ -378,8 +451,8 @@ service cloud.firestore {
           && request.resource.data.usedByUid == request.auth.uid
           && request.resource.data.presentedSecret == resource.data.secret
           && request.resource.data.usedAt == request.time
-          && request.time < resource.data.createdAt + duration.value(90, 's')
-          && linkedRequestAfterUse().data.status == 'verified'
+          && request.time < resource.data.createdAt + duration.value(210, 's')
+          && linkedRequestAfterUse().data.status == 'approved'
           && linkedRequestAfterUse().data.approverUid == request.auth.uid
           && linkedRequestAfterUse().data.approverId == request.resource.data.usedByPlayerId
           && linkedRequestAfterUse().data.challengeId == challengeId;
@@ -387,8 +460,6 @@ service cloud.firestore {
         allow delete: if false;
       }
 
-      // Append-only activity trail. getAfter lets creation/join transactions
-      // create their audit event in the same atomic operation.
       match /events/{eventId} {
         function parentAfterForEvent() {
           return getAfter(/databases/$(database)/documents/poker_games_v2/$(gameCode));

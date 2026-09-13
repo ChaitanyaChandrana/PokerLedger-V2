@@ -1,46 +1,54 @@
-const CACHE = 'poker-ledger-v2-qr-2026-09-11-ready-1';
-const LOCAL_ASSETS = ['./', './manifest.json'];
+const CACHE_NAME = "poker-ledger-v26";
+const APP_SHELL = ["./", "./index.html", "./manifest.json"];
 
-self.addEventListener('install', event => {
+self.addEventListener("install", event => {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE).then(cache => cache.addAll(LOCAL_ASSETS).catch(() => {}))
+    caches.open(CACHE_NAME).then(cache =>
+      Promise.all(APP_SHELL.map(url => cache.add(url).catch(() => null)))
+    )
   );
 });
 
-self.addEventListener('activate', event => {
+self.addEventListener("activate", event => {
   event.waitUntil(
-    caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
 
-self.addEventListener('fetch', event => {
+self.addEventListener("fetch", event => {
   const req = event.request;
-  if (req.method !== 'GET') return;
+  if (req.method !== "GET") return;
 
-  if (req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html')) {
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return;
+
+  if (req.mode === "navigate") {
     event.respondWith(
-      fetch(req).then(res => {
-        const copy = res.clone();
-        caches.open(CACHE).then(cache => cache.put(req, copy));
-        return res;
-      }).catch(() => caches.match(req).then(r => r || caches.match('./')))
+      fetch(req)
+        .then(res => {
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put("./index.html", copy)).catch(() => {});
+          return res;
+        })
+        .catch(async () => {
+          return (await caches.match("./index.html")) || (await caches.match("./"));
+        })
     );
     return;
   }
 
-  const url = new URL(req.url);
-  if (url.origin === self.location.origin) {
-    event.respondWith(
-      caches.match(req).then(cached => {
-        const network = fetch(req).then(res => {
+  event.respondWith(
+    fetch(req)
+      .then(res => {
+        if (res && res.ok) {
           const copy = res.clone();
-          caches.open(CACHE).then(cache => cache.put(req, copy));
-          return res;
-        }).catch(() => cached);
-        return cached || network;
+          caches.open(CACHE_NAME).then(cache => cache.put(req, copy)).catch(() => {});
+        }
+        return res;
       })
-    );
-  }
+      .catch(() => caches.match(req))
+  );
 });
