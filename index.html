@@ -2412,7 +2412,7 @@ function PokerLedger() {
       className: "font-display font-bold text-bone text-4xl mb-1 tracking-tight"
     }, "Poker Ledger"), /*#__PURE__*/React.createElement("p", {
       className: "font-data text-gold-300 text-xs mb-1"
-    }, "V2.6.6 · blank-screen fix"), /*#__PURE__*/React.createElement("p", {
+    }, "V2.6.7 · host end-game"), /*#__PURE__*/React.createElement("p", {
       className: "font-data text-smoke text-sm mb-10"
     }, "everyone joins from their own phone"), /*#__PURE__*/React.createElement("div", {
       className: "w-full max-w-sm space-y-3"
@@ -3395,13 +3395,13 @@ function PokerLedger() {
     }, "+ Add Guest Without Phone"))), phase === "active" && me && !me.removed && /*#__PURE__*/React.createElement("div", {
       className: "fixed bottom-0 left-0 right-0 p-4 bg-felt-950/90 backdrop-blur-md border-t border-felt-700"
     }, /*#__PURE__*/React.createElement("div", {
-      className: "max-w-sm mx-auto"
+      className: "max-w-sm mx-auto space-y-2"
     }, me.cashedOut ? /*#__PURE__*/React.createElement("div", {
-      className: "rounded-2xl border border-mint-500/40 bg-mint-500/10 px-4 py-3 text-center"
+      className: "rounded-2xl border border-mint-500/40 bg-mint-500/10 px-4 py-2.5 text-center"
     }, /*#__PURE__*/React.createElement("p", {
       className: "font-data text-mint-400 text-sm"
-    }, "✓ Cashed out ", money(me.finalAmount || 0))) : myPendingCashOut ? /*#__PURE__*/React.createElement("div", {
-      className: "rounded-2xl border border-gold-500/40 bg-gold-500/10 px-4 py-3"
+    }, "✓ Your cash-out confirmed · ", money(me.finalAmount || 0))) : myPendingCashOut ? /*#__PURE__*/React.createElement("div", {
+      className: "rounded-2xl border border-gold-500/40 bg-gold-500/10 px-4 py-2.5"
     }, /*#__PURE__*/React.createElement("div", {
       className: "flex items-center justify-between gap-3"
     }, /*#__PURE__*/React.createElement("div", {
@@ -3421,18 +3421,13 @@ function PokerLedger() {
         setCashingOutId(me.id);
       },
       className: "font-data text-gold-300 text-xs underline shrink-0"
-    }, "Change"))) : isHost ? /*#__PURE__*/React.createElement("div", {
-      className: "flex gap-2"
-    }, /*#__PURE__*/React.createElement("button", {
+    }, "Change"))) : /*#__PURE__*/React.createElement("button", {
       onClick: () => startCashOut(me.id),
-      className: `flex-1 ${goldBtn} py-3 text-base`
-    }, "Cash Out"), /*#__PURE__*/React.createElement("button", {
+      className: `w-full ${goldBtn} py-3 text-base`
+    }, "Cash Out"), isHost && /*#__PURE__*/React.createElement("button", {
       onClick: startSettling,
-      className: `flex-1 ${ghostBtn} py-3 text-base`
-    }, "End Game")) : /*#__PURE__*/React.createElement("button", {
-      onClick: () => startCashOut(me.id),
-      className: `w-full ${goldBtn} py-3.5 text-base`
-    }, "Cash Out"))), phase === "settling" && me && !me.removed && /*#__PURE__*/React.createElement("div", {
+      className: `w-full ${ghostBtn} py-3 text-base`
+    }, "End Game & Settle"))), phase === "settling" && me && !me.removed && /*#__PURE__*/React.createElement("div", {
       className: "fixed bottom-0 left-0 right-0 p-4 bg-felt-950/90 backdrop-blur-md border-t border-felt-700"
     }, /*#__PURE__*/React.createElement("div", {
       className: "max-w-sm mx-auto"

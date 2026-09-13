@@ -1,30 +1,27 @@
-# Poker Ledger V2.6.3 — End-game cash-out
+# Poker Ledger V2.6.7 — Host End Game
 
-UI-only update. No Firestore rules change is required.
+UI-only fix. No Firestore rules change is required.
 
-## What changed
-When the host ends the game, every authenticated player's bottom action area stays visible.
+## Fixed
+The host's own cash-out status no longer replaces the host's table controls.
 
-If the player has not submitted:
-**Enter My Cash-out**
+During an active game, the host ALWAYS retains:
 
-Tapping it opens the focused cash-out screen:
-- Count your chips
-- Enter final value
-- Submit for Approval
+**End Game & Settle**
 
-If submitted:
-**Cash-out submitted · $XX**
-**Waiting for Host/Co-host approval**
+regardless of whether the host's own cash-out is:
+- not submitted,
+- waiting for co-host approval, or
+- already confirmed.
 
-If approved:
-**✓ Cash-out confirmed · $XX**
+The host's personal cash-out status appears above the End Game button.
 
-The host sees the same personal cash-out status plus the normal Back / Calculate Settlement controls.
-
-This means cash-out remains obvious both:
-- when someone leaves midway, and
-- when the whole table ends the game.
+After tapping **End Game & Settle**, the game moves to the normal settling screen where:
+- players can submit their own cash-outs,
+- host can complete missing non-host cash-outs,
+- host/co-host approvals are resolved,
+- table reconciliation is shown,
+- and the host can finalize/show the settlement.
 
 ## Deploy
 1. Replace GitHub `index.html`.
@@ -32,4 +29,4 @@ This means cash-out remains obvious both:
 3. Commit to `main`.
 4. No Firebase rules change.
 5. Fully close and reopen the site.
-6. Confirm it says `V2.6.3 · end-game cash-out`.
+6. Confirm it says `V2.6.7 · host end-game`.
