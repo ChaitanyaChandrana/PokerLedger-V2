@@ -2022,7 +2022,7 @@ function PokerLedger() {
       className: "font-display font-bold text-bone text-4xl mb-1 tracking-tight"
     }, "Poker Ledger"), /*#__PURE__*/React.createElement("p", {
       className: "font-data text-gold-300 text-xs mb-1"
-    }, "V2.4 · streamlined"), /*#__PURE__*/React.createElement("p", {
+    }, "V2.4.1 · streamlined"), /*#__PURE__*/React.createElement("p", {
       className: "font-data text-smoke text-sm mb-10"
     }, "everyone joins from their own phone"), /*#__PURE__*/React.createElement("div", {
       className: "w-full max-w-sm space-y-3"
@@ -2285,7 +2285,77 @@ function PokerLedger() {
         ), /*#__PURE__*/React.createElement("button", { onClick: confirmScannedRebuy, className: `w-full ${goldBtn} py-4 text-base` }, "Approve ", money(fromCents(rebuyScanCandidate.req.amountCents)), " Rebuy"),
         /*#__PURE__*/React.createElement("button", { onClick: closeRebuyScanner, className: "w-full font-data text-smoke text-sm underline text-center" }, "cancel")
       )
-    )), showSpotCheck && /*#__PURE__*/React.createElement("div", {
+    )), showQR && /*#__PURE__*/React.createElement("div", {
+      className: "fixed inset-0 bg-felt-950/95 z-50 flex flex-col items-center justify-center p-6",
+      onClick: e => {
+        if (e.target === e.currentTarget) setShowQR(false);
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "w-full max-w-sm text-center"
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "font-display font-bold text-bone text-xl mb-4"
+    }, "Scan to join ", game.name), /*#__PURE__*/React.createElement(QRCode, {
+      text: joinUrl,
+      size: 220
+    }), /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-smoke text-xs mt-4"
+    }, "or enter this game code"), /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-gold-300 text-lg mt-2 tracking-widest"
+    }, game.code), /*#__PURE__*/React.createElement("div", {
+      className: "flex gap-2 mt-5"
+    }, /*#__PURE__*/React.createElement("button", {
+      onClick: async () => {
+        try {
+          if (navigator.share) {
+            await navigator.share({
+              title: game.name,
+              text: `Join ${game.name} on Poker Ledger`,
+              url: joinUrl
+            });
+            return;
+          }
+        } catch {}
+        try {
+          await navigator.clipboard.writeText(joinUrl);
+          setError("Invite link copied.");
+        } catch {
+          setError("Copy this game code: " + game.code);
+        }
+      },
+      className: `flex-1 ${goldBtn} py-3 text-sm`
+    }, "Share Invite"), /*#__PURE__*/React.createElement("button", {
+      onClick: () => setShowQR(false),
+      className: `flex-1 ${ghostBtn} py-3 text-sm`
+    }, "Close")))), showCoHostPicker && /*#__PURE__*/React.createElement("div", {
+      className: "fixed inset-0 bg-felt-950/95 z-50 flex flex-col items-center justify-center p-6",
+      onClick: e => {
+        if (e.target === e.currentTarget) setShowCoHostPicker(false);
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "w-full max-w-sm"
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "font-display font-bold text-bone text-xl mb-1"
+    }, "Co-Host"), /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-smoke text-sm mb-4"
+    }, "The host approves everyone else's rebuys. The co-host approves the host's rebuys, so nobody can approve their own."), coHostName && /*#__PURE__*/React.createElement("div", {
+      className: "flex items-center justify-between bg-felt-900 border border-gold-500/40 rounded-xl px-3.5 py-2.5 mb-3"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "font-data text-bone text-sm"
+    }, "Current: ", coHostName), /*#__PURE__*/React.createElement("button", {
+      onClick: removeCoHost,
+      className: "font-data text-coral-400 text-xs underline"
+    }, "remove")), /*#__PURE__*/React.createElement("div", {
+      className: "space-y-1.5 max-h-72 overflow-y-auto"
+    }, players.filter(p => p.id !== game.hostId).map(p => /*#__PURE__*/React.createElement("button", {
+      key: p.id,
+      onClick: () => assignCoHost(p.id),
+      className: `w-full text-left font-data text-sm rounded-xl px-3.5 py-2.5 border transition ${game.coHostId === p.id ? "border-gold-500/60 bg-gold-500/10 text-gold-300" : "border-felt-700 bg-felt-900/60 text-bone"}`
+    }, p.name)), players.filter(p => p.id !== game.hostId).length === 0 && /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-smoke text-sm"
+    }, "No other players yet.")), /*#__PURE__*/React.createElement("button", {
+      onClick: () => setShowCoHostPicker(false),
+      className: "mt-4 w-full font-data text-smoke text-sm underline text-center"
+    }, "close"))), showSpotCheck && /*#__PURE__*/React.createElement("div", {
       className: "fixed inset-0 bg-felt-950/95 z-50 flex flex-col items-center justify-center p-6",
       onClick: e => {
         if (e.target === e.currentTarget) closeSpotCheck();
