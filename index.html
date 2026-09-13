@@ -637,6 +637,28 @@ function tapFeedback() {
     osc.stop(ctx.currentTime + 0.15);
   } catch {}
 }
+function rebuyRequestAlertFeedback() {
+  try {
+    if (navigator.vibrate) navigator.vibrate([70, 55, 70]);
+  } catch {}
+  // Browsers may block audio until the user has interacted with the page.
+  // If allowed, play one very short, quiet table-friendly chime.
+  try {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return;
+    const ctx = new Ctx();
+    if (ctx.state === "suspended" && ctx.resume) ctx.resume().catch(() => {});
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = 660;
+    gain.gain.setValueAtTime(0.035, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.09);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.09);
+  } catch {}
+}
 const fontStyle = /*#__PURE__*/React.createElement("style", null, `
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
     body { font-family: 'Inter', sans-serif; }
@@ -850,6 +872,7 @@ function PokerLedger() {
   const [pendingRejoin, setPendingRejoin] = useState(null);
   const [activity, setActivity] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
+  const alertedRebuyRequestIdsRef = useRef(new Set());
   const [finalInputs, setFinalInputs] = useState({});
   const [savingFinalId, setSavingFinalId] = useState(null);
   const [expandedId, setExpandedId] = useState(null);
@@ -2118,6 +2141,13 @@ function PokerLedger() {
   const isCoHost = game && role && game.coHostId === role.playerId && (!game.coHostUid || game.coHostUid === (auth.currentUser && auth.currentUser.uid));
   const me = game && role ? game.players[role.playerId] : null;
   const pendingList = pendingRequests.filter(r => r.type === "buyin" && r.status === "pending");
+  const approverPendingBuyIns = role
+    ? pendingList.filter(r => r.approverId === role.playerId)
+    : [];
+  const nextApproverBuyIn = approverPendingBuyIns[0] || null;
+  const otherPendingBuyIns = role
+    ? pendingList.filter(r => r.approverId !== role.playerId)
+    : pendingList;
   const pendingCashOutList = pendingRequests.filter(r => r.type === "cashout" && r.status === "pending");
   const completedBuyInCountFor = p => (p.buyins || []).filter(b => !b.voided).length;
   const pendingBuyInCountFor = playerId => pendingList.filter(r => r.targetId === playerId).length;
@@ -2155,6 +2185,27 @@ function PokerLedger() {
   const discrepancy = fromCents(discrepancyCents);
   const maxBuyins = players.length ? Math.max(1, ...players.map(p => (p.buyins || []).filter(b => !b.voided).length)) : 1;
   const phase = game ? game.phase : null;
+  useEffect(() => {
+    if (!game || !role || phase !== "active") {
+      if (typeof document !== "undefined") document.title = "Poker Ledger — Poker Buy-ins & Settlement";
+      return;
+    }
+    const waiting = pendingRequests.filter(r =>
+      r.type === "buyin" &&
+      r.status === "pending" &&
+      r.approverId === role.playerId
+    );
+    const newlyWaiting = waiting.filter(r => !alertedRebuyRequestIdsRef.current.has(r.id));
+    if (newlyWaiting.length > 0) {
+      newlyWaiting.forEach(r => alertedRebuyRequestIdsRef.current.add(r.id));
+      rebuyRequestAlertFeedback();
+    }
+    if (typeof document !== "undefined") {
+      document.title = waiting.length > 0
+        ? `(${waiting.length}) Rebuy waiting · Poker Ledger`
+        : `${game.name || "Poker Ledger"} · Poker Ledger`;
+    }
+  }, [pendingRequests, role && role.playerId, game && game.code, phase]);
   const cashedOutCount = players.filter(p => p.cashedOut).length;
   const cashedOutCents = players.filter(p => p.cashedOut).reduce((sum, p) => sum + (Number.isInteger(p.finalCents) ? p.finalCents : toCents(p.finalAmount || 0)), 0);
   const currentInPlayCents = Math.max(0, totalBuyInCents - cashedOutCents);
@@ -2252,7 +2303,7 @@ function PokerLedger() {
       className: "font-display font-bold text-bone text-4xl mb-1 tracking-tight"
     }, "Poker Ledger"), /*#__PURE__*/React.createElement("p", {
       className: "font-data text-gold-300 text-xs mb-1"
-    }, "V2.5 · table-ready"), /*#__PURE__*/React.createElement("p", {
+    }, "V2.5.1 · live rebuy alerts"), /*#__PURE__*/React.createElement("p", {
       className: "font-data text-smoke text-sm mb-10"
     }, "everyone joins from their own phone"), /*#__PURE__*/React.createElement("div", {
       className: "w-full max-w-sm space-y-3"
@@ -2439,8 +2490,8 @@ function PokerLedger() {
       className: "font-data text-sm text-gold-300 border border-gold-500/50 rounded-full px-3 py-1.5"
     }, "Invite"), phase === "active" && (isHost || isCoHost) && /*#__PURE__*/React.createElement("button", {
       onClick: () => openRebuyScanner(),
-      className: "font-data text-sm text-gold-300 border border-gold-500/50 rounded-full px-3 py-1.5"
-    }, "Scan"), phase === "active" && isHost && /*#__PURE__*/React.createElement("button", {
+      className: `font-data text-sm text-gold-300 border rounded-full px-3 py-1.5 transition ${approverPendingBuyIns.length > 0 ? "border-gold-500/60 bg-gold-500/10 shadow-[0_0_24px_-4px_rgba(232,178,61,0.25)]" : "border-gold-500/50"}`
+    }, approverPendingBuyIns.length > 0 ? `Scan · ${approverPendingBuyIns.length}` : "Scan"), phase === "active" && isHost && /*#__PURE__*/React.createElement("button", {
       onClick: () => setShowTableControls(true),
       className: "font-data text-sm text-gold-300 border border-gold-500/50 rounded-full px-3 py-1.5"
     }, "Table"), phase === "settled" && isHost && /*#__PURE__*/React.createElement("button", {
@@ -2465,7 +2516,30 @@ function PokerLedger() {
     }, "You're the co-host."), /*#__PURE__*/React.createElement("button", {
       onClick: takeOverHost,
       className: "font-data text-gold-300 text-xs underline"
-    }, "Host unavailable? Take over"))), /*#__PURE__*/React.createElement("div", {
+    }, "Host unavailable? Take over"))), phase === "active" && nextApproverBuyIn && (() => {
+      const target = game.players[nextApproverBuyIn.targetId];
+      if (!target) return null;
+      const existingCompleted = completedBuyInCountFor(target);
+      const rebuyNo = Math.max(1, existingCompleted);
+      return /*#__PURE__*/React.createElement("div", {
+        className: "max-w-sm mx-auto px-5 pb-2"
+      }, /*#__PURE__*/React.createElement("button", {
+        onClick: () => openRebuyScanner(nextApproverBuyIn.id),
+        className: "w-full text-left rounded-2xl border border-gold-500/60 bg-gold-500/10 px-4 py-3 shadow-[0_0_24px_-4px_rgba(232,178,61,0.25)] active:scale-[0.99] transition"
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "flex items-center justify-between gap-3"
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "min-w-0"
+      }, /*#__PURE__*/React.createElement("p", {
+        className: "font-display font-semibold text-bone text-base truncate"
+      }, target.name, " wants +", money(fromCents(nextApproverBuyIn.amountCents))), /*#__PURE__*/React.createElement("p", {
+        className: "font-data text-gold-300 text-xs mt-0.5"
+      }, "Rebuy #", rebuyNo, " · tap anywhere to scan")), /*#__PURE__*/React.createElement("span", {
+        className: "font-display font-bold text-gold-300 text-lg shrink-0"
+      }, "→")), approverPendingBuyIns.length > 1 && /*#__PURE__*/React.createElement("p", {
+        className: "font-data text-smoke text-[11px] mt-2"
+      }, "+", approverPendingBuyIns.length - 1, " more rebuy", approverPendingBuyIns.length - 1 === 1 ? "" : "s", " waiting")));
+    })(), /*#__PURE__*/React.createElement("div", {
       className: "max-w-sm mx-auto px-5 pb-2"
     }, /*#__PURE__*/React.createElement("div", {
       className: "rounded-3xl bg-gradient-to-br from-felt-800 to-felt-900 border border-felt-700 shadow-[0_0_40px_-10px_rgba(232,178,61,0.25)] p-5"
@@ -2490,9 +2564,9 @@ function PokerLedger() {
       className: "font-display font-bold text-bone text-2xl mt-1 tracking-tight"
     }, players.length))), /*#__PURE__*/React.createElement("p", {
       className: "font-data text-smoke text-sm mt-3"
-    }, totalChipsInPlay.toLocaleString(), " chips in play", totalRebuyCount > 0 ? ` · ${totalRebuyCount} rebuy${totalRebuyCount === 1 ? "" : "s"}` : "", buyInsNeedingAction > 0 && phase === "active" ? ` · ${buyInsNeedingAction} need${buyInsNeedingAction === 1 ? "s" : ""} action` : "", phase !== "active" && ` · ${money(totalFinalDollars)} final`))), showBuyInHistory && /*#__PURE__*/React.createElement(BuyInHistoryPanel, { entries: buyInHistoryEntries }), pendingList.length > 0 && /*#__PURE__*/React.createElement("div", {
+    }, totalChipsInPlay.toLocaleString(), " chips in play", totalRebuyCount > 0 ? ` · ${totalRebuyCount} rebuy${totalRebuyCount === 1 ? "" : "s"}` : "", buyInsNeedingAction > 0 && phase === "active" ? ` · ${buyInsNeedingAction} need${buyInsNeedingAction === 1 ? "s" : ""} action` : "", phase !== "active" && ` · ${money(totalFinalDollars)} final`))), showBuyInHistory && /*#__PURE__*/React.createElement(BuyInHistoryPanel, { entries: buyInHistoryEntries }), otherPendingBuyIns.length > 0 && /*#__PURE__*/React.createElement("div", {
       className: "max-w-sm mx-auto px-5 pb-2 space-y-2"
-    }, /*#__PURE__*/React.createElement("p", { className: "font-data text-xs tracking-[0.1em] text-gold-300 uppercase" }, "Pending Rebuys"), pendingList.map(pending => {
+    }, /*#__PURE__*/React.createElement("p", { className: "font-data text-xs tracking-[0.1em] text-gold-300 uppercase" }, "Pending Rebuys"), otherPendingBuyIns.map(pending => {
       const target = game.players[pending.targetId];
       const approver = game.players[pending.approverId];
       const iAmApprover = role.playerId === pending.approverId;
