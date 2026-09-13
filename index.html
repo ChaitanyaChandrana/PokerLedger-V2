@@ -401,8 +401,13 @@ const {
   useCallback,
   useMemo
 } = React;
+const APP_VERSION = "2.5";
+const GAME_PROTOCOL_VERSION = 25;
 const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
 const round2 = n => Math.round(n * 100) / 100;
+function gameIsCompatible(g) {
+  return !!g && g.protocolVersion === GAME_PROTOCOL_VERSION;
+}
 const toCents = n => Math.round((Number(n) || 0) * 100);
 const fromCents = cents => (Number(cents) || 0) / 100;
 const money = n => n < 0 ? "-$" + Math.abs(n).toFixed(2) : "$" + n.toFixed(2);
@@ -560,7 +565,7 @@ function buyInTotal(buyins) {
   return fromCents(buyInTotalCents(buyins));
 }
 function buildSummaryText(game, nets, transactions) {
-  const players = Object.values(game.players);
+  const players = Object.values(game.players).filter(p => !p.removed);
   const lines = [];
   lines.push(`${game.name} — Settlement`);
   lines.push(new Date().toLocaleString());
@@ -831,6 +836,7 @@ function PokerLedger() {
   const [rebuyScanError, setRebuyScanError] = useState("");
   const [qrTick, setQrTick] = useState(Date.now());
   const [showCoHostPicker, setShowCoHostPicker] = useState(false);
+  const [showTableControls, setShowTableControls] = useState(false);
   const [cName, setCName] = useState(() => defaultGameName([]));
   const [cBuyIn, setCBuyIn] = useState("40");
   const [cChipValue, setCChipValue] = useState("1");
@@ -845,6 +851,7 @@ function PokerLedger() {
   const [activity, setActivity] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
   const [finalInputs, setFinalInputs] = useState({});
+  const [savingFinalId, setSavingFinalId] = useState(null);
   const [expandedId, setExpandedId] = useState(null);
   const [editingNameId, setEditingNameId] = useState(null);
   const [nameInput, setNameInput] = useState("");
@@ -1009,6 +1016,12 @@ function PokerLedger() {
       if (r && r.code) {
         const res = await fsGetGame(r.code);
         if (res.ok && res.value) {
+          if (!gameIsCompatible(res.value)) {
+            setJCode(r.code);
+            setError(`This saved game was created with ${res.value.appVersion || "an older Poker Ledger version"}. V${APP_VERSION} will not write to it. Start a fresh V${APP_VERSION} game or reopen it with the matching older app.`);
+            setScreen("join");
+            return;
+          }
           const p = res.value.players && res.value.players[r.playerId];
           const sameIdentity = p && (!p.authUid || p.authUid === auth.currentUser.uid);
           if (sameIdentity) {
@@ -1044,7 +1057,13 @@ function PokerLedger() {
     if (activityUnsubRef.current) activityUnsubRef.current();
     if (requestsUnsubRef.current) requestsUnsubRef.current();
     unsubRef.current = gamesCol().doc(code).onSnapshot(snap => {
-      if (snap.exists) setGame(snap.data());
+      if (!snap.exists) return;
+      const nextGame = snap.data();
+      if (!gameIsCompatible(nextGame)) {
+        setError(`This table uses ${nextGame.appVersion || "an older app version"}. Refresh/update before making changes.`);
+        return;
+      }
+      setGame(nextGame);
     }, () => setError("Lost connection to the game — check your internet."));
     activityUnsubRef.current = gamesCol().doc(code).collection("events").orderBy("clientTs", "desc").limit(30).onSnapshot(snap => {
       setActivity(snap.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -1071,11 +1090,14 @@ function PokerLedger() {
         const snap = await tx.get(ref);
         if (!snap.exists) throw new Error("This game no longer exists.");
         const base = snap.data();
+        if (!gameIsCompatible(base)) throw new Error(`This table is not compatible with Poker Ledger V${APP_VERSION}. Refresh/update before making changes.`);
         const next = JSON.parse(JSON.stringify(base));
         const result = mutator(next, base);
         if (result === false) throw new Error("That action is no longer valid. The table changed on another device.");
         next.revision = (base.revision || 0) + 1;
         next.updatedAtMs = Date.now();
+        next.lastClientVersion = APP_VERSION;
+        next.writeNonce = uid();
         optimistic = next;
         tx.set(ref, next);
         const actor = next.players && next.players[role.playerId] ? next.players[role.playerId] : (base.players && base.players[role.playerId]);
@@ -1119,6 +1141,8 @@ function PokerLedger() {
         const buyInCents = toCents(buyIn);
         const newGame = {
           schemaVersion: 2,
+          appVersion: APP_VERSION,
+          protocolVersion: GAME_PROTOCOL_VERSION,
           code,
           name: cName.trim(),
           buyInAmount: fromCents(buyInCents),
@@ -1130,8 +1154,11 @@ function PokerLedger() {
           coHostId: null,
           coHostUid: null,
           members: { [user.uid]: playerId },
+          joinLocked: false,
           phase: "active",
           lastVerifiedRequestId: null,
+          lastClientVersion: APP_VERSION,
+          writeNonce: uid(),
           revision: 1,
           createdAtMs: Date.now(),
           updatedAtMs: Date.now(),
@@ -1178,13 +1205,13 @@ function PokerLedger() {
   function findExistingPlayer(g, name, phone) {
     const normPhone = normalizePhone(phone);
     if (normPhone) {
-      const byPhone = Object.values(g.players).find(p => normalizePhone(p.phone) === normPhone);
+      const byPhone = Object.values(g.players).find(p => !p.removed && normalizePhone(p.phone) === normPhone);
       if (byPhone) return {
         player: byPhone,
         matchedBy: "phone"
       };
     }
-    const byName = Object.values(g.players).find(p => p.name.trim().toLowerCase() === name.trim().toLowerCase());
+    const byName = Object.values(g.players).find(p => !p.removed && p.name.trim().toLowerCase() === name.trim().toLowerCase());
     if (byName) return {
       player: byName,
       matchedBy: "name"
@@ -1204,7 +1231,9 @@ function PokerLedger() {
       if (!res.ok) return setError(res.message);
       if (!res.value) return setError("No game found with that code.");
       const g = res.value;
+      if (!gameIsCompatible(g)) return setError(`This game uses ${g.appVersion || "an older Poker Ledger version"}. Open it with the matching app version or start a fresh V${APP_VERSION} game.`);
       if (g.phase !== "active") return setError(g.phase === "settled" ? "That game has already been settled." : "That game is already counting chips and is closed to new joins.");
+      if (g.joinLocked) return setError("This table is locked. Ask the host to unlock joining for a moment.");
       const match = findExistingPlayer(g, jName, jPhone);
       if (match) {
         setPendingRejoin({
@@ -1232,7 +1261,9 @@ function PokerLedger() {
         const snap = await tx.get(ref);
         if (!snap.exists) throw new Error("No game found with that code.");
         const base = snap.data();
+        if (!gameIsCompatible(base)) throw new Error(`This table requires Poker Ledger V${APP_VERSION}.`);
         if (base.phase !== "active") throw new Error("This game is no longer open for joining.");
+        if (base.joinLocked) throw new Error("This table is locked. Ask the host to unlock joining.");
         if (base.members && base.members[user.uid]) throw new Error("This device is already connected to a player in this game.");
         const next = JSON.parse(JSON.stringify(base));
         const buyInCents = buyInCentsForGame(base);
@@ -1259,6 +1290,8 @@ function PokerLedger() {
         next.members[user.uid] = playerId;
         next.revision = (base.revision || 0) + 1;
         next.updatedAtMs = Date.now();
+        next.lastClientVersion = APP_VERSION;
+        next.writeNonce = uid();
         baseAfter = next;
         tx.set(ref, next);
         tx.set(eventRef, {
@@ -1320,6 +1353,95 @@ function PokerLedger() {
       g.coHostUid = null;
     }, "cohost_removed");
   }
+  async function toggleJoinLock() {
+    if (!isHost || !game || game.phase !== "active") return;
+    const nextLocked = !game.joinLocked;
+    const result = await mutateGame(g => {
+      g.joinLocked = nextLocked;
+    }, nextLocked ? "table_locked" : "table_unlocked", { joinLocked: nextLocked });
+    if (result && result.ok) setShowTableControls(false);
+  }
+  async function takeOverHost() {
+    if (!isCoHost || !game || game.phase !== "active") return setError("Only the current co-host can take over an active table.");
+    const ok = window.confirm("Take over as host? The current host will become co-host. Existing pending requests may need to be cancelled and requested again.");
+    if (!ok) return;
+    const oldHostId = game.hostId;
+    const oldHostUid = game.hostUid;
+    const result = await mutateGame((g, base) => {
+      if (base.coHostId !== role.playerId || base.coHostUid !== (auth.currentUser && auth.currentUser.uid)) return false;
+      g.hostId = base.coHostId;
+      g.hostUid = base.coHostUid;
+      g.coHostId = oldHostId;
+      g.coHostUid = oldHostUid;
+    }, "host_transferred", { fromPlayerId: oldHostId, toPlayerId: role.playerId });
+    if (result && result.ok) {
+      const nextRole = { ...role, isHost: true };
+      saveRole(nextRole);
+      setRole(nextRole);
+      let cancelled = 0;
+      if (pendingRequests.length > 0) {
+        try {
+          const parent = gamesCol().doc(role.code);
+          const batch = db.batch();
+          pendingRequests.forEach(req => {
+            batch.update(parent.collection("requests").doc(req.id), {
+              status: "cancelled",
+              decidedAt: Date.now(),
+              decidedByUid: auth.currentUser.uid,
+              decidedByPlayerId: role.playerId
+            });
+            cancelled += 1;
+          });
+          const eventRef = parent.collection("events").doc(uid());
+          batch.set(eventRef, {
+            type: "pending_requests_cancelled_on_host_transfer",
+            actorUid: auth.currentUser.uid,
+            actorPlayerId: role.playerId,
+            actorName: game.players[role.playerId] ? game.players[role.playerId].name : "Host",
+            clientTs: Date.now(),
+            serverTs: firebase.firestore.FieldValue.serverTimestamp(),
+            meta: { count: cancelled },
+            schemaVersion: 2
+          });
+          await batch.commit();
+        } catch (e) {
+          console.error(e);
+          setError("Host role transferred, but some pending requests could not be cancelled. Cancel them manually before continuing.");
+          return;
+        }
+      }
+      setError("");
+    }
+  }
+  async function removePlayerBeforePlay(targetId) {
+    if (!isHost || !game || game.phase !== "active") return;
+    const p = game.players[targetId];
+    if (!p || targetId === game.hostId) return;
+    if (targetId === game.coHostId) return setError("Remove the co-host role first, then remove the player.");
+    const activeBuyins = (p.buyins || []).filter(b => !b.voided);
+    const hasPending = pendingRequests.some(r => r.targetId === targetId && r.status === "pending");
+    if (activeBuyins.length !== 1 || activeBuyins[0].kind !== "initial" || p.cashedOut || p.finalAmount != null || hasPending) {
+      return setError("This player already has game activity. Keep them in the ledger and use VOID/corrections instead.");
+    }
+    const ok = window.confirm(`Remove ${p.name} from the table? Their automatic initial buy-in will be voided and they will no longer count as a player.`);
+    if (!ok) return;
+    const reason = "Removed before play";
+    await mutateGame(g => {
+      const target = g.players[targetId];
+      if (!target || target.removed) return false;
+      const live = (target.buyins || []).filter(b => !b.voided);
+      if (live.length !== 1 || live[0].kind !== "initial" || target.cashedOut || target.finalAmount != null) return false;
+      live[0].voided = true;
+      live[0].voidedAt = Date.now();
+      live[0].voidedBy = role.playerId;
+      live[0].voidReason = reason;
+      target.removed = true;
+      target.removedAt = Date.now();
+      target.removedBy = role.playerId;
+      target.removeReason = reason;
+      if (target.authUid && g.members) delete g.members[target.authUid];
+    }, "player_removed_before_play", { targetId, reason });
+  }
   function approverFor(targetId) {
     if (!game) return null;
     // The host verifies every other player's buy-in/cash-out request.
@@ -1334,6 +1456,9 @@ function PokerLedger() {
     if (!target) return setError("Player no longer exists.");
     if (type === "buyin" && targetId !== role.playerId) {
       return setError("The player must request their own rebuy QR from their phone. The host can use Manual Rebuy only if their phone is unavailable.");
+    }
+    if (type === "cashout" && targetId !== role.playerId) {
+      return setError("Players enter their own cash-out amount. Guests without a phone use the host's logged Guest Cash Out override.");
     }
     const approverId = approverFor(targetId);
     if (!approverId) return setError(targetId === game.hostId
@@ -1351,6 +1476,7 @@ function PokerLedger() {
       const requester = game.players[role.playerId];
       const req = {
         schemaVersion: 2,
+        clientVersion: APP_VERSION,
         type,
         status: "pending",
         targetId,
@@ -1368,7 +1494,7 @@ function PokerLedger() {
       if (type === "buyin") {
         const challengeId = uid();
         const secret = randomQrSecret();
-        const displayExpiresAtMs = Date.now() + 60000;
+        const displayExpiresAtMs = Date.now() + 180000;
         req.approvalMode = "qr";
         req.challengeId = challengeId;
         req.challengeExpiresAtMs = displayExpiresAtMs;
@@ -1422,17 +1548,76 @@ function PokerLedger() {
     if (cents <= 0) return setError("Enter a valid buy-in amount.");
     return await createPendingRequest("buyin", targetId, cents);
   }
+  async function refreshRebuyQR(pending) {
+    try {
+      await ensureAuth();
+      if (!pending) throw new Error("Buy-in request not found.");
+      const parent = gamesCol().doc(role.code);
+      const reqRef = parent.collection("requests").doc(pending.id || pending.requestId);
+      const reqSnap = await reqRef.get();
+      if (!reqSnap.exists) throw new Error("That buy-in request no longer exists.");
+      const req = { id: reqSnap.id, ...reqSnap.data() };
+      if (req.type !== "buyin" || req.status !== "pending") throw new Error("That rebuy was already resolved.");
+      if (req.requesterUid !== auth.currentUser.uid) throw new Error("Only the requesting player can refresh this QR.");
+      const approver = game.players[req.approverId];
+      if (!approver || !approver.authUid) throw new Error("The verifier is no longer connected.");
+      const challengeId = uid();
+      const secret = randomQrSecret();
+      const displayExpiresAtMs = Date.now() + 180000;
+      const challengeRef = parent.collection("buyin_challenges").doc(challengeId);
+      const eventRef = parent.collection("events").doc(uid());
+      const batch = db.batch();
+      batch.update(reqRef, { challengeId, challengeExpiresAtMs: displayExpiresAtMs });
+      batch.set(challengeRef, {
+        schemaVersion: 2,
+        requestId: reqRef.id,
+        challengeId,
+        secret,
+        requesterUid: auth.currentUser.uid,
+        approverUid: approver.authUid,
+        targetId: req.targetId,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        displayExpiresAtMs,
+        used: false
+      });
+      batch.set(eventRef, {
+        type: "rebuy_qr_refreshed",
+        actorUid: auth.currentUser.uid,
+        actorPlayerId: role.playerId,
+        actorName: game.players[role.playerId] ? game.players[role.playerId].name : "Player",
+        clientTs: Date.now(),
+        serverTs: firebase.firestore.FieldValue.serverTimestamp(),
+        meta: { requestId: reqRef.id, targetId: req.targetId, challengeId },
+        schemaVersion: 2
+      });
+      await batch.commit();
+      setRebuyQR({
+        gameCode: role.code,
+        requestId: reqRef.id,
+        challengeId,
+        secret,
+        expiresAtMs: displayExpiresAtMs,
+        targetId: req.targetId,
+        amountCents: req.amountCents
+      });
+      return true;
+    } catch (e) {
+      console.error(e);
+      setError(e && e.message ? e.message : "Couldn't refresh the rebuy QR.");
+      return false;
+    }
+  }
   async function showRebuyQRForRequest(pending) {
     try {
       if (!pending || pending.requesterUid !== (auth.currentUser && auth.currentUser.uid)) return setError("Only the requesting player can display this QR.");
       const parent = gamesCol().doc(role.code);
       const snap = await parent.collection("buyin_challenges").doc(pending.challengeId).get();
-      if (!snap.exists) return setError("That one-time QR is no longer available. Cancel the request and start a new buy-in.");
+      if (!snap.exists) return refreshRebuyQR(pending);
       const ch = snap.data();
-      const createdMs = ch.createdAt && ch.createdAt.toMillis ? ch.createdAt.toMillis() : ((ch.displayExpiresAtMs || Date.now()) - 60000);
-      const expiresAtMs = Math.min(ch.displayExpiresAtMs || createdMs + 60000, createdMs + 60000);
+      const createdMs = ch.createdAt && ch.createdAt.toMillis ? ch.createdAt.toMillis() : ((ch.displayExpiresAtMs || Date.now()) - 180000);
+      const expiresAtMs = Math.min(ch.displayExpiresAtMs || createdMs + 180000, createdMs + 180000);
       if (ch.used) return setError("That QR was already used.");
-      if (Date.now() >= expiresAtMs) return setError("That buy-in QR expired. Cancel the request and tap Buy In again for a fresh QR.");
+      if (Date.now() >= expiresAtMs) return refreshRebuyQR(pending);
       setRebuyQR({ gameCode: role.code, requestId: pending.id, challengeId: pending.challengeId, secret: ch.secret, expiresAtMs, targetId: pending.targetId, amountCents: pending.amountCents });
     } catch (e) {
       console.error(e); setError("Couldn't reopen the buy-in QR.");
@@ -1474,6 +1659,8 @@ function PokerLedger() {
         next.lastVerifiedRequestId = requestId;
         next.revision = (g.revision || 0) + 1;
         next.updatedAtMs = Date.now();
+        next.lastClientVersion = APP_VERSION;
+        next.writeNonce = uid();
         tx.set(gameRef, next);
         tx.update(reqRef, {
           status: "approved", decidedAt: Date.now(),
@@ -1599,7 +1786,8 @@ function PokerLedger() {
     const player = game.players[targetId];
     const buyin = player && (player.buyins || []).find(x => x.id === buyinId);
     if (!buyin || buyin.voided) return;
-    const reason = window.prompt("Reason for voiding this buy-in", "Duplicate / wrong entry");
+    if (buyin.kind === "initial") return setError("Initial buy-ins aren't voided individually. If the player joined by mistake, use Remove from table before play starts.");
+    const reason = window.prompt("Reason for voiding this rebuy", "Duplicate / wrong entry");
     if (reason === null) return;
     const cleanReason = (reason.trim() || "Correction").slice(0, 120);
     await mutateGame(g => {
@@ -1665,8 +1853,16 @@ function PokerLedger() {
   }
   function startCashOut(targetId) {
     setError("");
-    const approverId = approverFor(targetId);
-    if (!approverId) return setError("Assign a co-host first — cash-outs need a second person to verify them.");
+    const target = game && game.players[targetId];
+    if (!target) return setError("Player no longer exists.");
+    const guestOverride = isHost && !target.authUid;
+    if (targetId !== role.playerId && !guestOverride) {
+      return setError("Players enter their own cash-out amount. The host verifies it.");
+    }
+    if (!guestOverride) {
+      const approverId = approverFor(targetId);
+      if (!approverId) return setError("Assign a co-host first — the host's cash-out must be verified by the co-host.");
+    }
     setCashingOutId(targetId);
     setCashOutAmount("");
   }
@@ -1676,7 +1872,24 @@ function PokerLedger() {
     const cents = toCents(amt);
     setError("");
     const targetId = cashingOutId;
-    await createPendingRequest("cashout", targetId, cents);
+    const target = game && game.players[targetId];
+    if (!target) return setError("Player no longer exists.");
+    if (!target.authUid && isHost) {
+      const reason = window.prompt("Guest cash-out reason", "Guest / no phone");
+      if (reason === null) return;
+      const cleanReason = (reason.trim() || "Guest / no phone").slice(0, 120);
+      await mutateGame(g => {
+        const p = g.players[targetId];
+        if (!p || p.authUid || p.cashedOut) return false;
+        p.cashedOut = true;
+        p.finalCents = cents;
+        p.finalAmount = fromCents(cents);
+        p.cashoutOverrideReason = cleanReason;
+      }, "guest_cashout_override", { targetId, amountCents: cents, reason: cleanReason });
+    } else {
+      if (targetId !== role.playerId) return setError("Players enter their own cash-out amount.");
+      await createPendingRequest("cashout", targetId, cents);
+    }
     setCashingOutId(null);
     setCashOutAmount("");
   }
@@ -1704,6 +1917,8 @@ function PokerLedger() {
         next.lastVerifiedRequestId = requestId;
         next.revision = (g.revision || 0) + 1;
         next.updatedAtMs = Date.now();
+        next.lastClientVersion = APP_VERSION;
+        next.writeNonce = uid();
         tx.set(gameRef, next);
         tx.update(reqRef, { status: "approved", decidedAt: Date.now(), decidedByUid: auth.currentUser.uid, decidedByPlayerId: role.playerId });
         const actor = next.players[role.playerId];
@@ -1715,7 +1930,11 @@ function PokerLedger() {
     await resolvePendingRequest(requestId, "Couldn't resolve that cash-out request.");
   }
   async function reopenPlayer(targetId) {
-    if (!isHost) return setError("Only the host can reopen a verified cash-out.");
+    const targetIsHost = game && targetId === game.hostId;
+    const authorized = targetIsHost ? isCoHost : isHost;
+    if (!authorized || targetId === role.playerId) {
+      return setError(targetIsHost ? "Only the co-host can reopen the host's verified cash-out." : "Only the host can reopen another player's verified cash-out.");
+    }
     await mutateGame(g => {
       g.players[targetId].cashedOut = false;
       g.players[targetId].finalAmount = null;
@@ -1786,7 +2005,7 @@ function PokerLedger() {
   async function startSettling() {
     if (pendingRequests.length > 0) return setError("Resolve all pending buy-ins and cash-outs before counting chips.");
     const prefill = {};
-    Object.values(game.players).forEach(p => {
+    Object.values(game.players).filter(p => !p.removed).forEach(p => {
       if (p.finalAmount != null) prefill[p.id] = String(p.finalAmount);
     });
     setFinalInputs(prefill);
@@ -1801,7 +2020,7 @@ function PokerLedger() {
   }
   async function editSettlement() {
     const prefill = {};
-    Object.values(game.players).forEach(p => {
+    Object.values(game.players).filter(p => !p.removed).forEach(p => {
       if (p.finalAmount != null) prefill[p.id] = String(p.finalAmount);
     });
     setFinalInputs(prefill);
@@ -1810,22 +2029,30 @@ function PokerLedger() {
     }, "settlement_reopened");
   }
   async function submitFinal(targetId) {
-    if (!isHost) return setError("Only the host can lock final chip counts in V2.");
+    if (!isHost) return setError("Only the host can save final chip counts in V2.");
     const raw = finalInputs[targetId];
     const amt = parseFloat(raw);
-    if (raw === undefined || raw === "" || !Number.isFinite(amt) || amt < 0) return setError("Enter a valid final dollar amount.");
+    if (raw === undefined || raw === "" || !Number.isFinite(amt) || amt < 0) return setError("Enter a valid final chip value.");
     const cents = toCents(amt);
     setError("");
-    await mutateGame(g => {
+    setSavingFinalId(targetId);
+    const result = await mutateGame(g => {
       g.players[targetId].finalCents = cents;
       g.players[targetId].finalAmount = fromCents(cents);
-    }, "final_count_locked", { targetId, amountCents: cents });
+    }, "final_count_saved", { targetId, amountCents: cents });
+    if (result && result.ok) {
+      setFinalInputs(prev => ({
+        ...prev,
+        [targetId]: String(fromCents(cents))
+      }));
+    }
+    setSavingFinalId(null);
   }
   async function finalizeSettlement() {
     if (pendingRequests.length > 0) return setError("Resolve all pending requests before settling.");
     await mutateGame(g => {
       if (g.phase !== "settling") throw new Error("The game is not in settlement mode.");
-      const playersNow = Object.values(g.players);
+      const playersNow = Object.values(g.players).filter(p => !p.removed);
       if (!playersNow.length || playersNow.some(p => p.finalAmount === null || p.finalAmount === undefined)) throw new Error("Every player needs a final chip count.");
       const totalInCents = playersNow.reduce((sum, p) => sum + buyInTotalCents(p.buyins), 0);
       const totalFinalCents = playersNow.reduce((sum, p) => sum + (Number.isInteger(p.finalCents) ? p.finalCents : toCents(p.finalAmount)), 0);
@@ -1848,7 +2075,7 @@ function PokerLedger() {
   }
   const recordedRef = useRef(null);
   useEffect(() => {
-    if (game && game.phase === "settled" && game.settlement && role && role.isHost && recordedRef.current !== game.code + game.settledAt) {
+    if (game && game.phase === "settled" && game.settlement && role && game.hostId === role.playerId && (!game.hostUid || game.hostUid === (auth.currentUser && auth.currentUser.uid)) && recordedRef.current !== game.code + game.settledAt) {
       recordedRef.current = game.code + game.settledAt;
       recordGameResult({
         id: game.code,
@@ -1856,7 +2083,7 @@ function PokerLedger() {
         date: new Date(game.settledAt || Date.now()).toISOString(),
         buyInAmount: fromCents(buyInCentsForGame(game)),
         chipsPerDollar: game.chipsPerDollar,
-        players: Object.values(game.players).map(p => ({
+        players: Object.values(game.players).filter(p => !p.removed).map(p => ({
           name: p.name,
           phone: p.phone,
           net: game.settlement.nets[p.id],
@@ -1885,7 +2112,8 @@ function PokerLedger() {
     setScreen("home");
     setCName(defaultGameName(history));
   }
-  const players = game ? Object.values(game.players) : [];
+  const allPlayers = game ? Object.values(game.players) : [];
+  const players = allPlayers.filter(p => !p.removed);
   const isHost = game && role && game.hostId === role.playerId && (!game.hostUid || game.hostUid === (auth.currentUser && auth.currentUser.uid));
   const isCoHost = game && role && game.coHostId === role.playerId && (!game.coHostUid || game.coHostUid === (auth.currentUser && auth.currentUser.uid));
   const me = game && role ? game.players[role.playerId] : null;
@@ -1894,7 +2122,7 @@ function PokerLedger() {
   const completedBuyInCountFor = p => (p.buyins || []).filter(b => !b.voided).length;
   const pendingBuyInCountFor = playerId => pendingList.filter(r => r.targetId === playerId).length;
   const totalBuyInCount = players.reduce((sum, p) => sum + completedBuyInCountFor(p), 0);
-  const buyInHistoryEntries = players.flatMap(p => {
+  const buyInHistoryEntries = allPlayers.flatMap(p => {
     let buyInNumber = 0;
     return (p.buyins || []).map(b => {
       buyInNumber += 1;
@@ -1906,7 +2134,9 @@ function PokerLedger() {
         kind: b.kind || (buyInNumber === 1 ? "initial" : "rebuy"),
         ts: b.ts || 0,
         amountCents: Number.isInteger(b.amountCents) ? b.amountCents : toCents(b.amount || 0),
-        voided: !!b.voided, voidReason: b.voidReason || "", voidedAt: b.voidedAt || null
+        voided: !!b.voided,
+        voidReason: b.voidReason || (p.removed ? "Removed before play" : ""),
+        voidedAt: b.voidedAt || p.removedAt || null
       };
     });
   }).sort((a, b) => b.ts - a.ts);
@@ -2022,7 +2252,7 @@ function PokerLedger() {
       className: "font-display font-bold text-bone text-4xl mb-1 tracking-tight"
     }, "Poker Ledger"), /*#__PURE__*/React.createElement("p", {
       className: "font-data text-gold-300 text-xs mb-1"
-    }, "V2.4.1 · streamlined"), /*#__PURE__*/React.createElement("p", {
+    }, "V2.5 · table-ready"), /*#__PURE__*/React.createElement("p", {
       className: "font-data text-smoke text-sm mb-10"
     }, "everyone joins from their own phone"), /*#__PURE__*/React.createElement("div", {
       className: "w-full max-w-sm space-y-3"
@@ -2163,6 +2393,31 @@ function PokerLedger() {
     }, joining ? "Joining..." : "Join Game"))));
   }
   if (screen === "game" && game) {
+    if (me && me.removed) {
+      return /*#__PURE__*/React.createElement("div", {
+        className: "min-h-screen bg-app-gradient flex items-center justify-center p-6"
+      }, fontStyle, /*#__PURE__*/React.createElement("div", {
+        className: "w-full max-w-sm text-center rounded-3xl bg-felt-900 border border-felt-700 p-6"
+      }, /*#__PURE__*/React.createElement("p", {
+        className: "font-display font-bold text-bone text-xl"
+      }, "You were removed from this table"), /*#__PURE__*/React.createElement("p", {
+        className: "font-data text-smoke text-sm mt-2"
+      }, "Your automatic initial buy-in was voided. Ask the host to unlock the table if you should rejoin."), !game.joinLocked && game.phase === "active" && /*#__PURE__*/React.createElement("button", {
+        onClick: () => {
+          clearRole();
+          setRole(null);
+          setJCode(game.code);
+          setJName(me.name || "");
+          setJPhone(me.phone || "");
+          setPendingRejoin(null);
+          setScreen("join");
+        },
+        className: `w-full mt-5 ${goldBtn} py-3 text-sm`
+      }, "Rejoin Table"), /*#__PURE__*/React.createElement("button", {
+        onClick: leaveGame,
+        className: `w-full mt-3 ${ghostBtn} py-3 text-sm`
+      }, "Leave Table")));
+    }
     let joinUrl = game.code;
     try {
       joinUrl = `${window.location.origin}${window.location.pathname}?code=${game.code}`;
@@ -2178,17 +2433,17 @@ function PokerLedger() {
     }, /*#__PURE__*/React.createElement("h1", {
       className: "font-display font-bold text-bone text-xl tracking-tight"
     }, game.name), /*#__PURE__*/React.createElement("div", {
-      className: "flex items-center gap-3 shrink-0"
-    }, phase !== "settled" && /*#__PURE__*/React.createElement("button", {
+      className: "flex items-center gap-2 shrink-0"
+    }, phase !== "settled" && !game.joinLocked && /*#__PURE__*/React.createElement("button", {
       onClick: () => setShowQR(true),
       className: "font-data text-sm text-gold-300 border border-gold-500/50 rounded-full px-3 py-1.5"
-    }, "Invite"), phase !== "settled" && isHost && /*#__PURE__*/React.createElement("button", {
-      onClick: () => setShowSpotCheck(true),
+    }, "Invite"), phase === "active" && (isHost || isCoHost) && /*#__PURE__*/React.createElement("button", {
+      onClick: () => openRebuyScanner(),
       className: "font-data text-sm text-gold-300 border border-gold-500/50 rounded-full px-3 py-1.5"
-    }, "Spot Check"), phase !== "settled" && isHost && /*#__PURE__*/React.createElement("button", {
-      onClick: () => setShowCoHostPicker(true),
+    }, "Scan"), phase === "active" && isHost && /*#__PURE__*/React.createElement("button", {
+      onClick: () => setShowTableControls(true),
       className: "font-data text-sm text-gold-300 border border-gold-500/50 rounded-full px-3 py-1.5"
-    }, coHostName ? `Co-Host ✓` : "Co-Host"), phase === "settled" && isHost && /*#__PURE__*/React.createElement("button", {
+    }, "Table"), phase === "settled" && isHost && /*#__PURE__*/React.createElement("button", {
       onClick: editSettlement,
       className: "font-data text-sm text-gold-300 border border-gold-500/50 rounded-full px-3 py-1.5"
     }, "Edit"), phase === "settled" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
@@ -2201,7 +2456,16 @@ function PokerLedger() {
       className: "font-data text-sm text-smoke mt-1"
     }, "buy-in ", money(fromCents(buyInCentsForGame(game))), cashedOutCount > 0 && phase === "active" ? ` · ${cashedOutCount} cashed out` : ""), phase === "active" && isHost && !game.coHostId && /*#__PURE__*/React.createElement("p", {
       className: "font-data text-gold-300 text-xs mt-1.5"
-    }, "Assign a co-host before your own buy-in.")), /*#__PURE__*/React.createElement("div", {
+    }, "Assign a co-host before your own buy-in."), phase === "active" && game.joinLocked && /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-gold-300 text-xs mt-1.5"
+    }, "🔒 Table locked — new joins are paused."), phase === "active" && isCoHost && /*#__PURE__*/React.createElement("div", {
+      className: "flex items-center gap-2 mt-1.5"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "font-data text-smoke text-xs"
+    }, "You're the co-host."), /*#__PURE__*/React.createElement("button", {
+      onClick: takeOverHost,
+      className: "font-data text-gold-300 text-xs underline"
+    }, "Host unavailable? Take over"))), /*#__PURE__*/React.createElement("div", {
       className: "max-w-sm mx-auto px-5 pb-2"
     }, /*#__PURE__*/React.createElement("div", {
       className: "rounded-3xl bg-gradient-to-br from-felt-800 to-felt-900 border border-felt-700 shadow-[0_0_40px_-10px_rgba(232,178,61,0.25)] p-5"
@@ -2238,10 +2502,27 @@ function PokerLedger() {
         /*#__PURE__*/React.createElement("div", { className: "min-w-0" },
           /*#__PURE__*/React.createElement("p", { className: "font-data text-bone text-sm" }, target.name, " · ", money(fromCents(pending.amountCents))),
           /*#__PURE__*/React.createElement("p", { className: "font-data text-smoke text-[11px] mt-0.5" }, iAmApprover ? "Scan the player's QR to approve" : `waiting on ${approver ? firstName(approver.name) : "verifier"}`)
-        ), iAmApprover ? /*#__PURE__*/React.createElement("button", { onClick: () => openRebuyScanner(pending.id), className: "font-data text-gold-300 text-xs border border-gold-500/50 rounded-full px-3 py-1.5 shrink-0" }, "Scan QR") : iAmRequester ? /*#__PURE__*/React.createElement("div", { className: "flex gap-2 shrink-0" },
+        ), iAmApprover ? /*#__PURE__*/React.createElement("span", { className: "font-data text-gold-300 text-[11px] shrink-0" }, "ready to scan") : iAmRequester ? /*#__PURE__*/React.createElement("div", { className: "flex gap-2 shrink-0" },
           /*#__PURE__*/React.createElement("button", { onClick: () => showRebuyQRForRequest(pending), className: "font-data text-gold-300 text-xs underline" }, "Show QR"),
           /*#__PURE__*/React.createElement("button", { onClick: () => rejectPendingBuyIn(pending.id), className: "font-data text-coral-400 text-xs underline" }, "cancel")
         ) : null);
+    })), pendingCashOutList.length > 0 && /*#__PURE__*/React.createElement("div", {
+      className: "max-w-sm mx-auto px-5 pb-2 space-y-2"
+    }, /*#__PURE__*/React.createElement("p", { className: "font-data text-xs tracking-[0.1em] text-gold-300 uppercase" }, "Pending Cash-outs"), pendingCashOutList.map(pending => {
+      const target = game.players[pending.targetId];
+      const approver = game.players[pending.approverId];
+      const iAmApprover = role.playerId === pending.approverId;
+      const iAmRequester = pending.requesterUid === (auth.currentUser && auth.currentUser.uid);
+      const hostCanCancel = isHost;
+      if (!target) return null;
+      return /*#__PURE__*/React.createElement("div", { key: pending.id, className: "bg-felt-900 border border-felt-700 rounded-2xl p-3 flex items-center justify-between gap-2" },
+        /*#__PURE__*/React.createElement("div", { className: "min-w-0" },
+          /*#__PURE__*/React.createElement("p", { className: "font-data text-bone text-sm" }, target.name, " · ", money(fromCents(pending.amountCents))),
+          /*#__PURE__*/React.createElement("p", { className: "font-data text-smoke text-[11px] mt-0.5" }, iAmApprover ? "Verify this player's final chip value" : `waiting on ${approver ? firstName(approver.name) : "verifier"}`)
+        ), iAmApprover ? /*#__PURE__*/React.createElement("div", { className: "flex gap-2 shrink-0" },
+          /*#__PURE__*/React.createElement("button", { onClick: () => approvePendingCashOut(pending.id), className: "font-data text-mint-400 text-xs underline" }, "Approve"),
+          /*#__PURE__*/React.createElement("button", { onClick: () => rejectPendingCashOut(pending.id), className: "font-data text-coral-400 text-xs underline" }, "Reject")
+        ) : (iAmRequester || hostCanCancel) ? /*#__PURE__*/React.createElement("button", { onClick: () => rejectPendingCashOut(pending.id), className: "font-data text-coral-400 text-xs underline shrink-0" }, "cancel") : null);
     })), rebuyQR && /*#__PURE__*/React.createElement("div", {
       className: "fixed inset-0 bg-felt-950/95 z-50 flex flex-col items-center justify-center p-6",
       onClick: e => { if (e.target === e.currentTarget) setRebuyQR(null); }
@@ -2252,11 +2533,18 @@ function PokerLedger() {
       Math.max(0, Math.ceil((rebuyQR.expiresAtMs - qrTick) / 1000)) > 0 ? /*#__PURE__*/React.createElement(React.Fragment, null,
         /*#__PURE__*/React.createElement(QRCode, { text: makeRebuyQrPayload(rebuyQR), size: 230 }),
         /*#__PURE__*/React.createElement("p", { className: "font-data text-gold-300 text-sm mt-3" }, "Expires in ", Math.max(0, Math.ceil((rebuyQR.expiresAtMs - qrTick) / 1000)), " sec")
-      ) : /*#__PURE__*/React.createElement("div", { className: "rounded-2xl border border-coral-500/30 bg-coral-500/10 p-4" },
-        /*#__PURE__*/React.createElement("p", { className: "font-data text-coral-400 text-sm" }, "This QR expired. Cancel this request and tap Rebuy again to generate a fresh one.")
+      ) : /*#__PURE__*/React.createElement("div", { className: "rounded-2xl border border-gold-500/40 bg-gold-500/10 p-4" },
+        /*#__PURE__*/React.createElement("p", { className: "font-data text-gold-300 text-sm mb-3" }, "QR expired — the rebuy request is still valid."),
+        /*#__PURE__*/React.createElement("button", {
+          onClick: async () => {
+            const pending = pendingRequests.find(r => r.id === rebuyQR.requestId);
+            if (pending) await refreshRebuyQR(pending);
+          },
+          className: `w-full ${goldBtn} py-3 text-sm`
+        }, "Refresh QR")
       ),
       /*#__PURE__*/React.createElement("div", { className: "flex gap-2 mt-5" },
-        /*#__PURE__*/React.createElement("button", { onClick: () => setRebuyQR(null), className: `flex-1 ${ghostBtn} py-3 text-sm` }, "Hide QR"),
+        /*#__PURE__*/React.createElement("button", { onClick: () => setRebuyQR(null), className: `flex-1 ${ghostBtn} py-3 text-sm` }, "Hide"),
         /*#__PURE__*/React.createElement("button", { onClick: async () => { const id = rebuyQR.requestId; setRebuyQR(null); await rejectPendingBuyIn(id); }, className: "flex-1 font-data text-coral-400 border border-coral-500/30 rounded-2xl py-3 text-sm" }, "Cancel Rebuy")
       )
     )), rebuyScanner && /*#__PURE__*/React.createElement("div", {
@@ -2326,7 +2614,37 @@ function PokerLedger() {
     }, "Share Invite"), /*#__PURE__*/React.createElement("button", {
       onClick: () => setShowQR(false),
       className: `flex-1 ${ghostBtn} py-3 text-sm`
-    }, "Close")))), showCoHostPicker && /*#__PURE__*/React.createElement("div", {
+    }, "Close")))), showTableControls && /*#__PURE__*/React.createElement("div", {
+      className: "fixed inset-0 bg-felt-950/95 z-50 flex flex-col items-center justify-center p-6",
+      onClick: e => { if (e.target === e.currentTarget) setShowTableControls(false); }
+    }, /*#__PURE__*/React.createElement("div", { className: "w-full max-w-sm space-y-3" },
+      /*#__PURE__*/React.createElement("div", null,
+        /*#__PURE__*/React.createElement("p", { className: "font-display font-bold text-bone text-xl" }, "Table"),
+        /*#__PURE__*/React.createElement("p", { className: "font-data text-smoke text-sm mt-1" }, "Keep the game clean once everyone is seated.")
+      ),
+      /*#__PURE__*/React.createElement("div", { className: "rounded-2xl border border-felt-700 bg-felt-900 p-4 flex items-center justify-between gap-3" },
+        /*#__PURE__*/React.createElement("div", null,
+          /*#__PURE__*/React.createElement("p", { className: "font-data text-bone text-sm" }, game.joinLocked ? "Joining locked" : "Joining open"),
+          /*#__PURE__*/React.createElement("p", { className: "font-data text-smoke text-xs mt-0.5" }, game.joinLocked ? "No new players can join." : "Anyone with the invite can join.")
+        ),
+        /*#__PURE__*/React.createElement("button", { onClick: toggleJoinLock, className: "font-data text-gold-300 text-xs border border-gold-500/50 rounded-full px-3 py-1.5 shrink-0" }, game.joinLocked ? "Unlock" : "Lock")
+      ),
+      /*#__PURE__*/React.createElement("div", { className: "rounded-2xl border border-felt-700 bg-felt-900 p-4 flex items-center justify-between gap-3" },
+        /*#__PURE__*/React.createElement("div", { className: "min-w-0" },
+          /*#__PURE__*/React.createElement("p", { className: "font-data text-bone text-sm" }, coHostName ? `Co-host: ${coHostName}` : "No co-host assigned"),
+          /*#__PURE__*/React.createElement("p", { className: "font-data text-smoke text-xs mt-0.5" }, "Co-host verifies the host and can take over if needed.")
+        ),
+        /*#__PURE__*/React.createElement("button", { onClick: () => { setShowTableControls(false); setShowCoHostPicker(true); }, className: "font-data text-gold-300 text-xs underline shrink-0" }, "Manage")
+      ),
+      /*#__PURE__*/React.createElement("button", {
+        onClick: () => { setShowTableControls(false); setShowSpotCheck(true); },
+        className: `w-full ${ghostBtn} py-3 text-sm`
+      }, "Spot Check"),
+      /*#__PURE__*/React.createElement("button", {
+        onClick: () => setShowTableControls(false),
+        className: "w-full font-data text-smoke text-sm underline text-center"
+      }, "close")
+    )), showCoHostPicker && /*#__PURE__*/React.createElement("div", {
       className: "fixed inset-0 bg-felt-950/95 z-50 flex flex-col items-center justify-center p-6",
       onClick: e => {
         if (e.target === e.currentTarget) setShowCoHostPicker(false);
@@ -2346,11 +2664,11 @@ function PokerLedger() {
       className: "font-data text-coral-400 text-xs underline"
     }, "remove")), /*#__PURE__*/React.createElement("div", {
       className: "space-y-1.5 max-h-72 overflow-y-auto"
-    }, players.filter(p => p.id !== game.hostId).map(p => /*#__PURE__*/React.createElement("button", {
+    }, players.filter(p => p.id !== game.hostId && p.authUid).map(p => /*#__PURE__*/React.createElement("button", {
       key: p.id,
       onClick: () => assignCoHost(p.id),
       className: `w-full text-left font-data text-sm rounded-xl px-3.5 py-2.5 border transition ${game.coHostId === p.id ? "border-gold-500/60 bg-gold-500/10 text-gold-300" : "border-felt-700 bg-felt-900/60 text-bone"}`
-    }, p.name)), players.filter(p => p.id !== game.hostId).length === 0 && /*#__PURE__*/React.createElement("p", {
+    }, p.name)), players.filter(p => p.id !== game.hostId && p.authUid).length === 0 && /*#__PURE__*/React.createElement("p", {
       className: "font-data text-smoke text-sm"
     }, "No other players yet.")), /*#__PURE__*/React.createElement("button", {
       onClick: () => setShowCoHostPicker(false),
@@ -2412,7 +2730,11 @@ function PokerLedger() {
     }, error), /*#__PURE__*/React.createElement("button", {
       onClick: () => setError(""),
       className: "font-data text-coral-300 text-xs underline ml-3 shrink-0"
-    }, "dismiss")), /*#__PURE__*/React.createElement("div", {
+    }, "dismiss")), phase === "settling" && isHost && /*#__PURE__*/React.createElement("div", {
+      className: "max-w-sm mx-auto px-5 mt-3"
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-smoke text-xs"
+    }, "Enter each player's final chip value. ✓ Saved means it is recorded.")), /*#__PURE__*/React.createElement("div", {
       className: "max-w-sm mx-auto px-5 mt-3"
     }, /*#__PURE__*/React.createElement("div", {
       className: "flex items-center px-3 gap-2 pb-1 font-data text-[10px] tracking-wide text-smoke uppercase"
@@ -2429,6 +2751,7 @@ function PokerLedger() {
     }, players.map(p => {
       const mine = p.id === role.playerId;
       const canControl = mine || isHost;
+      const canManageCashout = canControl || (isCoHost && p.id === game.hostId);
       const isExpanded = expandedId === p.id;
       const completedBuyIns = completedBuyInCountFor(p);
       const pendingBuyIns = pendingBuyInCountFor(p.id);
@@ -2438,7 +2761,16 @@ function PokerLedger() {
       const paidIn = buyInTotal(p.buyins);
       const settledNet = game.settlement ? game.settlement.nets[p.id] : null;
       const displayFinal = finalInputs[p.id] ?? (p.finalAmount != null ? String(p.finalAmount) : "");
-      const liveNet = canControl && phase === "settling" && displayFinal !== "" ? round2((parseFloat(displayFinal) || 0) - paidIn) : null;
+      const parsedFinal = parseFloat(displayFinal);
+      const draftFinalValid = displayFinal !== "" && Number.isFinite(parsedFinal) && parsedFinal >= 0;
+      const draftFinalCents = draftFinalValid ? toCents(parsedFinal) : null;
+      const savedFinalCents = Number.isInteger(p.finalCents)
+        ? p.finalCents
+        : (p.finalAmount != null ? toCents(p.finalAmount) : null);
+      const finalDirty = draftFinalValid && draftFinalCents !== savedFinalCents;
+      const finalSaved = savedFinalCents !== null && !finalDirty;
+      const savingThisFinal = savingFinalId === p.id;
+      const liveNet = draftFinalValid ? round2(parsedFinal - paidIn) : null;
       return /*#__PURE__*/React.createElement("div", {
         key: p.id,
         className: `rounded-lg border ${mine ? "border-gold-500/50 bg-felt-900" : canControl ? "border-gold-500/25 bg-felt-900/80" : "border-felt-700 bg-felt-900/60"}`
@@ -2453,7 +2785,9 @@ function PokerLedger() {
         className: "font-display font-semibold text-bone text-sm truncate"
       }, p.name, mine && /*#__PURE__*/React.createElement("span", {
         className: "text-gold-400 font-data text-[10px] ml-1"
-      }, "you"))), /*#__PURE__*/React.createElement("span", {
+      }, "you"), !p.authUid && /*#__PURE__*/React.createElement("span", {
+        className: "text-smoke font-data text-[10px] ml-1"
+      }, "guest"))), /*#__PURE__*/React.createElement("span", {
         className: `w-11 text-center font-data text-xs shrink-0 ${buyInFullyConfirmed ? "text-mint-400" : "text-gold-300"}`
       }, buyInCount, buyInFullyConfirmed ? " ✓" : ""), /*#__PURE__*/React.createElement("span", {
         className: "w-14 text-center font-data text-gold-300 text-xs shrink-0"
@@ -2476,23 +2810,27 @@ function PokerLedger() {
           ...f,
           [p.id]: e.target.value
         })),
+        onKeyDown: e => {
+          if (e.key === "Enter" && draftFinalValid && finalDirty && !savingThisFinal) {
+            e.preventDefault();
+            submitFinal(p.id);
+          }
+        },
         inputMode: "decimal",
         placeholder: "0",
-        className: "w-full min-w-0 bg-transparent text-bone font-data text-center text-sm border-0 border-b border-felt-600 pb-0.5 outline-none focus:border-gold-400 transition placeholder:text-smoke/40"
+        className: `w-full min-w-0 bg-transparent text-bone font-data text-center text-sm border-0 border-b pb-0.5 outline-none transition placeholder:text-smoke/40 ${finalSaved ? "border-mint-500/40" : finalDirty ? "border-gold-500/60" : "border-felt-600"} focus:border-gold-400`
       })) : /*#__PURE__*/React.createElement("span", {
         className: `${lastColWidth} text-center font-data text-xs shrink-0 ${p.finalAmount != null ? "text-bone" : "text-smoke"}`
       }, p.finalAmount != null ? money(p.finalAmount) : "…") : /*#__PURE__*/React.createElement("span", {
         className: `${lastColWidth} text-center font-data text-xs font-medium shrink-0 ${settledNet >= 0 ? "text-mint-400" : "text-coral-400"}`
-      }, settledNet >= 0 ? "+" : "", money(settledNet))), isHost && phase === "settling" && liveNet !== null && /*#__PURE__*/React.createElement("div", {
-        className: "px-2.5 pb-1.5 -mt-0.5"
+      }, settledNet >= 0 ? "+" : "", money(settledNet))), isHost && phase === "settling" && /*#__PURE__*/React.createElement("div", {
+        className: "px-2.5 pb-2 -mt-0.5 flex items-center justify-between gap-2"
       }, /*#__PURE__*/React.createElement("span", {
-        className: `font-data text-xs font-medium ${liveNet >= 0 ? "text-mint-400" : "text-coral-400"}`
-      }, liveNet >= 0 ? "+" : "", money(liveNet), " so far")), isHost && phase === "settling" && /*#__PURE__*/React.createElement("div", {
-        className: "px-2.5 pb-2"
-      }, /*#__PURE__*/React.createElement("button", {
+        className: `font-data text-[11px] ${savingThisFinal ? "text-gold-300" : finalSaved ? "text-mint-400" : finalDirty ? "text-gold-300" : "text-smoke"}`
+      }, savingThisFinal ? "Saving…" : finalSaved ? `✓ Saved${liveNet !== null ? ` · Net ${liveNet >= 0 ? "+" : ""}${money(liveNet)}` : ""}` : finalDirty ? "Unsaved change" : "Enter final chip value"), finalDirty && !savingThisFinal && /*#__PURE__*/React.createElement("button", {
         onClick: () => submitFinal(p.id),
-        className: `w-full ${goldBtn} py-1.5 text-xs`
-      }, p.finalAmount == null ? mine ? "Submit My Amount" : `Submit for ${firstName(p.name)}` : mine ? "Update My Amount" : `Update for ${firstName(p.name)}`)), isExpanded && /*#__PURE__*/React.createElement("div", {
+        className: "font-data text-xs text-gold-300 border border-gold-500/50 rounded-full px-3 py-1 shrink-0"
+      }, "Save")), isExpanded && /*#__PURE__*/React.createElement("div", {
         className: "px-2.5 pb-2.5 pt-1 border-t border-felt-700 space-y-2"
       }, canControl && p.phone && /*#__PURE__*/React.createElement("div", {
         className: "flex items-center gap-3"
@@ -2514,7 +2852,7 @@ function PokerLedger() {
       }, new Date(b.ts).toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit"
-      }), " · ", money(Number.isInteger(b.amountCents) ? fromCents(b.amountCents) : b.amount), b.voided ? ` · VOID (${b.voidReason || "correction"})` : ""), phase === "active" && !p.cashedOut && !b.voided && p.id !== role.playerId && ((p.id === game.hostId && isCoHost) || (p.id !== game.hostId && isHost)) && /*#__PURE__*/React.createElement("button", {
+      }), " · ", money(Number.isInteger(b.amountCents) ? fromCents(b.amountCents) : b.amount), b.voided ? ` · VOID (${b.voidReason || "correction"})` : ""), phase === "active" && !p.cashedOut && !b.voided && b.kind === "rebuy" && p.id !== role.playerId && ((p.id === game.hostId && isCoHost) || (p.id !== game.hostId && isHost)) && /*#__PURE__*/React.createElement("button", {
         onClick: () => removeBuyIn(p.id, b.id),
         className: "text-coral-400 underline ml-2"
       }, "void")))), canControl && (editingNameId === p.id ? /*#__PURE__*/React.createElement("div", {
@@ -2533,11 +2871,14 @@ function PokerLedger() {
       }, "✕")) : /*#__PURE__*/React.createElement("button", {
         onClick: () => startEditName(p.id, p.name),
         className: "font-data text-[11px] text-smoke underline"
-      }, "edit name")), canControl && phase === "active" && (p.cashedOut ? /*#__PURE__*/React.createElement("div", {
+      }, "edit name")), isHost && phase === "active" && p.id !== game.hostId && p.id !== game.coHostId && completedBuyIns === 1 && (p.buyins || []).filter(b => !b.voided)[0] && (p.buyins || []).filter(b => !b.voided)[0].kind === "initial" && !p.cashedOut && p.finalAmount == null && !pendingRequests.some(r => r.targetId === p.id && r.status === "pending") && /*#__PURE__*/React.createElement("button", {
+        onClick: () => removePlayerBeforePlay(p.id),
+        className: "font-data text-[11px] text-coral-400 underline"
+      }, "remove from table"), canManageCashout && phase === "active" && (p.cashedOut ? /*#__PURE__*/React.createElement("div", {
         className: "flex items-center justify-between"
       }, /*#__PURE__*/React.createElement("p", {
         className: "font-data text-smoke text-xs"
-      }, "Verified cash-out: ", money(p.finalAmount)), isHost && /*#__PURE__*/React.createElement("button", {
+      }, "Verified cash-out: ", money(p.finalAmount)), p.id !== role.playerId && ((p.id === game.hostId && isCoHost) || (p.id !== game.hostId && isHost)) && /*#__PURE__*/React.createElement("button", {
         onClick: () => reopenPlayer(p.id),
         className: "font-data text-gold-300 text-xs underline"
       }, "reopen")) : cashingOutId === p.id ? /*#__PURE__*/React.createElement("div", {
@@ -2580,10 +2921,10 @@ function PokerLedger() {
         className: "shrink-0 font-data text-smoke text-base"
       }, "✕")) : /*#__PURE__*/React.createElement("div", {
         className: "flex gap-2"
-      }, /*#__PURE__*/React.createElement("button", {
+      }, (mine || (isHost && !p.authUid)) && /*#__PURE__*/React.createElement("button", {
         onClick: () => startCashOut(p.id),
         className: `flex-1 ${ghostBtn} py-1.5 text-xs`
-      }, "Request Cash Out"), /*#__PURE__*/React.createElement("button", {
+      }, !p.authUid ? "Guest Cash Out" : "Request Cash Out"), (mine || isHost) && /*#__PURE__*/React.createElement("button", {
         onClick: () => startCustomBuyIn(p.id),
         className: `flex-1 ${ghostBtn} py-1.5 text-xs`
       }, mine ? "Different Amount" : "Manual Rebuy")))));
@@ -2593,7 +2934,7 @@ function PokerLedger() {
       className: "flex items-center justify-between"
     }, /*#__PURE__*/React.createElement("p", {
       className: "font-data text-xs tracking-[0.1em] text-gold-300 uppercase"
-    }, "New Player", showBulkLate ? "s" : "", " Joining"), /*#__PURE__*/React.createElement("button", {
+    }, "Guest Player", showBulkLate ? "s" : "", " (no phone)"), /*#__PURE__*/React.createElement("button", {
       onClick: () => setShowBulkLate(v => !v),
       className: "font-data text-sm text-gold-300 underline"
     }, showBulkLate ? "single" : "add multiple")), showBulkLate ? /*#__PURE__*/React.createElement("div", {
@@ -2609,7 +2950,7 @@ function PokerLedger() {
     }, /*#__PURE__*/React.createElement("button", {
       onClick: addBulkLatePlayers,
       className: `flex-1 ${goldBtn} py-3`
-    }, "Add All to game"), /*#__PURE__*/React.createElement("button", {
+    }, "Add Guests"), /*#__PURE__*/React.createElement("button", {
       onClick: () => {
         setShowAddPlayer(false);
         setShowBulkLate(false);
@@ -2634,7 +2975,7 @@ function PokerLedger() {
     }, /*#__PURE__*/React.createElement("button", {
       onClick: addLatePlayer,
       className: `flex-1 ${goldBtn} py-3`
-    }, "Add to game"), /*#__PURE__*/React.createElement("button", {
+    }, "Add Guest"), /*#__PURE__*/React.createElement("button", {
       onClick: () => {
         setShowAddPlayer(false);
         setLateName("");
@@ -2644,7 +2985,7 @@ function PokerLedger() {
     }, "cancel")))) : /*#__PURE__*/React.createElement("button", {
       onClick: () => setShowAddPlayer(true),
       className: "w-full mt-3 border border-dashed border-felt-600 text-smoke font-data text-sm py-2.5 rounded-xl hover:border-gold-500/60 hover:text-gold-300 transition"
-    }, "+ Add Player"))), phase === "settled" && /*#__PURE__*/React.createElement("div", {
+    }, "+ Add Guest Without Phone"))), phase === "settled" && /*#__PURE__*/React.createElement("div", {
       className: "max-w-sm mx-auto px-5 mt-5"
     }, /*#__PURE__*/React.createElement("p", {
       className: "font-data text-xs tracking-[0.1em] text-gold-300 uppercase mb-2"
@@ -2832,7 +3173,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(/*#__PURE__*/React.c
 <script>
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("sw.js?v=2").catch(() => {});
+      navigator.serviceWorker.register("sw.js?v=25").then(reg => reg.update()).catch(() => {});
     });
   }
 </script>
