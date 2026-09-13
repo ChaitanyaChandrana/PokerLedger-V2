@@ -431,8 +431,34 @@ function parseBulkNames(text) {
 // ---------- Firestore backend (V2) ----------
 const db = firebase.firestore();
 const auth = firebase.auth();
+
+// IMPORTANT: Firebase restores a persisted anonymous user asynchronously.
+// Calling signInAnonymously() before that restoration finishes can create a
+// brand-new UID on refresh and make the app think this device no longer owns
+// its existing poker seat. Wait for the initial auth state first.
+const initialAuthUserPromise = new Promise((resolve, reject) => {
+  let unsubscribe = () => {};
+  unsubscribe = auth.onAuthStateChanged(
+    user => {
+      unsubscribe();
+      resolve(user);
+    },
+    err => {
+      unsubscribe();
+      reject(err);
+    }
+  );
+});
+
 async function ensureAuth() {
   if (auth.currentUser) return auth.currentUser;
+
+  const restoredUser = await initialAuthUserPromise;
+  if (restoredUser) return restoredUser;
+  if (auth.currentUser) return auth.currentUser;
+
+  // Make persistence explicit for poker-night refresh/reopen reliability.
+  await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
   const cred = await auth.signInAnonymously();
   return cred.user;
 }
@@ -991,7 +1017,12 @@ function PokerLedger() {
             setScreen("game");
             return;
           }
-          clearRole();
+          // Never erase the saved game pointer merely because Firebase identity
+          // differs. Preserve the code/playerId so recovery remains possible.
+          setJCode(r.code);
+          setError("Your saved game is still in Firebase, but this browser's identity changed. Do not start a new game. Use the original browser/device or recover the host/player identity.");
+          setScreen("join");
+          return;
         } else if (res.ok && !res.value) {
           // Only clear the role when the server positively says the game does not exist.
           clearRole();
@@ -1991,7 +2022,7 @@ function PokerLedger() {
       className: "font-display font-bold text-bone text-4xl mb-1 tracking-tight"
     }, "Poker Ledger"), /*#__PURE__*/React.createElement("p", {
       className: "font-data text-gold-300 text-xs mb-1"
-    }, "V2.2 · clean approval flow"), /*#__PURE__*/React.createElement("p", {
+    }, "V2.3 · refresh-safe"), /*#__PURE__*/React.createElement("p", {
       className: "font-data text-smoke text-sm mb-10"
     }, "everyone joins from their own phone"), /*#__PURE__*/React.createElement("div", {
       className: "w-full max-w-sm space-y-3"
