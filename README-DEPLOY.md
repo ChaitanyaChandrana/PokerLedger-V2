@@ -1,25 +1,28 @@
-# Poker Ledger V2.6.13 — Minimal Table View
+# Poker Ledger V2.6.15 — Buy-in Bars
 
 ## What changed
-- The game screen leads with the player ledger: Initial, Rebuys, and Total.
-- Removed the large photo/greeting banner from active games. The photograph remains
-  on welcome, host, and join screens.
-- Table stats and history are collapsed under Table details & timeline below players.
-- Rebuy and Cash Out are the primary footer actions. The host retains End Game & Settle.
-- Add guest is under More. Player corrections and individual history open by tapping
-  a player's name; settlement-mode corrections remain visible.
-- Charcoal surfaces, restrained gold, compact rows, and newest-first history retained.
+- One horizontal gold bar and exact count per player replaces the initial/rebuy
+  boxes and +N overflow display, in both the main ledger and By player view.
+- Bars measure completed buy-in count, including the initial buy-in. All players
+  share a 0–10 scale; it expands together if anyone exceeds ten buy-ins.
+- No rebuys or the exact rebuy count appears under each bar. Custom amounts and
+  pending requests remain marked; pending and voided entries do not fill the bar.
+- Exact money totals remain beside the bars, with individual amounts in history.
+- Details still opens to the newest-first timeline, with a By player toggle and
+  table totals and player count below.
 
 ## Deploy
 1. Extract this ZIP and replace your existing index.html and sw.js.
 2. Publish normally, then refresh/reopen the app on each device.
-3. Confirm V2.6.13 on the home-screen footer.
+3. Confirm V2.6.15 on the home-screen footer.
 
-The image is embedded in index.html. Keep all other site files and Firebase settings.
-No database rules change. This package has not been deployed automatically.
+The welcome image is embedded in index.html. Keep all other site files and Firebase
+settings. No database rules change. This package has not been deployed automatically.
 
 ## Verification
-JavaScript syntax, local screen-state checks, and cash-out/settlement simulations
-passed. Verified disclosure toggling, guest form access, correction access, retained
-host end-game control, and prevention of a duplicate pending rebuy through the footer.
-Browser visual verification and live Firebase testing were not performed.
+JavaScript syntax and local screen-state simulations passed for proportional bar
+lengths at 0, 1, 2, 4, and 10 buy-ins, shared scale beyond 10, rebuy labels, custom
+amounts, pending requests, void exclusion, timeline ordering, and view toggling.
+Cash-out correction and settlement simulations passed, including concurrent updates
+and approval handling. Browser visual verification and live Firebase testing were
+not performed.
