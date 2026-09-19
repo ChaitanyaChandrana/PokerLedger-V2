@@ -945,6 +945,7 @@ function PokerLedger() {
   const alertedRebuyRequestIdsRef = useRef(new Set());
   const [finalInputs, setFinalInputs] = useState({});
   const [savingFinalId, setSavingFinalId] = useState(null);
+  const [cashoutCorrection, setCashoutCorrection] = useState(null);
   const [expandedId, setExpandedId] = useState(null);
   const [editingNameId, setEditingNameId] = useState(null);
   const [nameInput, setNameInput] = useState("");
@@ -2032,6 +2033,7 @@ function PokerLedger() {
   }
   function startCashOut(targetId) {
     setError("");
+    if (!game || !["active", "settling"].includes(game.phase)) return setError("Reopen settlement before changing a cash-out.");
     const target = game && game.players[targetId];
     if (!target) return setError("Player no longer exists.");
     const guestOverride = isHost && !target.authUid;
@@ -2043,11 +2045,11 @@ function PokerLedger() {
       if (!approverId) return setError("Assign a co-host first — the host's cash-out must be verified by the co-host.");
     }
     setCashingOutId(targetId);
-    setCashOutAmount("");
+    setCashOutAmount(target.cashedOut ? String(target.finalAmount ?? fromCents(target.finalCents)) : "");
   }
   async function submitCashOutAmount(targetId, rawAmount) {
-    const amt = parseFloat(rawAmount);
-    if (!Number.isFinite(amt) || amt < 0) {
+    const amt = String(rawAmount ?? "").trim() === "" ? NaN : Number(rawAmount);
+    if (!Number.isFinite(amt) || amt < 0 || !Number.isSafeInteger(toCents(amt))) {
       setError("Enter a valid cash-out amount.");
       return { ok: false };
     }
@@ -2102,7 +2104,9 @@ function PokerLedger() {
         if (req.approverUid !== auth.currentUser.uid || req.approverId !== role.playerId) throw new Error("You are not the verifier for this cash-out.");
         const next = JSON.parse(JSON.stringify(g));
         const player = next.players[req.targetId];
-        if (!player) throw new Error("Player no longer exists.");
+        if (!player || player.removed) throw new Error("Player no longer exists.");
+        const currentVerifierId = req.targetId === g.hostId ? g.coHostId : g.hostId;
+        if (currentVerifierId !== role.playerId || req.targetId === role.playerId) throw new Error("Only the current verifier can approve this cash-out.");
         player.cashedOut = true;
         player.finalCents = req.amountCents;
         player.finalAmount = fromCents(req.amountCents);
@@ -2128,10 +2132,48 @@ function PokerLedger() {
       return setError(targetIsHost ? "Only the co-host can reopen the host's verified cash-out." : "Only the host can reopen another player's verified cash-out.");
     }
     await mutateGame(g => {
+      if (!["active", "settling"].includes(g.phase)) throw new Error("Reopen settlement before changing a cash-out.");
+      if (!canVerifyCashout(g, targetId)) throw new Error("Only the current verifier can reopen this cash-out.");
       g.players[targetId].cashedOut = false;
       g.players[targetId].finalAmount = null;
       g.players[targetId].finalCents = null;
     }, "cashout_reopened", { targetId });
+  }
+  function canVerifyCashout(g, targetId) {
+    if (!g || !role || !auth.currentUser || targetId === role.playerId) return false;
+    const verifierId = targetId === g.hostId ? g.coHostId : g.hostId;
+    const verifierUid = targetId === g.hostId ? g.coHostUid : g.hostUid;
+    return verifierId === role.playerId && verifierUid === auth.currentUser.uid;
+  }
+  function startCashoutCorrection(targetId) {
+    if (!game || !["active", "settling"].includes(game.phase) || !canVerifyCashout(game, targetId)) return;
+    const p = game.players[targetId];
+    if (!p || p.removed || !p.cashedOut) return;
+    const cents = Number.isInteger(p.finalCents) ? p.finalCents : toCents(p.finalAmount);
+    setError("");
+    setCashoutCorrection({ targetId, previousCents: cents, amount: String(fromCents(cents)) });
+  }
+  async function saveCashoutCorrection() {
+    if (!cashoutCorrection || savingFinalId) return;
+    const { targetId, previousCents, amount } = cashoutCorrection;
+    const value = String(amount).trim() === "" ? NaN : Number(amount);
+    const cents = toCents(value);
+    if (!Number.isFinite(value) || value < 0 || !Number.isSafeInteger(cents)) return setError("Enter a valid cash-out amount.");
+    if (pendingRequests.some(r => r.targetId === targetId && r.status === "pending")) return setError("Approve or cancel this player's pending request first.");
+    setError("");
+    setSavingFinalId(targetId);
+    const result = await mutateGame(g => {
+      if (!["active", "settling"].includes(g.phase)) throw new Error("Reopen settlement before changing a cash-out.");
+      if (!canVerifyCashout(g, targetId)) throw new Error("Only the current verifier can correct this cash-out.");
+      const p = g.players[targetId];
+      if (!p || p.removed || !p.cashedOut) throw new Error("This cash-out changed. Close the editor and try again.");
+      const currentCents = Number.isInteger(p.finalCents) ? p.finalCents : toCents(p.finalAmount);
+      if (currentCents !== previousCents) throw new Error("The amount changed on another device. Close the editor and try again.");
+      p.finalCents = cents;
+      p.finalAmount = fromCents(cents);
+    }, "cashout_corrected", { targetId, previousCents, amountCents: cents, source: "verifier_correction" });
+    if (result && result.ok) setCashoutCorrection(null);
+    setSavingFinalId(null);
   }
   async function addLatePlayer() {
     if (!lateName.trim()) return;
@@ -2503,7 +2545,7 @@ function PokerLedger() {
       className: "font-display font-bold text-bone text-4xl mb-1 tracking-tight"
     }, "Poker Ledger"), /*#__PURE__*/React.createElement("p", {
       className: "font-data text-gold-300 text-xs mb-1"
-    }, "V2.6.8 · refresh recovery"), /*#__PURE__*/React.createElement("p", {
+    }, "V2.6.9 · cash-out corrections"), /*#__PURE__*/React.createElement("p", {
       className: "font-data text-smoke text-sm mb-10"
     }, "everyone joins from their own phone"), /*#__PURE__*/React.createElement("div", {
       className: "w-full max-w-sm space-y-3"
@@ -2801,7 +2843,7 @@ function PokerLedger() {
     }, "✓ Rebuy approved · +", money(fromCents(rebuyRequesterNotice.amountCents)), " added"))), phase === "settling" && me && me.authUid && !me.removed && (() => {
       const verifierId = approverFor(me.id);
       const verifier = verifierId ? game.players[verifierId] : null;
-      if (me.cashedOut) {
+      if (me.cashedOut && !myPendingCashOut) {
         return /*#__PURE__*/React.createElement("div", {
           className: "max-w-sm mx-auto px-5 pb-2"
         }, /*#__PURE__*/React.createElement("div", {
@@ -2810,7 +2852,10 @@ function PokerLedger() {
           className: "font-data text-mint-400 text-xs uppercase tracking-[0.1em]"
         }, "✓ Cash-out confirmed"), /*#__PURE__*/React.createElement("p", {
           className: "font-display font-bold text-bone text-2xl mt-1"
-        }, money(me.finalAmount || 0))));
+        }, money(me.finalAmount || 0)), React.createElement("button", {
+          onClick: () => startCashOut(me.id),
+          className: "font-data text-gold-300 text-xs underline mt-2"
+        }, "Change amount")));
       }
       if (myPendingCashOut) {
         return /*#__PURE__*/React.createElement("div", {
@@ -3134,7 +3179,7 @@ function PokerLedger() {
     }, "No other players yet.")), /*#__PURE__*/React.createElement("button", {
       onClick: () => setShowCoHostPicker(false),
       className: "mt-4 w-full font-data text-smoke text-sm underline text-center"
-    }, "close"))), (phase === "active" || phase === "settling") && me && me.authUid && !me.removed && !me.cashedOut && cashingOutId === me.id && /*#__PURE__*/React.createElement("div", {
+    }, "close"))), (phase === "active" || phase === "settling") && me && me.authUid && !me.removed && !myPendingCashOut && cashingOutId === me.id && /*#__PURE__*/React.createElement("div", {
       className: "fixed inset-0 bg-felt-950/95 z-50 flex flex-col items-center justify-center p-6",
       onClick: e => {
         if (e.target === e.currentTarget) {
@@ -3148,9 +3193,9 @@ function PokerLedger() {
       className: "font-data text-gold-300 text-xs uppercase tracking-[0.1em]"
     }, "Cash Out"), /*#__PURE__*/React.createElement("h3", {
       className: "font-display font-bold text-bone text-2xl mt-1"
-    }, "Count your chips"), /*#__PURE__*/React.createElement("p", {
+    }, me.cashedOut ? "Correct your cash-out" : "Count your chips"), /*#__PURE__*/React.createElement("p", {
       className: "font-data text-smoke text-sm mt-1 mb-4"
-    }, "Enter the total dollar value of the chips you are leaving with."), /*#__PURE__*/React.createElement("div", {
+    }, me.cashedOut ? "The new amount needs approval. Your current amount stays recorded until it is approved." : "Enter the total dollar value of the chips you are leaving with."), /*#__PURE__*/React.createElement("div", {
       className: "flex items-center gap-2 bg-felt-800 rounded-2xl px-4 py-3.5 border border-felt-600 focus-within:border-gold-400 focus-within:ring-2 focus-within:ring-gold-400/20 transition"
     }, /*#__PURE__*/React.createElement("span", {
       className: "font-data text-smoke text-xl"
@@ -3255,6 +3300,8 @@ function PokerLedger() {
       const mine = p.id === role.playerId;
       const canControl = mine || isHost;
       const canManageCashout = canControl || (isCoHost && p.id === game.hostId);
+      const canCorrectCashout = ["active", "settling"].includes(phase) && p.cashedOut && canVerifyCashout(game, p.id);
+      const editingCashout = canCorrectCashout && cashoutCorrection && cashoutCorrection.targetId === p.id;
       const isExpanded = expandedId === p.id;
       const completedBuyIns = completedBuyInCountFor(p);
       const pendingBuyIns = pendingBuyInCountFor(p.id);
@@ -3299,9 +3346,24 @@ function PokerLedger() {
         className: "shrink-0 w-14"
       }) : phase === "settling" ? /*#__PURE__*/React.createElement("span", {
         className: `${lastColWidth} text-center font-data text-xs shrink-0 ${p.cashedOut ? "text-mint-400" : pendingCashOutForPlayer ? "text-gold-300" : "text-smoke"}`
-      }, p.cashedOut ? money(p.finalAmount || 0) : pendingCashOutForPlayer ? "pending" : "—") : /*#__PURE__*/React.createElement("span", {
+      }, pendingCashOutForPlayer ? "pending" : p.cashedOut ? money(p.finalAmount || 0) : "—") : /*#__PURE__*/React.createElement("span", {
         className: `${lastColWidth} text-center font-data text-xs font-medium shrink-0 ${settledNet >= 0 ? "text-mint-400" : "text-coral-400"}`
-      }, settledNet >= 0 ? "+" : "", money(settledNet))), mine && phase === "active" && !p.cashedOut && !activeBuyInRequest && (pendingCashOutForPlayer ? /*#__PURE__*/React.createElement("div", {
+      }, settledNet >= 0 ? "+" : "", money(settledNet))), canCorrectCashout && !pendingCashOutForPlayer && React.createElement("div", {
+        className: "px-2.5 pb-2"
+      }, editingCashout ? React.createElement("div", { className: "flex items-center gap-2" },
+        React.createElement("span", { className: "font-data text-smoke text-xs" }, "Final $"),
+        React.createElement("input", {
+          value: cashoutCorrection.amount,
+          onChange: e => setCashoutCorrection(c => ({ ...c, amount: e.target.value })),
+          inputMode: "decimal", autoFocus: true, "aria-label": "Correct cash-out for " + p.name,
+          disabled: savingFinalId === p.id,
+          className: "w-20 min-w-0 bg-felt-800 text-bone font-data text-sm border border-felt-600 rounded-lg px-2 py-1 outline-none focus:border-gold-400"
+        }),
+        React.createElement("button", { onClick: saveCashoutCorrection, disabled: savingFinalId === p.id, className: "font-data text-gold-300 text-xs underline" }, savingFinalId === p.id ? "Saving…" : "Save"),
+        React.createElement("button", { onClick: () => setCashoutCorrection(null), disabled: savingFinalId === p.id, className: "font-data text-smoke text-xs underline" }, "Cancel")
+      ) : React.createElement("div", { className: "flex justify-end" }, React.createElement("button", {
+        onClick: () => startCashoutCorrection(p.id), className: "font-data text-gold-300 text-xs underline"
+      }, "Edit cash-out"))), mine && phase === "active" && !p.cashedOut && !activeBuyInRequest && (pendingCashOutForPlayer ? /*#__PURE__*/React.createElement("div", {
         className: "px-2.5 pb-2 flex items-center justify-between gap-2"
       }, /*#__PURE__*/React.createElement("span", {
         className: "font-data text-gold-300 text-[11px]"
@@ -3491,11 +3553,14 @@ function PokerLedger() {
       className: "fixed bottom-0 left-0 right-0 p-4 bg-felt-950/90 backdrop-blur-md border-t border-felt-700"
     }, /*#__PURE__*/React.createElement("div", {
       className: "max-w-sm mx-auto space-y-2"
-    }, me.cashedOut ? /*#__PURE__*/React.createElement("div", {
+    }, me.cashedOut && !myPendingCashOut ? /*#__PURE__*/React.createElement("div", {
       className: "rounded-2xl border border-mint-500/40 bg-mint-500/10 px-4 py-2.5 text-center"
     }, /*#__PURE__*/React.createElement("p", {
       className: "font-data text-mint-400 text-sm"
-    }, "✓ Your cash-out confirmed · ", money(me.finalAmount || 0))) : myPendingCashOut ? /*#__PURE__*/React.createElement("div", {
+    }, "✓ Your cash-out confirmed · ", money(me.finalAmount || 0)), React.createElement("button", {
+      onClick: () => startCashOut(me.id),
+      className: "font-data text-gold-300 text-xs underline mt-1"
+    }, "Change amount")) : myPendingCashOut ? /*#__PURE__*/React.createElement("div", {
       className: "rounded-2xl border border-gold-500/40 bg-gold-500/10 px-4 py-2.5"
     }, /*#__PURE__*/React.createElement("div", {
       className: "flex items-center justify-between gap-3"
@@ -3526,11 +3591,14 @@ function PokerLedger() {
       className: "fixed bottom-0 left-0 right-0 p-4 bg-felt-950/90 backdrop-blur-md border-t border-felt-700"
     }, /*#__PURE__*/React.createElement("div", {
       className: "max-w-sm mx-auto"
-    }, me.cashedOut ? /*#__PURE__*/React.createElement("div", {
+    }, me.cashedOut && !myPendingCashOut ? /*#__PURE__*/React.createElement("div", {
       className: "rounded-2xl border border-mint-500/40 bg-mint-500/10 px-4 py-2.5 text-center mb-2"
     }, /*#__PURE__*/React.createElement("p", {
       className: "font-data text-mint-400 text-sm"
-    }, "✓ Cash-out confirmed · ", money(me.finalAmount || 0))) : myPendingCashOut ? /*#__PURE__*/React.createElement("div", {
+    }, "✓ Cash-out confirmed · ", money(me.finalAmount || 0)), React.createElement("button", {
+      onClick: () => startCashOut(me.id),
+      className: "font-data text-gold-300 text-xs underline mt-1"
+    }, "Change amount")) : myPendingCashOut ? /*#__PURE__*/React.createElement("div", {
       className: "rounded-2xl border border-gold-500/40 bg-gold-500/10 px-4 py-2.5 mb-2"
     }, /*#__PURE__*/React.createElement("div", {
       className: "flex items-center justify-between gap-3"
