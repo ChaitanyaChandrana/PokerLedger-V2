@@ -1,25 +1,25 @@
-# Poker Ledger V2.6.12 — Charcoal & Gold
+# Poker Ledger V2.6.13 — Minimal Table View
 
-## Changes
-- Buy-in timeline shows newest entries at the top, with a Newest first label.
-- Expanded player buy-in lists also show the newest entry first.
-- Rebuy numbering retains its original sequence when the display is reversed.
-- Charcoal and graphite panels replace the green interface, with muted gold accents.
-- The game-screen poker photograph is approximately twice as tall, and the content
-  area is wider on desktop. Mobile host/join screens also show more of the image.
-- Initial buy-ins, rebuys, and totals remain separate; voided entries stay excluded.
-- Cash-out correction, approval, and settlement behavior is unchanged.
+## What changed
+- The game screen leads with the player ledger: Initial, Rebuys, and Total.
+- Removed the large photo/greeting banner from active games. The photograph remains
+  on welcome, host, and join screens.
+- Table stats and history are collapsed under Table details & timeline below players.
+- Rebuy and Cash Out are the primary footer actions. The host retains End Game & Settle.
+- Add guest is under More. Player corrections and individual history open by tapping
+  a player's name; settlement-mode corrections remain visible.
+- Charcoal surfaces, restrained gold, compact rows, and newest-first history retained.
 
 ## Deploy
 1. Extract this ZIP and replace your existing index.html and sw.js.
-2. Publish normally, then refresh/reopen the app on all devices.
-3. Check the home-screen footer: V2.6.12.
+2. Publish normally, then refresh/reopen the app on each device.
+3. Confirm V2.6.13 on the home-screen footer.
 
-The poker-table image is embedded in index.html; no image folder is needed.
-Keep all other site files and Firebase settings. No database rules change.
-This package is not automatically deployed.
+The image is embedded in index.html. Keep all other site files and Firebase settings.
+No database rules change. This package has not been deployed automatically.
 
 ## Verification
-JavaScript syntax and local history checks passed for newest-first ordering,
-rebuy numbering, totals, voided entries, and legacy buy-ins without an explicit
-kind. Browser visual verification and live Firebase testing were not performed.
+JavaScript syntax, local screen-state checks, and cash-out/settlement simulations
+passed. Verified disclosure toggling, guest form access, correction access, retained
+host end-game control, and prevention of a duplicate pending rebuy through the footer.
+Browser visual verification and live Firebase testing were not performed.
