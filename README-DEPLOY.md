@@ -1,24 +1,24 @@
-# Poker Ledger V2.6.16 — Initial and Rebuy Bar
+# Poker Ledger V2.6.17 — Timeline and Table Photo
 
 ## What changed
-- Each player has one continuous bar: slate for initial buy-ins, gold for rebuys.
-- One number gives total completed buy-ins, including the initial buy-in.
-- Removed repeated per-player No rebuys / N rebuys text. A small chart legend
-  explains colors once. Screen readers retain the full breakdown.
-- Shared 0–10 count scale expands together beyond ten. Custom amounts and pending
-  requests remain marked, and voided/pending entries do not fill the bar.
-- Details retains newest-first timeline, By player toggle, and totals below.
+- Removed the duplicate By player view and view-switch buttons from Buy-in details.
+  Details now shows only the newest-first timeline, followed by table statistics.
+- When details is closed, the embedded poker-table photo fills the space below
+  the player list and details button. It disappears when details opens.
+- The decorative photo grows into available vertical space and uses a smaller
+  minimum height on short screens. Player information stays above the image.
+- Existing split initial/rebuy bars and cash-out controls are retained.
 
 ## Deploy
 1. Extract and replace your existing index.html and sw.js.
 2. Publish normally, then refresh/reopen the app.
-3. Confirm V2.6.16 in the home-screen footer.
+3. Confirm V2.6.17 in the home-screen footer.
 
-Keep all other site files and Firebase settings. No database rules change.
-This package has not been deployed automatically.
+The photo is embedded; no separate image file is needed. Keep all other site files
+and Firebase settings. No database rules change. Not deployed automatically.
 
 ## Verification
-JavaScript syntax and local component checks passed for initial/rebuy segment
-proportions, 0 through 12 buy-ins, removal of repeated labels, custom amounts,
-pending requests, and void exclusion. Existing screen-state checks passed.
-Browser visual verification and live Firebase testing were not performed.
+JavaScript syntax and local screen-state checks passed for photo visibility when
+collapsed, removal when expanded, removal of duplicate per-player view, latest-first
+timeline, empty history, and retained host controls. Browser visual verification
+and live Firebase testing were not performed.
