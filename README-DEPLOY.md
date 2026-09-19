@@ -1,40 +1,28 @@
-# Poker Ledger V2.6.9 — Cash-out Corrections
+# Poker Ledger V2.6.11 — Buy-in Details
 
-Approved cash-outs can now be corrected while the game is active or counting
-final chips. Existing games and refresh recovery remain compatible (protocol 26).
+## What changed
+- The old "view history" control is now "Buy-in details".
+- Dashboard: In Play, Total In, and Players, with separate initial-buy-in and
+  rebuy counts below.
+- By player: a compact table separates Initial, Rebuys, and Total amounts.
+- Timeline: chronological connected markers with times, player names, amounts,
+  and explicit Initial buy-in / Rebuy labels. Dates appear across multiple days.
+- Main player list: the count column now shows additional rebuys only.
+- Voided entries remain identifiable and are excluded from counts and totals.
+- Poker-night artwork and existing cash-out corrections are retained.
 
-## Use
-- Your cash-out: click **Change amount**, enter the correction, then submit for
-  approval. The host approves players; the co-host approves the host.
-- Host: click **Edit cash-out** under another player's row, change the amount
-  inline, and Save. The co-host has the same control for the host's cash-out.
-- A pending correction shows as pending and blocks settlement. Rejection or
-  cancellation keeps the previous approved amount.
-- A verifier's direct correction updates totals immediately and records the
-  previous and new amounts in the audit trail.
-- Once finalized, use the existing host **Edit** settlement action before making
-  further corrections. Stale editors cannot change a finalized table or overwrite
-  an amount changed on another device.
+## Update your app
+1. Extract this ZIP.
+2. Replace your existing index.html and sw.js with these two files.
+3. Publish normally, then refresh/reopen on each device.
+4. The home-screen footer reads V2.6.11.
 
-## Deploy
-1. Replace index.html and sw.js in your existing hosting/repository.
-2. Publish using your normal deployment workflow.
-3. Close and reopen/refresh the app on every device.
-4. The home screen version reads: V2.6.9 · cash-out corrections.
-
-No rules change is needed with the saved V2.6 Firestore rules, which already
-permit host/co-host cash-out corrections and revised approval requests.
-Keep your existing Firebase configuration and other site files.
+The table image is embedded inside index.html. There is no image folder to
+upload. Keep other existing site files and Firebase settings. No rules change.
+This package has not been deployed automatically.
 
 ## Verification
-Local simulated React/Firestore checks passed for:
-- The screenshot's $200 bought in / $199 cashed out, corrected to $200.
-- Settlement calculation after correction.
-- Host and co-host correction permissions.
-- Revised personal cash-out approval and rejection.
-- Invalid amounts and zero-dollar cash-outs.
-- Changed amounts and finalized state on another device.
-- Correction controls in active and settling phases.
-
-These are local checks; no live game data was changed and this package has not
-been deployed by this update.
+JavaScript syntax and local display checks passed for split initial/rebuy
+counts, custom amounts, voided entries, chronological labels, and empty history.
+The existing local cash-out and settlement checks also passed. Live browser
+and Firebase testing was not performed.
