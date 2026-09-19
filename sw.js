@@ -1,4 +1,4 @@
-const CACHE_NAME = "poker-ledger-v2619";
+const CACHE_NAME = "poker-ledger-v2620";
 const APP_SHELL = ["./", "./index.html", "./manifest.json"];
 
 self.addEventListener("install", event => {
