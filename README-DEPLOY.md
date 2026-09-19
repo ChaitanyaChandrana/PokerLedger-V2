@@ -1,28 +1,25 @@
-# Poker Ledger V2.6.11 — Buy-in Details
+# Poker Ledger V2.6.12 — Charcoal & Gold
 
-## What changed
-- The old "view history" control is now "Buy-in details".
-- Dashboard: In Play, Total In, and Players, with separate initial-buy-in and
-  rebuy counts below.
-- By player: a compact table separates Initial, Rebuys, and Total amounts.
-- Timeline: chronological connected markers with times, player names, amounts,
-  and explicit Initial buy-in / Rebuy labels. Dates appear across multiple days.
-- Main player list: the count column now shows additional rebuys only.
-- Voided entries remain identifiable and are excluded from counts and totals.
-- Poker-night artwork and existing cash-out corrections are retained.
+## Changes
+- Buy-in timeline shows newest entries at the top, with a Newest first label.
+- Expanded player buy-in lists also show the newest entry first.
+- Rebuy numbering retains its original sequence when the display is reversed.
+- Charcoal and graphite panels replace the green interface, with muted gold accents.
+- The game-screen poker photograph is approximately twice as tall, and the content
+  area is wider on desktop. Mobile host/join screens also show more of the image.
+- Initial buy-ins, rebuys, and totals remain separate; voided entries stay excluded.
+- Cash-out correction, approval, and settlement behavior is unchanged.
 
-## Update your app
-1. Extract this ZIP.
-2. Replace your existing index.html and sw.js with these two files.
-3. Publish normally, then refresh/reopen on each device.
-4. The home-screen footer reads V2.6.11.
+## Deploy
+1. Extract this ZIP and replace your existing index.html and sw.js.
+2. Publish normally, then refresh/reopen the app on all devices.
+3. Check the home-screen footer: V2.6.12.
 
-The table image is embedded inside index.html. There is no image folder to
-upload. Keep other existing site files and Firebase settings. No rules change.
-This package has not been deployed automatically.
+The poker-table image is embedded in index.html; no image folder is needed.
+Keep all other site files and Firebase settings. No database rules change.
+This package is not automatically deployed.
 
 ## Verification
-JavaScript syntax and local display checks passed for split initial/rebuy
-counts, custom amounts, voided entries, chronological labels, and empty history.
-The existing local cash-out and settlement checks also passed. Live browser
-and Firebase testing was not performed.
+JavaScript syntax and local history checks passed for newest-first ordering,
+rebuy numbering, totals, voided entries, and legacy buy-ins without an explicit
+kind. Browser visual verification and live Firebase testing were not performed.
