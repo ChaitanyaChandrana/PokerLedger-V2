@@ -1,4 +1,25 @@
-# Poker Ledger V2.6.23 — Remembered guest names
+# Poker Ledger V2.6.26 — Prominent end-game button
+
+## New in V2.6.26
+- End Game & Settle is now a full-width outlined gold button with 18px semibold text and a 56px minimum tap area. It remains available to the host after cash-out.
+- Replace index.html and sw.js, then refresh. No new Firebase rules are needed.
+
+## New in V2.6.25
+- Neutral cash-out and settlement text/cards replace bright green lettering, tinted panels and success glow.
+- Clear action labels: Cash-out approved, Awaiting approval, Totals match, Calculate payments and Resume play.
+- Phase-specific headings identify Cash-outs and Results. Payment breakdown states what is owed without implying transfers were already paid.
+- Removed the repeated personal cash-out panel from the settlement footer; the amount and edit action remain in the main card. Host settlement controls remain available.
+- Rendering and existing recovery checks passed. Live-device visual inspection was not performed.
+- Replace index.html and sw.js, then refresh. No further Firebase rule changes are needed if V2.6.22 rules are already installed.
+
+## New in V2.6.24
+- Larger modern Inter typography: 18px player names, larger amounts and 21px buy-in counts, with clearer secondary text and taller rows.
+- Removed repeated player counts, instructional labels and row dividers. Table lock and co-host management remain available in More. Existing pending approvals and errors remain visible.
+- Quieter decorative image and a shorter Activity & totals control keep attention on the ledger.
+- Sound on/off is accessible beside Buy-ins as well as in More. It remains optional and plays only for server-confirmed rebuys, not a pending request or old records on refresh. The gold row pulse remains enabled.
+- Existing app/reconnection/remember-name tests passed. No live deployment or real-device visual/audio verification was performed for this update.
+
+If V2.6.22 or V2.6.23 is already installed with its rules, replace index.html and sw.js and refresh. No new Firebase rules are needed.
 
 ## New in V2.6.23
 - After joining or hosting, your name is remembered on this browser. No Google account or login is needed.
@@ -24,7 +45,7 @@ This package is prepared and tested locally, not published to the live app.
 
 1. Between games, publish **firestore.rules** in Firebase Console → Firestore Database → Rules for the existing `pokerledger-v2` project. These rules are required for tap approvals and host recovery.
 2. Replace **index.html** and **sw.js** together on the existing site. Keep its exact domain so browser identities continue to work.
-3. Refresh/reopen on every device. Confirm **V2.6.23** in the home footer. Older open clients must refresh after the rules change; their old QR approval flow is no longer supported.
+3. Refresh/reopen on every device. Confirm **V2.6.26** in the home footer. Older open clients must refresh after the rules change; their old QR approval flow is no longer supported.
 4. In a test table on separate devices, request/approve a player and host rebuy, enable sound, try a handover, and confirm the same totals and pending requests remain. Check the phone's audio/animation behavior before the next game.
 
 Keep the HTML at the site root with sw.js alongside it. The rules and tests do not need to be served as web assets. No database migration or new game is required. APP_VERSION 2.6 and protocol 26 remain unchanged.

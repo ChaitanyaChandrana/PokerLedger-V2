@@ -64,6 +64,10 @@ function startBoot(){effects.find(e=>e.f.toString().includes('Strongest recovery
  setup();auth.currentUser={uid:'different'};render();effects.find(e=>e.f.toString().includes('saveGuestName(ownGuestName)')).f();assert.equal(store.has('pokerGuestName'),false);
  setup({guestName:'x'.repeat(61)});assert.equal(state.jName,'');ctx.localStorage.getItem=()=>{throw Error('blocked')};ctx.localStorage.setItem=()=>{throw Error('blocked')};ctx.localStorage.removeItem=()=>{throw Error('blocked')};assert.equal(vm.runInContext('loadGuestName()',ctx),'');vm.runInContext('saveGuestName("Cha");forgetGuestName()',ctx);
  console.log('PASS: guest name prefills join/create without writes; change name preserves identity; own-seat name survives leaving; storage failures are safe.');
+ setup({phase:'settling'});await ctx.api.handleJoin();publishCurrent();render();assert(text(tree).includes('Calculate payments'));assert(text(tree).includes('Resume play'));assert(!nodes().some(n=>String(n.props.className||'').includes('mint-')));
+ setup({who:'c',phase:'settling'});await ctx.api.handleJoin();publishCurrent();render();assert(text(tree).includes('Enter cash-out amount'));assert(!nodes().some(n=>String(n.props.className||'').includes('fixed bottom-0')));
+ console.log('PASS: neutral settlement screen renders host actions and player amount entry without duplicate footer.');
+
 
 
 })().catch(e=>{console.error(e);process.exitCode=1});
