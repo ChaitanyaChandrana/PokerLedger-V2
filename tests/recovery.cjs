@@ -67,6 +67,16 @@ function startBoot(){effects.find(e=>e.f.toString().includes('Strongest recovery
  setup({phase:'settling'});await ctx.api.handleJoin();publishCurrent();render();assert(text(tree).includes('Calculate payments'));assert(text(tree).includes('Resume play'));assert(!nodes().some(n=>String(n.props.className||'').includes('mint-')));
  setup({who:'c',phase:'settling'});await ctx.api.handleJoin();publishCurrent();render();assert(text(tree).includes('Enter cash-out amount'));assert(!nodes().some(n=>String(n.props.className||'').includes('fixed bottom-0')));
  console.log('PASS: neutral settlement screen renders host actions and player amount entry without duplicate footer.');
+ for(const who of ['h','c']){
+  setup({who,phase:'settling'});await ctx.api.handleJoin();publishCurrent();
+  for(const id of ['a','d'])game.players[id]={...clone(game.players.c),id,name:id,authUid:'u'+id};
+  game.phase='settled';game.settlement={nets:{h:-30,c:10,a:25,d:-5},transactions:[{from:'h',to:'c',amount:10},{from:'h',to:'a',amount:20},{from:'d',to:'a',amount:5}]};
+  for(const p of Object.values(game.players)){p.cashedOut=true;p.finalAmount=p.buyins.length*40+game.settlement.nets[p.id];p.finalCents=p.finalAmount*100;}
+  publishCurrent();render();assert(text(tree).includes('Who pays whom'));assert(text(tree).includes('h pays c'));assert(text(tree).includes('h pays a'));assert(text(tree).includes('d pays a'));assert(text(tree).includes(who==='h'?'You pay $30.00':'You receive $10.00'));assert.equal(nodes().filter(n=>n.type==='li'&&String(n.props.className).includes('settlement-transfer')).length,3);assert(text(tree).includes('Cash-out'));assert(text(tree).includes('Total in'));assert(text(tree).includes('Final tally'));const tallyRows=nodes().filter(n=>['a','c','d','h'].includes(n.props.key)&&String(n.props.className).includes('rounded-lg border'));assert.deepEqual(tallyRows.map(n=>n.props.key),['a','c','d','h']);assert(text(tallyRows[0]).includes('+$25.00Won'));assert(text(tallyRows[3]).includes('-$30.00Lost'));assert.equal(writes,0);
+  await ctx.api.reconnectGame();publishCurrent();render();assert(text(tree).includes('d pays a'));assert.equal(writes,0);
+ }
+ console.log('PASS: host and player both see every final transfer, personal totals and results after live settlement and reconnect.');
+
 
 
 

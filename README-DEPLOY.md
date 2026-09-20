@@ -1,4 +1,18 @@
-# Poker Ledger V2.6.26 — Prominent end-game button
+# Poker Ledger V2.6.28 — Winners and losses
+
+## New in V2.6.28
+- Final tally shows every player's net winnings or loss, labelled Won, Lost or Even. Positive values use restrained gold; no green lettering.
+- Players are sorted from highest net win to largest loss after settlement. During play, sorting remains by buy-in count.
+- Total in and cash-out remain beside each result, and the shared Who pays whom list remains visible to everyone.
+- Replace index.html and sw.js and refresh. No new Firebase rules are required.
+
+## New in V2.6.27
+- Every player sees the shared final settlement as soon as the host calculates payments: full payer name, full recipient name and amount for every transfer.
+- A personal summary shows total to pay or receive. The complete list includes other players’ transfers as well.
+- Results show every player's cash-out, total bought in and net result. The decorative photo is omitted on the final screen.
+- The list states amounts owed; it does not mark bank/cash payments as completed or add payment tracking.
+- Host/player rendering, automatic settlement updates and refresh/reconnect persistence checks passed. No live-device visual verification was performed.
+- Replace index.html and sw.js, then refresh. No new Firebase rules required if V2.6.22 rules are installed.
 
 ## New in V2.6.26
 - End Game & Settle is now a full-width outlined gold button with 18px semibold text and a 56px minimum tap area. It remains available to the host after cash-out.
@@ -45,7 +59,7 @@ This package is prepared and tested locally, not published to the live app.
 
 1. Between games, publish **firestore.rules** in Firebase Console → Firestore Database → Rules for the existing `pokerledger-v2` project. These rules are required for tap approvals and host recovery.
 2. Replace **index.html** and **sw.js** together on the existing site. Keep its exact domain so browser identities continue to work.
-3. Refresh/reopen on every device. Confirm **V2.6.26** in the home footer. Older open clients must refresh after the rules change; their old QR approval flow is no longer supported.
+3. Refresh/reopen on every device. Confirm **V2.6.28** in the home footer. Older open clients must refresh after the rules change; their old QR approval flow is no longer supported.
 4. In a test table on separate devices, request/approve a player and host rebuy, enable sound, try a handover, and confirm the same totals and pending requests remain. Check the phone's audio/animation behavior before the next game.
 
 Keep the HTML at the site root with sw.js alongside it. The rules and tests do not need to be served as web assets. No database migration or new game is required. APP_VERSION 2.6 and protocol 26 remain unchanged.
