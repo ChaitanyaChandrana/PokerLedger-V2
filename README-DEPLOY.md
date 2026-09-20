@@ -1,4 +1,10 @@
-# Poker Ledger V2.6.34 — Priority approvals
+# Poker Ledger V2.6.35 — Simple joining
+
+## New in V2.6.35
+- Remembered players see their name prominently and Join the Table, with small Change name and Change code actions.
+- Prefilled game codes are a compact row instead of an input; editing appears on demand. Optional mobile number is collapsed.
+- Identity checks and automatic restoration of existing authenticated seats remain unchanged. Remembering a name does not grant access to another player's seat.
+- Join editing, remembered-name and recovery checks passed. Replace index.html and sw.js; no additional rules changes from V2.6.32.
 
 ## New in V2.6.34
 - Approvals are the first section on the game screen, above the welcome card: prominent count, player names, amounts, request type/time, and large individual Approve/Decline actions. Requests are ordered oldest first; duplicate action taps are blocked while saving.
