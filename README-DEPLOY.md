@@ -1,4 +1,12 @@
-# Poker Ledger V2.6.31 — Share payment requests
+# Poker Ledger V2.6.32 — Clear requests and co-host approvals
+
+## New in V2.6.32
+- Request money is a prominent gold button on incoming transfers. Expanded settlement details use smaller type.
+- Share payouts and Share settlement/export controls appear only for host and co-host. Players retain their personal payment-request sharing.
+- Only the currently assigned co-host can approve or reject host buy-in and cash-out requests. Enforced in both the app and Firestore rules; ordinary-player requests still require the host.
+- Assign a co-host under More before requesting host approval. Existing pending requests use the current roles.
+- REQUIRED: publish the included firestore.rules in Firebase Console → Firestore Database → Rules. Replace index.html and sw.js and refresh all devices.
+- App recovery/rendering tests and Firebase emulator authorization/workflow tests passed. No live-device visual verification or production deployment performed.
 
 ## New in V2.6.31
 - Smaller settled-payment names (16px) and amounts (20px), preserving highlighted personal transfers.

@@ -55,7 +55,7 @@ function startBoot(){effects.find(e=>e.f.toString().includes('Strongest recovery
  publish(live);assert.equal(state.savedRebuyQueue.length,1);publish(live);assert.equal(state.savedRebuyQueue.length,1);render();assert(text(tree).includes('saved · 3 buy-ins'));assert(nodes().some(n=>n.props.className?.includes('rebuy-saved-pulse')));
  await ctx.api.reconnectGame();publishCurrent();assert.equal(state.savedRebuyQueue.length,0);
  for(const modal of ['showTableControls','showHostTransfer','showCoHostPicker']){state[modal]=true;render();state[modal]=false;}
- state.cashingOutId='h';render();assert(text(tree).includes('Another player will approve'));state.cashingOutId=null;
+ state.cashingOutId='h';render();assert(text(tree).includes('Your co-host will approve'));state.cashingOutId=null;
  state.pendingRequests=[{id:'pending_c',type:'buyin',status:'pending',targetId:'c',requesterUid:'uc',amountCents:4000,approvalMode:'tap',challengeId:'abc'}];render();assert(text(tree).includes('Confirm payment received'));assert(nodes().some(n=>n.type==='button'&&text(n)==='Approve'));assert(!nodes().some(n=>n.type==='button'&&text(n)==='Scan'));
  console.log('PASS: saved notification waits for server, pulses once, does not replay on reconnect; approval and handover controls render.');
  setup({guestName:'Chaitanya'});assert.equal(state.jName,'Chaitanya');assert.equal(state.cHostName,'Chaitanya');assert(text(tree).includes('Welcome back, Chaitanya'));assert.equal(writes,0);assert.equal(state.screen,'join');
@@ -73,7 +73,7 @@ function startBoot(){effects.find(e=>e.f.toString().includes('Strongest recovery
   game.phase='settled';game.settlement={nets:{h:-30,c:10,a:25,d:-5},transactions:[{from:'h',to:'c',amount:10},{from:'h',to:'a',amount:20},{from:'d',to:'a',amount:5}]};
   for(const p of Object.values(game.players)){p.cashedOut=true;p.finalAmount=p.buyins.length*40+game.settlement.nets[p.id];p.finalCents=p.finalAmount*100;}
   publishCurrent();render();assert(text(tree).includes('Who pays whom'));assert(text(tree).includes('h pays c'));assert(text(tree).includes('h pays a'));assert(text(tree).includes('d pays a'));const compact=nodes().filter(n=>String(n.props.className).startsWith('payout-result '));assert.deepEqual(compact.map(n=>n.props.key),['result-a','result-c','result-d','result-h']);assert(text(compact[0]).includes('+$25.00'));assert(text(compact[3]).includes('−$30.00'));const mine=nodes().filter(n=>n.type==='li'&&n.props.className==='settlement-transfer mine');assert.equal(mine.length,who==='h'?2:1);assert(mine.every(n=>text(n).includes(who==='h'?'You pay':'You receive')));assert.equal(nodes().filter(n=>n.type==='li'&&String(n.props.className).includes('settlement-transfer')).length,3);assert(!text(tree).includes('Final tally'));assert(!text(tree).includes('Total in'));assert(!nodes().some(n=>n.type==='textarea'));const details=nodes().find(n=>n.type==='button'&&text(n)==='View details');assert(details);details.props.onClick();render();assert.equal(nodes().filter(n=>n.type==='li'&&String(n.props.className).includes('settlement-transfer')).length,3);assert(text(tree).includes('Cash-out'));assert(text(tree).includes('Total in'));assert(text(tree).includes('Final tally'));const tallyRows=nodes().filter(n=>['a','c','d','h'].includes(n.props.key)&&String(n.props.className).includes('rounded-lg border'));assert.deepEqual(tallyRows.map(n=>n.props.key),['a','c','d','h']);assert(text(tallyRows[0]).includes('+$25.00Won'));assert(text(tallyRows[3]).includes('-$30.00Lost'));assert.equal(writes,0);
-  const requests=nodes().filter(n=>n.type==='button'&&text(n)==='Request');assert.equal(requests.length,who==='c'?1:0);
+  const requests=nodes().filter(n=>n.type==='button'&&text(n)==='Request money');assert.equal(requests.length,who==='c'?1:0);
   if(who==='c'){
    requests[0].props.onClick();render();
    nodes().find(n=>n.props.id==='payment-contact').props.onChange({target:{value:'Zelle: c@example.com'}});render();
@@ -85,6 +85,9 @@ function startBoot(){effects.find(e=>e.f.toString().includes('Strongest recovery
   }
   await ctx.api.reconnectGame();publishCurrent();render();assert(text(tree).includes('d pays a'));assert.equal(writes,0);
  }
+ setup({who:'c',phase:'settled'});game.coHostId=null;game.coHostUid=null;game.settlement={nets:{h:-10,c:10},transactions:[{from:'h',to:'c',amount:10}]};state.game=clone(game);state.screen='game';state.showSettlementDetails=true;render();assert(!text(tree).includes('Share payouts'));assert(!text(tree).includes('Share settlement'));assert(text(tree).includes('Request money'));
+ game.coHostId='c';game.coHostUid='uc';state.game=clone(game);render();assert(text(tree).includes('Share payouts'));assert(text(tree).includes('Share settlement'));
+ assert.equal(vm.runInContext('canApproveTableRequest',ctx)(game,{targetId:'h'},'c','uc'),true);game.coHostId=null;game.coHostUid=null;assert.equal(vm.runInContext('canApproveTableRequest',ctx)(game,{targetId:'h'},'c','uc'),false);
  console.log('PASS: host and player both see every final transfer, personal totals and results after live settlement and reconnect.');
 
 

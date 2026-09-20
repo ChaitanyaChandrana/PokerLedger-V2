@@ -84,7 +84,9 @@ service cloud.firestore {
         return activeMember(g, request.auth.uid)
           && g.members[request.auth.uid] != r.targetId
           && g.players[r.targetId].get('removed',false) == false
-          && (r.targetId == g.hostId || g.hostUid == request.auth.uid);
+          && (r.targetId == g.hostId
+            ? (g.coHostUid == request.auth.uid && g.members[request.auth.uid] == g.coHostId)
+            : g.hostUid == request.auth.uid);
       }
       function verifiedLedgerUpdate() {
         let id = request.resource.data.lastVerifiedRequestId;
