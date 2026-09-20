@@ -16,7 +16,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
-<style>*,:after,:before{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/*! tailwindcss v3.4.19 | MIT License | https://tailwindcss.com*/*,:after,:before{box-sizing:border-box;border:0 solid #e5e7eb}:after,:before{--tw-content:""}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;font-family:ui-sans-serif,system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0}fieldset,legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::-moz-placeholder,textarea::-moz-placeholder{opacity:1;color:#9ca3af}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.fixed{position:fixed}.inset-0{inset:0}.bottom-0{bottom:0}.left-0{left:0}.right-0{right:0}.z-50{z-index:50}.mx-auto{margin-left:auto;margin-right:auto}.-mt-0\.5{margin-top:-.125rem}.mb-1{margin-bottom:.25rem}.mb-1\.5{margin-bottom:.375rem}.mb-10{margin-bottom:2.5rem}.mb-2{margin-bottom:.5rem}.mb-2\.5{margin-bottom:.625rem}.mb-3{margin-bottom:.75rem}.mb-4{margin-bottom:1rem}.mb-5{margin-bottom:1.25rem}.mb-6{margin-bottom:1.5rem}.ml-1{margin-left:.25rem}.ml-2{margin-left:.5rem}.ml-3{margin-left:.75rem}.mt-0\.5{margin-top:.125rem}.mt-1{margin-top:.25rem}.mt-1\.5{margin-top:.375rem}.mt-2{margin-top:.5rem}.mt-3{margin-top:.75rem}.mt-4{margin-top:1rem}.mt-5{margin-top:1.25rem}.mt-8{margin-top:2rem}.block{display:block}.inline-block{display:inline-block}.flex{display:flex}.table{display:table}.grid{display:grid}.hidden{display:none}.h-40{height:10rem}.h-7{height:1.75rem}.h-8{height:2rem}.max-h-72{max-height:18rem}.min-h-screen{min-height:100vh}.w-11{width:2.75rem}.w-14{width:3.5rem}.w-24{width:6rem}.w-5{width:1.25rem}.w-7{width:1.75rem}.w-8{width:2rem}.w-9{width:2.25rem}.w-full{width:100%}.min-w-0{min-width:0}.max-w-sm{max-width:24rem}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.resize-none{resize:none}.grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-0\.5{gap:.125rem}.gap-1{gap:.25rem}.gap-1\.5{gap:.375rem}.gap-2{gap:.5rem}.gap-3{gap:.75rem}.gap-6{gap:1.5rem}.space-y-1>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.25rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.25rem*var(--tw-space-y-reverse))}.space-y-1\.5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.375rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.375rem*var(--tw-space-y-reverse))}.space-y-2>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.5rem*var(--tw-space-y-reverse))}.space-y-2\.5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.625rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.625rem*var(--tw-space-y-reverse))}.space-y-3>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.75rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.75rem*var(--tw-space-y-reverse))}.space-y-4>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem*var(--tw-space-y-reverse))}.space-y-5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.25rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.25rem*var(--tw-space-y-reverse))}.overflow-y-auto{overflow-y:auto}.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rounded-2xl{border-radius:1rem}.rounded-3xl{border-radius:1.5rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:.5rem}.rounded-xl{border-radius:.75rem}.border{border-width:1px}.border-0{border-width:0}.border-b{border-bottom-width:1px}.border-t{border-top-width:1px}.border-dashed{border-style:dashed}.border-coral-500\/30{border-color:rgba(201,58,58,.3)}.border-felt-600{--tw-border-opacity:1;border-color:rgb(65 68 76/var(--tw-border-opacity,1))}.border-felt-700{--tw-border-opacity:1;border-color:rgb(50 53 62/var(--tw-border-opacity,1))}.border-gold-500\/25{border-color:rgba(200,148,48,.25)}.border-gold-500\/30{border-color:rgba(200,148,48,.3)}.border-gold-500\/40{border-color:rgba(200,148,48,.4)}.border-gold-500\/50{border-color:rgba(200,148,48,.5)}.border-gold-500\/60{border-color:rgba(200,148,48,.6)}.border-mint-500\/40{border-color:rgba(34,162,94,.4)}.bg-coral-500{--tw-bg-opacity:1;background-color:rgb(201 58 58/var(--tw-bg-opacity,1))}.bg-coral-500\/10{background-color:rgba(201,58,58,.1)}.bg-felt-800{--tw-bg-opacity:1;background-color:rgb(37 39 46/var(--tw-bg-opacity,1))}.bg-felt-800\/60{background-color:rgba(37,39,46,.6)}.bg-felt-800\/70{background-color:rgba(37,39,46,.7)}.bg-felt-900{--tw-bg-opacity:1;background-color:rgb(28 30 36/var(--tw-bg-opacity,1))}.bg-felt-900\/60{background-color:rgba(28,30,36,.6)}.bg-felt-900\/80{background-color:rgba(28,30,36,.8)}.bg-felt-950\/80{background-color:rgba(16,17,20,.8)}.bg-felt-950\/95{background-color:rgba(16,17,20,.95)}.bg-gold-500\/10{background-color:rgba(200,148,48,.1)}.bg-mint-500\/10{background-color:rgba(34,162,94,.1)}.bg-transparent{background-color:transparent}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255/var(--tw-bg-opacity,1))}.bg-gradient-to-b{background-image:linear-gradient(to bottom,var(--tw-gradient-stops))}.bg-gradient-to-br{background-image:linear-gradient(to bottom right,var(--tw-gradient-stops))}.from-felt-800{--tw-gradient-from:#25272e var(--tw-gradient-from-position);--tw-gradient-to:rgba(37,39,46,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.from-gold-300{--tw-gradient-from:#f2ca6e var(--tw-gradient-from-position);--tw-gradient-to:hsla(42,84%,69%,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.from-gold-500\/10{--tw-gradient-from:rgba(200,148,48,.1) var(--tw-gradient-from-position);--tw-gradient-to:rgba(200,148,48,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.to-felt-900{--tw-gradient-to:#1c1e24 var(--tw-gradient-to-position)}.to-gold-500{--tw-gradient-to:#c89430 var(--tw-gradient-to-position)}.to-transparent{--tw-gradient-to:transparent var(--tw-gradient-to-position)}.p-2{padding:.5rem}.p-3{padding:.75rem}.p-3\.5{padding:.875rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.px-0\.5{padding-left:.125rem;padding-right:.125rem}.px-2{padding-left:.5rem;padding-right:.5rem}.px-2\.5{padding-left:.625rem;padding-right:.625rem}.px-3{padding-left:.75rem;padding-right:.75rem}.px-3\.5{padding-left:.875rem;padding-right:.875rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.py-1{padding-top:.25rem;padding-bottom:.25rem}.py-1\.5{padding-top:.375rem;padding-bottom:.375rem}.py-2{padding-top:.5rem;padding-bottom:.5rem}.py-2\.5{padding-top:.625rem;padding-bottom:.625rem}.py-3{padding-top:.75rem;padding-bottom:.75rem}.py-3\.5{padding-top:.875rem;padding-bottom:.875rem}.py-4{padding-top:1rem;padding-bottom:1rem}.pb-0\.5{padding-bottom:.125rem}.pb-1{padding-bottom:.25rem}.pb-1\.5{padding-bottom:.375rem}.pb-2{padding-bottom:.5rem}.pb-2\.5{padding-bottom:.625rem}.pb-24{padding-bottom:6rem}.pt-1{padding-top:.25rem}.pt-4{padding-top:1rem}.pt-5{padding-top:1.25rem}.text-left{text-align:left}.text-center{text-align:center}.text-2xl{font-size:1.5rem;line-height:2rem}.text-4xl{font-size:2.25rem;line-height:2.5rem}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:.75rem;line-height:1rem}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-normal{font-weight:400}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.tracking-\[0\.1em\]{letter-spacing:.1em}.tracking-\[0\.2em\]{letter-spacing:.2em}.tracking-tight{letter-spacing:-.025em}.tracking-wide{letter-spacing:.025em}.tracking-widest{letter-spacing:.1em}.text-bone{--tw-text-opacity:1;color:rgb(244 238 251/var(--tw-text-opacity,1))}.text-coral-400{--tw-text-opacity:1;color:rgb(240 98 95/var(--tw-text-opacity,1))}.text-gold-300{--tw-text-opacity:1;color:rgb(242 202 110/var(--tw-text-opacity,1))}.text-gold-400{--tw-text-opacity:1;color:rgb(232 178 61/var(--tw-text-opacity,1))}.text-gold-400\/80{color:rgba(232,178,61,.8)}.text-ink{--tw-text-opacity:1;color:rgb(28 17 40/var(--tw-text-opacity,1))}.text-mint-400{--tw-text-opacity:1;color:rgb(47 191 113/var(--tw-text-opacity,1))}.text-smoke{--tw-text-opacity:1;color:rgb(171 174 185/var(--tw-text-opacity,1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.underline{text-decoration-line:underline}.shadow-\[0_0_24px_-4px_rgba\(232\2c 178\2c 61\2c 0\.45\)\]{--tw-shadow:0 0 24px -4px rgba(232,178,61,.45);--tw-shadow-colored:0 0 24px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-\[0_0_40px_-10px_rgba\(232\2c 178\2c 61\2c 0\.25\)\]{--tw-shadow:0 0 40px -10px rgba(232,178,61,.25);--tw-shadow-colored:0 0 40px -10px var(--tw-shadow-color)}.shadow-\[0_0_40px_-10px_rgba\(232\2c 178\2c 61\2c 0\.25\)\],.shadow-md{box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color),0 2px 4px -2px var(--tw-shadow-color)}.outline-none{outline:2px solid transparent;outline-offset:2px}.filter{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,-webkit-backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,-webkit-backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.placeholder\:text-smoke\/40::-moz-placeholder{color:rgba(171,174,185,.4)}.placeholder\:text-smoke\/40::placeholder{color:rgba(171,174,185,.4)}.placeholder\:text-smoke\/50::-moz-placeholder{color:rgba(171,174,185,.5)}.placeholder\:text-smoke\/50::placeholder{color:rgba(171,174,185,.5)}.placeholder\:text-smoke\/60::-moz-placeholder{color:rgba(171,174,185,.6)}.placeholder\:text-smoke\/60::placeholder{color:rgba(171,174,185,.6)}.focus-within\:border-gold-400:focus-within{--tw-border-opacity:1;border-color:rgb(232 178 61/var(--tw-border-opacity,1))}.focus-within\:ring-2:focus-within{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000)}.focus-within\:ring-gold-400\/20:focus-within{--tw-ring-color:rgba(232,178,61,.2)}.hover\:border-gold-500\/60:hover{border-color:rgba(200,148,48,.6)}.hover\:bg-felt-700\/60:hover{background-color:rgba(50,53,62,.6)}.hover\:bg-gold-500\/10:hover{background-color:rgba(200,148,48,.1)}.hover\:from-gold-200:hover{--tw-gradient-from:#f8dfa0 var(--tw-gradient-from-position);--tw-gradient-to:hsla(43,86%,80%,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.hover\:to-gold-400:hover{--tw-gradient-to:#e8b23d var(--tw-gradient-to-position)}.hover\:text-gold-300:hover{--tw-text-opacity:1;color:rgb(242 202 110/var(--tw-text-opacity,1))}.focus\:border-gold-400:focus{--tw-border-opacity:1;border-color:rgb(232 178 61/var(--tw-border-opacity,1))}.focus\:ring-2:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000)}.focus\:ring-gold-400\/20:focus{--tw-ring-color:rgba(232,178,61,.2)}.active\:scale-90:active{--tw-scale-x:.9;--tw-scale-y:.9}.active\:scale-90:active,.active\:scale-\[0\.97\]:active{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.active\:scale-\[0\.97\]:active{--tw-scale-x:0.97;--tw-scale-y:0.97}.disabled\:opacity-40:disabled{opacity:.4}</style>
+<style>*,:after,:before{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/*! tailwindcss v3.4.19 | MIT License | https://tailwindcss.com*/*,:after,:before{box-sizing:border-box;border:0 solid #e5e7eb}:after,:before{--tw-content:""}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;font-family:ui-sans-serif,system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0}fieldset,legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::-moz-placeholder,textarea::-moz-placeholder{opacity:1;color:#9ca3af}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.fixed{position:fixed}.inset-0{inset:0}.bottom-0{bottom:0}.left-0{left:0}.right-0{right:0}.z-50{z-index:50}.mx-auto{margin-left:auto;margin-right:auto}.-mt-0\.5{margin-top:-.125rem}.mb-1{margin-bottom:.25rem}.mb-1\.5{margin-bottom:.375rem}.mb-10{margin-bottom:2.5rem}.mb-2{margin-bottom:.5rem}.mb-2\.5{margin-bottom:.625rem}.mb-3{margin-bottom:.75rem}.mb-4{margin-bottom:1rem}.mb-5{margin-bottom:1.25rem}.mb-6{margin-bottom:1.5rem}.ml-1{margin-left:.25rem}.ml-2{margin-left:.5rem}.ml-3{margin-left:.75rem}.mt-0\.5{margin-top:.125rem}.mt-1{margin-top:.25rem}.mt-1\.5{margin-top:.375rem}.mt-2{margin-top:.5rem}.mt-3{margin-top:.75rem}.mt-4{margin-top:1rem}.mt-5{margin-top:1.25rem}.mt-8{margin-top:2rem}.block{display:block}.inline-block{display:inline-block}.flex{display:flex}.table{display:table}.grid{display:grid}.hidden{display:none}.h-40{height:10rem}.h-7{height:1.75rem}.h-8{height:2rem}.max-h-72{max-height:18rem}.min-h-screen{min-height:100vh}.w-11{width:2.75rem}.w-14{width:3.5rem}.w-24{width:6rem}.w-5{width:1.25rem}.w-7{width:1.75rem}.w-8{width:2rem}.w-9{width:2.25rem}.w-full{width:100%}.min-w-0{min-width:0}.max-w-sm{max-width:24rem}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.resize-none{resize:none}.grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-0\.5{gap:.125rem}.gap-1{gap:.25rem}.gap-1\.5{gap:.375rem}.gap-2{gap:.5rem}.gap-3{gap:.75rem}.gap-6{gap:1.5rem}.space-y-1>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.25rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.25rem*var(--tw-space-y-reverse))}.space-y-1\.5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.375rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.375rem*var(--tw-space-y-reverse))}.space-y-2>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.5rem*var(--tw-space-y-reverse))}.space-y-2\.5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.625rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.625rem*var(--tw-space-y-reverse))}.space-y-3>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.75rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.75rem*var(--tw-space-y-reverse))}.space-y-4>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem*var(--tw-space-y-reverse))}.space-y-5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.25rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.25rem*var(--tw-space-y-reverse))}.overflow-y-auto{overflow-y:auto}.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rounded-2xl{border-radius:1rem}.rounded-3xl{border-radius:1.5rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:.5rem}.rounded-xl{border-radius:.75rem}.border{border-width:1px}.border-0{border-width:0}.border-b{border-bottom-width:1px}.border-t{border-top-width:1px}.border-dashed{border-style:dashed}.border-coral-500\/30{border-color:rgba(201,58,58,.3)}.border-felt-600{--tw-border-opacity:1;border-color:rgb(65 68 76/var(--tw-border-opacity,1))}.border-felt-700{--tw-border-opacity:1;border-color:rgb(50 53 62/var(--tw-border-opacity,1))}.border-gold-500\/25{border-color:rgba(200,148,48,.25)}.border-gold-500\/30{border-color:rgba(200,148,48,.3)}.border-gold-500\/40{border-color:rgba(200,148,48,.4)}.border-gold-500\/50{border-color:rgba(200,148,48,.5)}.border-gold-500\/60{border-color:rgba(200,148,48,.6)}.border-mint-500\/40{border-color:rgba(34,162,94,.4)}.bg-coral-500{--tw-bg-opacity:1;background-color:rgb(201 58 58/var(--tw-bg-opacity,1))}.bg-coral-500\/10{background-color:rgba(201,58,58,.1)}.bg-felt-800{--tw-bg-opacity:1;background-color:rgb(37 39 46/var(--tw-bg-opacity,1))}.bg-felt-800\/60{background-color:rgba(37,39,46,.6)}.bg-felt-800\/70{background-color:rgba(37,39,46,.7)}.bg-felt-900{--tw-bg-opacity:1;background-color:rgb(28 30 36/var(--tw-bg-opacity,1))}.bg-felt-900\/60{background-color:rgba(28,30,36,.6)}.bg-felt-900\/80{background-color:rgba(28,30,36,.8)}.bg-felt-950\/80{background-color:rgba(16,17,20,.8)}.bg-felt-950\/95{background-color:rgba(16,17,20,.95)}.bg-gold-500\/10{background-color:rgba(200,148,48,.1)}.bg-mint-500\/10{background-color:rgba(34,162,94,.1)}.bg-transparent{background-color:transparent}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255/var(--tw-bg-opacity,1))}.bg-gradient-to-b{background-image:linear-gradient(to bottom,var(--tw-gradient-stops))}.bg-gradient-to-br{background-image:linear-gradient(to bottom right,var(--tw-gradient-stops))}.from-felt-800{--tw-gradient-from:#25272e var(--tw-gradient-from-position);--tw-gradient-to:rgba(37,39,46,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.from-gold-300{--tw-gradient-from:#f2ca6e var(--tw-gradient-from-position);--tw-gradient-to:hsla(42,84%,69%,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.from-gold-500\/10{--tw-gradient-from:rgba(200,148,48,.1) var(--tw-gradient-from-position);--tw-gradient-to:rgba(200,148,48,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.to-felt-900{--tw-gradient-to:#1c1e24 var(--tw-gradient-to-position)}.to-gold-500{--tw-gradient-to:#c89430 var(--tw-gradient-to-position)}.to-transparent{--tw-gradient-to:transparent var(--tw-gradient-to-position)}.p-2{padding:.5rem}.p-3{padding:.75rem}.p-3\.5{padding:.875rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.px-0\.5{padding-left:.125rem;padding-right:.125rem}.px-2{padding-left:.5rem;padding-right:.5rem}.px-2\.5{padding-left:.625rem;padding-right:.625rem}.px-3{padding-left:.75rem;padding-right:.75rem}.px-3\.5{padding-left:.875rem;padding-right:.875rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.py-1{padding-top:.25rem;padding-bottom:.25rem}.py-1\.5{padding-top:.375rem;padding-bottom:.375rem}.py-2{padding-top:.5rem;padding-bottom:.5rem}.py-2\.5{padding-top:.625rem;padding-bottom:.625rem}.py-3{padding-top:.75rem;padding-bottom:.75rem}.py-3\.5{padding-top:.875rem;padding-bottom:.875rem}.py-4{padding-top:1rem;padding-bottom:1rem}.pb-0\.5{padding-bottom:.125rem}.pb-1{padding-bottom:.25rem}.pb-1\.5{padding-bottom:.375rem}.pb-2{padding-bottom:.5rem}.pb-2\.5{padding-bottom:.625rem}.pb-24{padding-bottom:6rem}.pt-1{padding-top:.25rem}.pt-4{padding-top:1rem}.pt-5{padding-top:1.25rem}.text-left{text-align:left}.text-center{text-align:center}.text-2xl{font-size:1.5rem;line-height:2rem}.text-4xl{font-size:2.25rem;line-height:2.5rem}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:.75rem;line-height:1rem}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-normal{font-weight:400}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.tracking-\[0\.1em\]{letter-spacing:.1em}.tracking-\[0\.2em\]{letter-spacing:.2em}.tracking-tight{letter-spacing:-.025em}.tracking-wide{letter-spacing:.025em}.tracking-widest{letter-spacing:.1em}.text-bone{--tw-text-opacity:1;color:rgb(244 238 251/var(--tw-text-opacity,1))}.text-coral-400{--tw-text-opacity:1;color:rgb(240 98 95/var(--tw-text-opacity,1))}.text-gold-300{--tw-text-opacity:1;color:rgb(242 202 110/var(--tw-text-opacity,1))}.text-gold-400{--tw-text-opacity:1;color:rgb(232 178 61/var(--tw-text-opacity,1))}.text-gold-400\/80{color:rgba(232,178,61,.8)}.text-ink{--tw-text-opacity:1;color:rgb(28 17 40/var(--tw-text-opacity,1))}.text-mint-400{--tw-text-opacity:1;color:rgb(47 191 113/var(--tw-text-opacity,1))}.text-smoke{--tw-text-opacity:1;color:rgb(171 174 185/var(--tw-text-opacity,1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.underline{text-decoration-line:underline}.shadow-\[0_0_24px_-4px_rgba\(232\2c 178\2c 61\2c 0\.45\)\]{--tw-shadow:0 0 24px -4px rgba(232,178,61,.45);--tw-shadow-colored:0 0 24px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-\[0_0_40px_-10px_rgba\(232\2c 178\2c 61\2c 0\.25\)\]{--tw-shadow:0 0 40px -10px rgba(232,178,61,.25);--tw-shadow-colored:0 0 40px -10px var(--tw-shadow-color)}.shadow-\[0_0_40px_-10px_rgba\(232\2c 178\2c 61\2c 0\.25\)\],.shadow-md{box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color),0 2px 4px -2px var(--tw-shadow-color)}.outline-none{outline:2px solid transparent;outline-offset:2px}.filter{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,-webkit-backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,-webkit-backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.placeholder\:text-smoke\/40::-moz-placeholder{color:rgba(171,174,185,.4)}.placeholder\:text-smoke\/40::placeholder{color:rgba(171,174,185,.4)}.placeholder\:text-smoke\/50::-moz-placeholder{color:rgba(171,174,185,.5)}.placeholder\:text-smoke\/50::placeholder{color:rgba(171,174,185,.5)}.placeholder\:text-smoke\/60::-moz-placeholder{color:rgba(171,174,185,.6)}.placeholder\:text-smoke\/60::placeholder{color:rgba(171,174,185,.6)}.focus-within\:border-gold-400:focus-within{--tw-border-opacity:1;border-color:rgb(232 178 61/var(--tw-border-opacity,1))}.focus-within\:ring-2:focus-within{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000)}.focus-within\:ring-gold-400\/20:focus-within{--tw-ring-color:rgba(232,178,61,.2)}.hover\:border-gold-500\/60:hover{border-color:rgba(200,148,48,.6)}.hover\:bg-felt-700\/60:hover{background-color:rgba(50,53,62,.6)}.hover\:bg-gold-500\/10:hover{background-color:rgba(200,148,48,.1)}.hover\:from-gold-200:hover{--tw-gradient-from:#f8dfa0 var(--tw-gradient-from-position);--tw-gradient-to:hsla(43,86%,80%,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.hover\:to-gold-400:hover{--tw-gradient-to:#e8b23d var(--tw-gradient-to-position)}.hover\:text-gold-300:hover{--tw-text-opacity:1;color:rgb(242 202 110/var(--tw-text-opacity,1))}.focus\:border-gold-400:focus{--tw-border-opacity:1;border-color:rgb(232 178 61/var(--tw-border-opacity,1))}.focus\:ring-2:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000)}.focus\:ring-gold-400\/20:focus{--tw-ring-color:rgba(232,178,61,.2)}.active\:scale-90:active{--tw-scale-x:.9;--tw-scale-y:.9}.active\:scale-90:active,.active\:scale-\[0\.97\]:active{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.active\:scale-\[0\.97\]:active{--tw-scale-x:0.97;--tw-scale-y:0.97}.disabled\:opacity-40:disabled{opacity:.4}.rebuy-saved-notice{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:70;width:max-content;max-width:90vw;padding:12px 18px;border-radius:16px;background:#26231c;color:#f2d58c;box-shadow:0 6px 30px #0008;font-size:14px;pointer-events:none}.rebuy-saved-pulse{animation:rebuy-saved 1.2s ease-out 2}@keyframes rebuy-saved{0%{box-shadow:0 0 0 2px #e8b23d88;background:#514025}100%{box-shadow:0 0 0 8px #e8b23d00}}@media(prefers-reduced-motion:reduce){.rebuy-saved-pulse{animation:none;outline:2px solid #e8b23d88}}
+</style>
 <style>
   html, body { margin: 0; padding: 0; background: linear-gradient(160deg, #25272e 0%, #15171c 55%, #101114 100%); }
 </style>
@@ -32,13 +33,13 @@
 .buyin-summary-counts{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:17px;padding-top:13px;border-top:1px solid #c1c3cb25;font:11px/1.5 'Inter',sans-serif;color:#b0b2bb}.buyin-summary-counts strong{color:#f4efe1;margin-left:5px;font-size:13px}.buyin-details-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:36px;margin-top:5px;color:#ebca8b;font:500 12px 'Inter',sans-serif}.buyin-details-toggle span{font-size:19px}.history-panel{padding:15px;border:1px solid #9396a045;border-radius:18px;background:#1a1c22}.history-heading{font:600 15px/1.3 'Space Grotesk',sans-serif;color:#f4efe1;margin-bottom:14px}.history-summary{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:17px}.history-summary>div+div{border-left:1px solid #9396a030;padding-left:16px}.history-label{display:block;font:11px/1.4 'Inter',sans-serif;color:#b5b7c0}.history-summary strong{display:block;font:600 23px/1.4 'Space Grotesk',sans-serif;margin-top:2px}.history-summary small{font:10px/1.4 'Inter',sans-serif;color:#a9acb6}.history-initial-value{color:#c8cbd3}.history-rebuy-value{color:#edca85}.history-view-switch{display:flex;padding:3px;background:#111318;border-radius:9px;margin-bottom:14px}.history-view-switch button{flex:1;min-height:34px;border-radius:7px;color:#afb2bc;font:500 11px 'Inter',sans-serif}.history-view-switch button[aria-pressed=true]{background:#34373f;color:#fff4dc;box-shadow:0 1px 4px #0003}.history-player-table{width:100%;border-collapse:collapse;table-layout:fixed;font:11px/1.4 'Inter',sans-serif;font-variant-numeric:tabular-nums}.history-player-table thead th{color:#a6a9b3;font-size:9px;font-weight:500;padding:0 2px 9px;text-align:right}.history-player-table th:first-child{width:31%;text-align:left}.history-player-table tbody th{font-size:12px;font-weight:500;color:#f4efe1;padding:12px 3px 12px 0}.history-player-table td{text-align:right;padding:12px 2px;border-top:1px solid #9396a025}.history-player-table tbody th{border-top:1px solid #9396a025}.history-player-table small{display:block;font-size:9px;color:#b0b2bb;margin-top:2px}.history-player-name{overflow-wrap:anywhere}.history-total-value{color:#f7f0df;font-weight:600}.history-grand-total{border-top:1px solid #9396a040;display:flex;justify-content:space-between;gap:12px;align-items:center;padding-top:13px;margin-top:4px;font:11px 'Inter',sans-serif;color:#b9bbc4}.history-grand-total strong{font-size:15px;color:#f4ead2}.history-timeline{list-style:none;margin:0;padding:4px 0 0}.history-event{display:grid;grid-template-columns:62px 19px minmax(0,1fr);gap:5px;position:relative;min-height:70px}.history-event-time{font:9px/1.5 'Inter',sans-serif;color:#aeb1ba;padding-top:5px;text-align:left}.history-event-time small{display:block;font-size:9px}.history-event-dot{position:relative;display:flex;align-items:center;justify-content:center;width:18px;height:18px;border:1px solid currentColor;border-radius:50%;font:600 13px 'Inter',sans-serif;z-index:1;background:#1a1c22;margin-top:3px}.history-event:not(:last-child):before{content:"";position:absolute;top:22px;bottom:-3px;left:75px;width:1px;background:#75798355}.is-initial .history-event-dot,.is-initial .history-event-kind{color:#c8cbd3}.is-rebuy .history-event-dot,.is-rebuy .history-event-kind{color:#edca85}.history-event-body{padding:1px 0 17px 5px;min-width:0}.history-event-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;font:12px/1.4 'Inter',sans-serif;color:#f2eddf}.history-event-top strong{font-weight:500;overflow-wrap:anywhere;min-width:0}.history-event-amount{font-size:11px;white-space:nowrap;font-variant-numeric:tabular-nums}.history-event-kind{font:10px/1.5 'Inter',sans-serif;display:block;margin-top:3px}.history-void-note{color:#f69d93!important;font:9px/1.5 'Inter',sans-serif;margin-top:3px;overflow-wrap:anywhere}.is-void .history-event-dot{color:#f69d93}.is-void .history-event-amount{text-decoration:line-through;color:#c39d95}.is-void .history-event-kind{color:#a9abb3}.history-footnote,.history-empty{font:10px/1.5 'Inter',sans-serif;color:#a9acb6;margin:10px 4px}.history-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}@media(max-width:359px){.history-panel{padding:12px}.history-player-table{font-size:10px}.history-event{grid-template-columns:57px 19px minmax(0,1fr)}.history-event:not(:last-child):before{left:70px}.history-event-top{font-size:11px}}
 </style>
 <style>
-/* V2.6.20: charcoal surfaces and a larger photographic table header. */
+/* V2.6.23: charcoal surfaces and a larger photographic table header. */
 .poker-game > .max-w-sm,.poker-game > .fixed > .max-w-sm{max-width:520px}.poker-table-welcome{max-width:480px;min-height:210px;aspect-ratio:2.2/1;border-radius:16px;padding:25px;justify-content:flex-end;border-color:#d4b37130;box-shadow:0 12px 30px #0003}.poker-table-welcome .poker-photo{object-position:50% 67%}.poker-table-welcome:after{background:linear-gradient(0deg,rgba(10,11,14,.94),rgba(10,11,14,.25) 55%,rgba(10,11,14,.05))}.poker-table-welcome h2{font-size:27px}.poker-table-welcome .poker-eyebrow{color:#e3c894}.poker-table-welcome p:last-child{color:#d2d4dc;font-size:12px}.history-panel{border-color:#454851;border-radius:14px;background:#1b1d23}.history-title-row{display:flex;justify-content:space-between;gap:12px;align-items:baseline;margin-bottom:14px}.history-title-row .history-heading{margin-bottom:0}.history-order-note{font:10px/1.5 'Inter',sans-serif;color:#aeb1bc;white-space:nowrap}.history-event-dot{background:#1b1d23}.history-view-switch{background:#121419}.history-view-switch button[aria-pressed=true]{background:#34373f;color:#f4e8cf}.history-grand-total{padding-top:16px;padding-bottom:3px}.poker-game .rounded-3xl{border-radius:16px}.poker-game > .max-w-sm > .bg-gradient-to-br{background:linear-gradient(130deg,#262831,#1b1d24);box-shadow:0 8px 24px #0002}.poker-game .text-gold-300{color:#e4c992}.poker-welcome:after{background:linear-gradient(90deg,rgba(9,10,13,.63),rgba(9,10,13,.08) 70%),linear-gradient(0deg,#101114 0%,rgba(16,17,20,.15) 65%,rgba(16,17,20,.35))}.poker-action-panel{background:rgba(23,25,31,.9);border-color:#cfb37b40}.poker-form-hero:after{background:linear-gradient(0deg,#0b0c10e6,transparent 85%),linear-gradient(90deg,#0b0c1070,transparent)}
 @media(max-width:700px){.poker-table-welcome{min-height:190px;aspect-ratio:1.9/1;padding:21px;margin-top:16px}.poker-table-welcome h2{font-size:25px}.poker-form-hero{height:275px;min-height:275px}.poker-form-hero .poker-photo{object-position:55% 60%}.poker-welcome>.poker-photo{height:640px;object-position:58% 50%}.poker-welcome:after{background:linear-gradient(0deg,#101114 10%,#101114dc 37%,#10111410 83%,#10111430)}.poker-home-body{padding-top:185px}.poker-action-panel{background:#1c1e25f0}}
 @media(max-width:380px){.poker-table-welcome{min-height:180px;padding:18px}.poker-table-welcome h2{font-size:23px}.poker-home-body{padding-top:140px}}
 </style>
 <style>
-/* V2.6.20: the ledger is the primary playing surface. */
+/* V2.6.23: the ledger is the primary playing surface. */
 .poker-game{padding-bottom:130px!important}.poker-game>.max-w-sm{max-width:600px}.poker-game>.fixed>.max-w-sm{max-width:600px}.poker-game>.max-w-sm.pt-5{padding-top:18px;padding-bottom:8px}.minimal-ledger{margin-top:12px}.minimal-ledger-title{display:flex;justify-content:space-between;gap:12px;align-items:baseline;margin-bottom:16px}.minimal-ledger-title h2{font:600 20px/1.2 'Space Grotesk',sans-serif;color:#f1ece1}.minimal-ledger-title>span{font:10px/1.4 'Inter',sans-serif;color:#9498a4}.minimal-ledger>.space-y-1>div{border:0;border-bottom:1px solid #42454e70;border-radius:0;background:transparent!important}.minimal-ledger>.space-y-1>div>div:first-child{min-height:56px;padding:10px 8px}.minimal-ledger>.space-y-1>div>div:first-child>button{min-height:34px}.minimal-rebuy-count{display:block;font:9px/1 'Inter',sans-serif;color:#989da8;margin-top:4px}.minimal-ledger>.space-y-1>div>div:first-child>.w-14{width:64px}.minimal-ledger>.flex>.w-14{width:64px}.minimal-ledger .font-display.truncate{white-space:normal;overflow-wrap:anywhere;line-height:1.3}.minimal-details-toggle{margin-top:14px;margin-bottom:18px}.minimal-details-toggle button{min-height:42px;border-top:1px solid #44475066;color:#b5b7bf;font-size:11px}.poker-game #table-details>.max-w-sm{max-width:600px}.poker-game #table-details .text-2xl{font-size:20px}.minimal-footer-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px}.minimal-footer-actions>div{grid-column:1/-1;border:0;padding:3px 0;background:transparent}.minimal-footer-actions>div p{font-size:12px}.minimal-footer-actions>div button{font-size:11px}.minimal-footer-actions .minimal-end-game{grid-column:1/-1;text-align:center;color:#aaaeb8;min-height:30px;font-size:11px;padding-top:5px}.minimal-footer-actions>button{border-radius:10px}.minimal-ledger .border-t{border-color:#42454e70}.poker-game>.fixed.bottom-0{padding-top:10px;padding-bottom:max(10px,env(safe-area-inset-bottom))}.poker-game .minimal-end-game:hover{color:#e4c992}@media(max-width:380px){.minimal-ledger>.space-y-1>div>div:first-child>.w-14,.minimal-ledger>.flex>.w-14{width:52px}.minimal-ledger-title>span{font-size:9px}.minimal-ledger>.space-y-1>div>div:first-child{gap:5px;padding-left:3px;padding-right:3px}.minimal-ledger>.flex{gap:5px;padding-left:3px;padding-right:3px}}
 </style>
 <style>
@@ -489,17 +490,40 @@ const initialAuthUserPromise = new Promise((resolve, reject) => {
   );
 });
 
+let authInFlight = null;
+function withConnectionTimeout(promise, ms = 15000) {
+  let timer;
+  return Promise.race([promise, new Promise((_, reject) => {
+    timer = setTimeout(() => reject(Object.assign(new Error("Connection timed out. Please retry."), {code: "connection-timeout"})), ms);
+  })]).finally(() => clearTimeout(timer));
+}
 async function ensureAuth() {
   if (auth.currentUser) return auth.currentUser;
-
-  const restoredUser = await initialAuthUserPromise;
-  if (restoredUser) return restoredUser;
-  if (auth.currentUser) return auth.currentUser;
-
-  // Make persistence explicit for poker-night refresh/reopen reliability.
-  await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-  const cred = await auth.signInAnonymously();
-  return cred.user;
+  if (!authInFlight) {
+    authInFlight = (async () => {
+      await withConnectionTimeout(initialAuthUserPromise);
+      // Re-read current state: the initial callback's user may have signed out.
+      if (auth.currentUser) return auth.currentUser;
+      await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+      const cred = await auth.signInAnonymously();
+      return cred.user;
+    })().finally(() => { authInFlight = null; });
+  }
+  return authInFlight;
+}
+function boundPlayerId(g, authUid) {
+  if (!g || !authUid) return null;
+  const mapped = g.members && g.members[authUid];
+  const player = mapped && g.players && g.players[mapped];
+  if (player && !player.removed && player.authUid === authUid) return mapped;
+  const match = Object.values(g.players || {}).find(p => !p.removed && p.authUid === authUid);
+  return match ? match.id : null;
+}
+function connectionMessage(e) {
+  const code = e && e.code || "unknown";
+  if (code === "permission-denied") return "Access to this table was denied. Reopen the original browser and game link. (permission-denied)";
+  if (code === "auth/operation-not-allowed") return "Anonymous sign-in is disabled for this app. The app owner needs to enable it.";
+  return `Couldn't reconnect yet. Check your connection and retry. (${code})`;
 }
 function gamesCol() {
   return db.collection("poker_games_v2");
@@ -538,11 +562,11 @@ async function fsCreateGame(code, gameObj) {
 async function fsGetGame(code) {
   try {
     await ensureAuth();
-    const snap = await gamesCol().doc(code).get();
+    const snap = await withConnectionTimeout(gamesCol().doc(code).get({source: "server"}));
     return { ok: true, value: snap.exists ? snap.data() : null };
   } catch (e) {
     console.error("get game failed", e);
-    return { ok: false, network: true, message: "Couldn't reach the game — check your connection and try again." };
+    return { ok: false, network: true, code: e && e.code, message: connectionMessage(e) };
   }
 }
 function genCode() {
@@ -553,6 +577,17 @@ function genCode() {
 }
 
 // ---------- local per-device identity + leaderboard history ----------
+// A display-name preference only; never used as authentication or a seat ID.
+const GUEST_NAME_KEY = "pokerGuestName";
+function loadGuestName() {
+  try {const name=localStorage.getItem(GUEST_NAME_KEY);return typeof name==="string" && name.trim().length<=60 ? name.trim() : "";}catch{return "";}
+}
+function saveGuestName(name) {
+  const clean=typeof name==="string"?name.trim():"";
+  if(!clean || clean.length>60)return;
+  try {localStorage.setItem(GUEST_NAME_KEY,clean);}catch{}
+}
+function forgetGuestName() {try {localStorage.removeItem(GUEST_NAME_KEY);}catch{}}
 const ROLE_KEY = "pokerRole";
 const HISTORY_KEY = "pokiriKurrolluHistory";
 function loadRole() {
@@ -677,47 +712,7 @@ function settleDebts(nets) {
   Object.entries(nets).forEach(([id, amt]) => { cents[id] = toCents(amt); });
   return settleDebtsCents(cents);
 }
-function tapFeedback() {
-  try {
-    if (navigator.vibrate) navigator.vibrate(35);
-  } catch {}
-  try {
-    const Ctx = window.AudioContext || window.webkitAudioContext;
-    if (!Ctx) return;
-    const ctx = new Ctx();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.frequency.value = 880;
-    gain.gain.setValueAtTime(0.14, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.15);
-  } catch {}
-}
-function rebuyRequestAlertFeedback() {
-  try {
-    if (navigator.vibrate) navigator.vibrate([70, 55, 70]);
-  } catch {}
-  // Browsers may block audio until the user has interacted with the page.
-  // If allowed, play one very short, quiet table-friendly chime.
-  try {
-    const Ctx = window.AudioContext || window.webkitAudioContext;
-    if (!Ctx) return;
-    const ctx = new Ctx();
-    if (ctx.state === "suspended" && ctx.resume) ctx.resume().catch(() => {});
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.frequency.value = 660;
-    gain.gain.setValueAtTime(0.035, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.09);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.09);
-  } catch {}
-}
+function tapFeedback() {try {if(navigator.vibrate)navigator.vibrate(35);}catch{}}
 const fontStyle = /*#__PURE__*/React.createElement("style", null, `
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
     body { font-family: 'Inter', sans-serif; }
@@ -936,11 +931,44 @@ function PokerFormHero({hosting}) {
       React.createElement("p", {className: "poker-subtitle"}, "A few friends. A stack of chips. A night to remember.")));
 }
 
+function canApproveTableRequest(g,r,pid,authUid) {
+  const p=g&&g.players&&g.players[pid],target=g&&g.players&&g.players[r.targetId];
+  return !!(p&&target&&!p.removed&&!target.removed&&p.authUid===authUid&&g.members[authUid]===pid&&pid!==r.targetId&&(r.targetId===g.hostId||pid===g.hostId));
+}
+function hostProposalCurrent(g,c) {
+  const ms=c&&c.createdAt&&c.createdAt.toMillis?c.createdAt.toMillis():0;
+  return !!(c&&c.status==="pending"&&c.fromHostId===g.hostId&&c.fromHostUid===g.hostUid&&c.hostEpoch===(g.hostEpoch||0)&&ms&&Date.now()<ms+600000);
+}
+function transferredGame(g,c) {
+  return {...g,hostId:c.candidateId,hostUid:c.candidateUid,coHostId:null,coHostUid:null,hostEpoch:(g.hostEpoch||0)+1,
+    lastHostTransfer:c.nonce,revision:(g.revision||0)+1,updatedAtMs:Date.now(),lastClientVersion:APP_VERSION,writeNonce:uid()};
+}
+let tableAudio=null;
+function enableTableSound() {
+  try {const Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)return;
+    if(!tableAudio)tableAudio=new Ctx();if(tableAudio.state==="suspended")tableAudio.resume().catch(()=>{});
+  }catch{}
+}
+function playSavedRebuySound() {
+  try {if(!tableAudio||tableAudio.state!=="running")return;
+    const osc=tableAudio.createOscillator(),gain=tableAudio.createGain(),t=tableAudio.currentTime;
+    osc.type="triangle";osc.frequency.setValueAtTime(1600,t);osc.frequency.exponentialRampToValueAtTime(450,t+.08);
+    gain.gain.setValueAtTime(.045,t);gain.gain.exponentialRampToValueAtTime(.001,t+.12);
+    osc.connect(gain);gain.connect(tableAudio.destination);osc.onended=()=>{osc.disconnect();gain.disconnect();};osc.start(t);osc.stop(t+.13);
+  }catch{}
+}
+function newSavedRebuys(previous,g) {
+  const items=Object.values(g.players||{}).flatMap(p=>(p.buyins||[]).filter(b=>!b.voided&&b.kind==="rebuy").map(b=>({key:p.id+":"+b.id,targetId:p.id,name:p.name,amountCents:Number.isInteger(b.amountCents)?b.amountCents:toCents(b.amount),count:p.buyins.filter(x=>!x.voided).length})));
+  return {seen:new Set(items.map(x=>x.key)),added:previous?items.filter(x=>!previous.has(x.key)):[]};
+}
+
 function PokerLedger() {
   const [screen, setScreen] = useState("loading");
   const [role, setRole] = useState(null);
   const [game, setGame] = useState(null);
   const [error, setError] = useState("");
+  const [connectionError, setConnectionError] = useState("");
+  const [reconnecting, setReconnecting] = useState(false);
   const [showQR, setShowQR] = useState(false);
   const [rebuyQR, setRebuyQR] = useState(null);
   const [rebuyScanner, setRebuyScanner] = useState(null);
@@ -951,14 +979,25 @@ function PokerLedger() {
   const [qrTick, setQrTick] = useState(Date.now());
   const [showCoHostPicker, setShowCoHostPicker] = useState(false);
   const [showTableControls, setShowTableControls] = useState(false);
+  const [showHostTransfer, setShowHostTransfer] = useState(false);
+  const [hostProposal, setHostProposal] = useState(null);
+  const [savedRebuyQueue, setSavedRebuyQueue] = useState([]);
+  const [soundEnabled, setSoundEnabled] = useState(() => {try{return localStorage.getItem("pokerSound")==="on";}catch{return false;}});
+  const soundEnabledRef = useRef(false);
+  soundEnabledRef.current = soundEnabled;
+  const rebuyBaselineRef = useRef(null);
+  const controlUnsubRef = useRef(null);
+  useEffect(()=>{const unlock=()=>{if(soundEnabledRef.current)enableTableSound();};window.addEventListener("pointerdown",unlock);return()=>window.removeEventListener("pointerdown",unlock);},[]);
+  useEffect(()=>{if(!savedRebuyQueue.length)return;const timer=setTimeout(()=>setSavedRebuyQueue(q=>q.slice(1)),4200);return()=>clearTimeout(timer);},[savedRebuyQueue[0] && savedRebuyQueue[0].key]);
   const [cName, setCName] = useState(() => defaultGameName([]));
   const [cBuyIn, setCBuyIn] = useState("40");
   const [cChipValue, setCChipValue] = useState("1");
-  const [cHostName, setCHostName] = useState("");
+  const [rememberedName, setRememberedName] = useState(loadGuestName);
+  const [cHostName, setCHostName] = useState(loadGuestName);
   const [cHostPhone, setCHostPhone] = useState("");
   const [creating, setCreating] = useState(false);
   const [jCode, setJCode] = useState("");
-  const [jName, setJName] = useState("");
+  const [jName, setJName] = useState(loadGuestName);
   const [jPhone, setJPhone] = useState("");
   const [joining, setJoining] = useState(false);
   const [pendingRejoin, setPendingRejoin] = useState(null);
@@ -1121,15 +1160,21 @@ function PokerLedger() {
   const unsubRef = useRef(null);
   const activityUnsubRef = useRef(null);
   const requestsUnsubRef = useRef(null);
+  const listenerEpochRef = useRef(0);
+  const listenerCodeRef = useRef(null);
+  const listenerUidRef = useRef(null);
+  const retryTimerRef = useRef(null);
+  const retryCountRef = useRef(0);
+  const reconnectBusyRef = useRef(false);
   useEffect(() => {
     (async () => {
       let user;
       try {
-        user = await ensureAuth();
+        user = await withConnectionTimeout(ensureAuth());
       } catch (e) {
         console.error(e);
-        setError("Firebase Anonymous Authentication is not enabled yet. Enable it in Firebase Console → Authentication → Sign-in method.");
-        setScreen("home");
+        setError(connectionMessage(e));
+        setScreen("reconnect");
         return;
       }
 
@@ -1153,7 +1198,7 @@ function PokerLedger() {
             return;
           }
 
-          const mappedPlayerId = g.members && g.members[user.uid];
+          const mappedPlayerId = boundPlayerId(g, user.uid);
           const mappedPlayer = mappedPlayerId && g.players && g.players[mappedPlayerId];
           if (mappedPlayer && !mappedPlayer.removed) {
             const recoveredRole = {
@@ -1180,7 +1225,7 @@ function PokerLedger() {
         if (!res.ok) {
           setError(res.message || "Couldn't reconnect to the game.");
           setJCode(urlCode);
-          setScreen("join");
+          setScreen("reconnect");
           return;
         }
 
@@ -1203,12 +1248,7 @@ function PokerLedger() {
           }
 
           // Prefer the server's UID mapping over a possibly stale local playerId.
-          const recoveredPlayerId =
-            (g.members && g.members[user.uid]) ||
-            (g.players && g.players[saved.playerId] &&
-             (!g.players[saved.playerId].authUid || g.players[saved.playerId].authUid === user.uid)
-              ? saved.playerId
-              : null);
+          const recoveredPlayerId = boundPlayerId(g, user.uid);
 
           const recoveredPlayer = recoveredPlayerId && g.players && g.players[recoveredPlayerId];
           if (recoveredPlayer && !recoveredPlayer.removed) {
@@ -1228,7 +1268,7 @@ function PokerLedger() {
           }
 
           setJCode(code);
-          setError("The game still exists, but this browser is no longer bound to that seat. Do not create a replacement game; use host/co-host recovery.");
+          setError("Your existing seat is still in the game, but this browser no longer has its saved identity. Open the original game link in the same browser. Do not join as a new player.");
           setScreen("join");
           return;
         } else if (res.ok && !res.value) {
@@ -1236,37 +1276,147 @@ function PokerLedger() {
           clearGameUrl();
         } else {
           setError(res.message || "Couldn't reconnect to your previous game.");
+          setScreen("reconnect");
+          return;
         }
       }
 
       setScreen("home");
-    })();
+    })().catch(e => { setError(connectionMessage(e)); setScreen("reconnect"); });
 
     return () => {
+      listenerCodeRef.current = null;
+      listenerEpochRef.current += 1;
+      clearTimeout(retryTimerRef.current);
       if (unsubRef.current) unsubRef.current();
       if (activityUnsubRef.current) activityUnsubRef.current();
       if (requestsUnsubRef.current) requestsUnsubRef.current();
+      if (controlUnsubRef.current) controlUnsubRef.current();
     };
   }, []);
+  useEffect(() => {
+    if (!role || !role.code) return;
+    const resume = () => { if (document.visibilityState !== "hidden") reconnectGame(); };
+    window.addEventListener("online", resume);
+    window.addEventListener("focus", resume);
+    document.addEventListener("visibilitychange", resume);
+    return () => {
+      window.removeEventListener("online", resume);
+      window.removeEventListener("focus", resume);
+      document.removeEventListener("visibilitychange", resume);
+    };
+  }, [role && role.code]);
+  async function reconnectGame() {
+    const code = listenerCodeRef.current;
+    if (!code || reconnectBusyRef.current) return;
+    reconnectBusyRef.current = true;
+    setReconnecting(true);
+    clearTimeout(retryTimerRef.current);
+    try {
+      const user = await withConnectionTimeout(ensureAuth());
+      if (listenerCodeRef.current !== code) return;
+      if (user.uid !== listenerUidRef.current) {
+        setConnectionError("This browser's saved identity changed. Open the original browser to return to your existing seat. Your recorded buy-ins have not been changed.");
+        return;
+      }
+      await withConnectionTimeout(user.getIdToken(true));
+      if (listenerCodeRef.current !== code) return;
+      listenTo(code);
+    } catch (e) {
+      if (listenerCodeRef.current === code) setConnectionError(connectionMessage(e));
+    } finally {
+      reconnectBusyRef.current = false;
+      setReconnecting(false);
+    }
+  }
   function listenTo(code) {
+    clearTimeout(retryTimerRef.current);
+    const epoch = ++listenerEpochRef.current;
+    rebuyBaselineRef.current = null;
+    setSavedRebuyQueue([]);
+    setHostProposal(null);
+    listenerCodeRef.current = code;
+    listenerUidRef.current = auth.currentUser && auth.currentUser.uid;
     if (unsubRef.current) unsubRef.current();
     if (activityUnsubRef.current) activityUnsubRef.current();
     if (requestsUnsubRef.current) requestsUnsubRef.current();
-    unsubRef.current = gamesCol().doc(code).onSnapshot(snap => {
-      if (!snap.exists) return;
-      const nextGame = snap.data();
-      if (!gameIsCompatible(nextGame)) {
-        setError(`This table uses ${nextGame.appVersion || "an older app version"}. Refresh/update before making changes.`);
+    if(controlUnsubRef.current)controlUnsubRef.current();
+    const received = new Set();
+    const current = () => listenerEpochRef.current === epoch && listenerCodeRef.current === code;
+    const healthy = name => {
+      received.add(name);
+      if (received.size === 4) {
+        setConnectionError("");
+        retryCountRef.current = 0;
+        clearTimeout(retryTimerRef.current);
+      }
+    };
+    const failed = (name, e) => {
+      if (!current()) return;
+      received.delete(name);
+      setConnectionError(connectionMessage(e));
+      // An errored Firestore listener is terminal. Reattach, with bounded retries.
+      if (!retryTimerRef.current && retryCountRef.current < 3) {
+        const delay = 1500 * 2 ** retryCountRef.current++;
+        retryTimerRef.current = setTimeout(() => {
+          retryTimerRef.current = null;
+          if (current()) reconnectGame();
+        }, delay);
+      }
+    };
+    retryTimerRef.current = null;
+    unsubRef.current = gamesCol().doc(code).onSnapshot({includeMetadataChanges: true}, snap => {
+      if (!current()) return;
+      if (!snap.exists) {
+        if (!snap.metadata.fromCache) setConnectionError("This game could not be found on the server. Check the original game code.");
         return;
       }
+      const nextGame = snap.data();
+      if (!gameIsCompatible(nextGame)) {
+        setConnectionError(`This table uses ${nextGame.appVersion || "an older app version"}. Refresh/update before making changes.`);
+        return;
+      }
+      if (!boundPlayerId(nextGame, listenerUidRef.current)) {
+        setConnectionError("This browser is no longer linked to an active seat at this table. Reopen the original browser; do not add a duplicate player.");
+        return;
+      }
+      if (!snap.metadata.fromCache && !snap.metadata.hasPendingWrites) {
+        const update=newSavedRebuys(rebuyBaselineRef.current,nextGame);rebuyBaselineRef.current=update.seen;
+        if(document.visibilityState!=="hidden"&&update.added.length){setSavedRebuyQueue(q=>q.concat(update.added).slice(-20));if(soundEnabledRef.current)playSavedRebuySound();}
+      }
       setGame(nextGame);
-    }, () => setError("Lost connection to the game — check your internet."));
-    activityUnsubRef.current = gamesCol().doc(code).collection("events").orderBy("clientTs", "desc").limit(30).onSnapshot(snap => {
+      if (snap.metadata.fromCache) { rebuyBaselineRef.current=null; received.delete("game"); setConnectionError("Reconnecting — showing the last received table. Waiting for the server."); }
+      else healthy("game");
+    }, e => failed("game", e));
+    activityUnsubRef.current = gamesCol().doc(code).collection("events").orderBy("clientTs", "desc").limit(30).onSnapshot({includeMetadataChanges: true}, snap => {
+      if (!current()) return;
       setActivity(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-    }, () => {});
-    requestsUnsubRef.current = gamesCol().doc(code).collection("requests").where("status", "==", "pending").onSnapshot(snap => {
+      if (!snap.metadata.fromCache) healthy("events");
+      else received.delete("events");
+    }, e => failed("events", e));
+    requestsUnsubRef.current = gamesCol().doc(code).collection("requests").where("status", "==", "pending").onSnapshot({includeMetadataChanges: true}, snap => {
+      if (!current()) return;
       setPendingRequests(snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (a.ts || 0) - (b.ts || 0)));
-    }, () => {});
+      if (!snap.metadata.fromCache) healthy("requests");
+      else received.delete("requests");
+    }, e => failed("requests", e));
+    controlUnsubRef.current=gamesCol().doc(code).collection("host_control").doc("current").onSnapshot({includeMetadataChanges:true},snap=>{
+      if(!current())return;setHostProposal(snap.exists?snap.data():null);if(!snap.metadata.fromCache)healthy("host-control");
+    },e=>failed("host-control",e));
+  }
+  function resumeExistingSeat(g, code, user) {
+    const playerId = boundPlayerId(g, user.uid);
+    if (!playerId) return false;
+    const r = {code, playerId, isHost: g.hostId === playerId, authUid: user.uid};
+    saveRole(r);
+    setGameUrl(code);
+    setRole(r);
+    setGame(g);
+    setPendingRejoin(null);
+    setError("");
+    listenTo(code);
+    setScreen("game");
+    return true;
   }
 
   // Every game mutation is a Firestore transaction. If another phone writes
@@ -1419,16 +1569,17 @@ function PokerLedger() {
     setError("");
     const code = jCode.trim().toUpperCase();
     if (!code) return setError("Enter the game code.");
-    if (!jName.trim()) return setError("Enter your name.");
-    if (jName.trim().length > 60) return setError("Please shorten your name.");
     setJoining(true);
     try {
-      await ensureAuth();
+      const user = await withConnectionTimeout(ensureAuth());
       const res = await fsGetGame(code);
       if (!res.ok) return setError(res.message);
       if (!res.value) return setError("No game found with that code.");
       const g = res.value;
       if (!gameIsCompatible(g)) return setError(`This game uses ${g.appVersion || "an older Poker Ledger version"}. Open it with the matching app version or start a fresh V${APP_VERSION} game.`);
+      if (resumeExistingSeat(g, code, user)) return;
+      if (!jName.trim()) return setError("Enter your name.");
+      if (jName.trim().length > 60) return setError("Please shorten your name.");
       if (g.phase !== "active") return setError(g.phase === "settled" ? "That game has already been settled." : "That game is already counting chips and is closed to new joins.");
       if (g.joinLocked) return setError("This table is locked. Ask the host to unlock joining for a moment.");
       const match = findExistingPlayer(g, jName, jPhone);
@@ -1442,6 +1593,8 @@ function PokerLedger() {
         return;
       }
       await joinAsNewPlayer(g, code);
+    } catch (e) {
+      setError(connectionMessage(e));
     } finally {
       setJoining(false);
     }
@@ -1517,7 +1670,7 @@ function PokerLedger() {
   function confirmRejoinAsExisting() {
     if (!pendingRejoin) return;
     if (!pendingRejoin.sameIdentity) {
-      setError("For security, this player is already bound to another device identity. Use the original device, or have the host add you as a separate player for now.");
+      setError("This seat belongs to a different saved browser identity. Reopen the original link in the original browser. Do not create a duplicate player; your recorded buy-ins remain on the existing seat.");
       return;
     }
     const { game: g, existingPlayer } = pendingRejoin;
@@ -1560,58 +1713,7 @@ function PokerLedger() {
     }, nextLocked ? "table_locked" : "table_unlocked", { joinLocked: nextLocked });
     if (result && result.ok) setShowTableControls(false);
   }
-  async function takeOverHost() {
-    if (!isCoHost || !game || game.phase !== "active") return setError("Only the current co-host can take over an active table.");
-    const ok = window.confirm("Take over as host? The current host will become co-host. Existing pending requests may need to be cancelled and requested again.");
-    if (!ok) return;
-    const oldHostId = game.hostId;
-    const oldHostUid = game.hostUid;
-    const result = await mutateGame((g, base) => {
-      if (base.coHostId !== role.playerId || base.coHostUid !== (auth.currentUser && auth.currentUser.uid)) return false;
-      g.hostId = base.coHostId;
-      g.hostUid = base.coHostUid;
-      g.coHostId = oldHostId;
-      g.coHostUid = oldHostUid;
-    }, "host_transferred", { fromPlayerId: oldHostId, toPlayerId: role.playerId });
-    if (result && result.ok) {
-      const nextRole = { ...role, isHost: true };
-      saveRole(nextRole);
-      setRole(nextRole);
-      let cancelled = 0;
-      if (pendingRequests.length > 0) {
-        try {
-          const parent = gamesCol().doc(role.code);
-          const batch = db.batch();
-          pendingRequests.forEach(req => {
-            batch.update(parent.collection("requests").doc(req.id), {
-              status: "cancelled",
-              decidedAt: Date.now(),
-              decidedByUid: auth.currentUser.uid,
-              decidedByPlayerId: role.playerId
-            });
-            cancelled += 1;
-          });
-          const eventRef = parent.collection("events").doc(uid());
-          batch.set(eventRef, {
-            type: "pending_requests_cancelled_on_host_transfer",
-            actorUid: auth.currentUser.uid,
-            actorPlayerId: role.playerId,
-            actorName: game.players[role.playerId] ? game.players[role.playerId].name : "Host",
-            clientTs: Date.now(),
-            serverTs: firebase.firestore.FieldValue.serverTimestamp(),
-            meta: { count: cancelled },
-            schemaVersion: 2
-          });
-          await batch.commit();
-        } catch (e) {
-          console.error(e);
-          setError("Host role transferred, but some pending requests could not be cancelled. Cancel them manually before continuing.");
-          return;
-        }
-      }
-      setError("");
-    }
-  }
+  async function takeOverHost() { if(window.confirm("Take over as host? All buy-ins and pending requests will stay intact."))await proposeHost("cohost",role.playerId); }
   async function removePlayerBeforePlay(targetId) {
     if (!isHost || !game || game.phase !== "active") return;
     const p = game.players[targetId];
@@ -1641,284 +1743,152 @@ function PokerLedger() {
       if (target.authUid && g.members) delete g.members[target.authUid];
     }, "player_removed_before_play", { targetId, reason });
   }
+  async function approveTableRequest(requestId, type, expectedNonce) {
+    try {
+      const user = await ensureAuth(), parent = gamesCol().doc(role.code);
+      const ref = parent.collection("requests").doc(requestId), eventRef = parent.collection("events").doc(uid());
+      let summary;
+      await db.runTransaction(async tx => {
+        const gs = await tx.get(parent), rs = await tx.get(ref);
+        if (!gs.exists || !rs.exists) throw new Error("Request not found.");
+        const g = gs.data(), r = rs.data();
+        if (expectedNonce && r.challengeId !== expectedNonce) throw new Error("This request changed. Review the current amount first.");
+        if (r.type !== type || r.status !== "pending") throw new Error("This request has already been resolved.");
+        if (!canApproveTableRequest(g,r,role.playerId,user.uid)) throw new Error("You cannot approve this request. Nobody can approve their own.");
+        if (g.phase !== "active" && !(type === "cashout" && g.phase === "settling")) throw new Error("Approvals are closed in this phase.");
+        const next = JSON.parse(JSON.stringify(g)), p = next.players[r.targetId];
+        if (type === "buyin") {
+          if (p.cashedOut) throw new Error("This player has already cashed out.");
+          p.buyins.push({id:uid(),ts:Date.now(),amountCents:r.amountCents,amount:fromCents(r.amountCents),kind:"rebuy",approved:true,
+            approvedBy:role.playerId,requestId,approvalMethod:"tap",challengeId:r.challengeId || "legacy"});
+        } else {p.cashedOut=true;p.finalCents=r.amountCents;p.finalAmount=fromCents(r.amountCents);}
+        next.lastVerifiedRequestId=requestId; next.revision=(g.revision||0)+1;next.updatedAtMs=Date.now();next.lastClientVersion=APP_VERSION;next.writeNonce=uid();
+        tx.set(parent,next);
+        tx.update(ref,{status:"approved",decidedAt:Date.now(),decidedByUid:user.uid,decidedByPlayerId:role.playerId});
+        tx.set(eventRef,{type:type==="buyin"?"rebuy_approved":"cashout_approved",actorUid:user.uid,actorPlayerId:role.playerId,actorName:g.players[role.playerId].name,
+          clientTs:Date.now(),serverTs:firebase.firestore.FieldValue.serverTimestamp(),meta:{requestId,targetId:r.targetId,amountCents:r.amountCents,approvalMethod:"tap"},revision:next.revision,schemaVersion:2});
+        summary={playerName:p.name,amountCents:r.amountCents,buyInNumber:p.buyins.filter(b=>!b.voided).length};
+      });
+      return {ok:true,summary};
+    }catch(e){setError(e.message||"Couldn't approve request.");return {ok:false};}
+  }
+  async function proposeHost(mode,targetId) {
+    try {
+      const user=await ensureAuth(),parent=gamesCol().doc(role.code),ref=parent.collection("host_control").doc("current");
+      await db.runTransaction(async tx=>{
+        const gs=await tx.get(parent),cs=await tx.get(ref);
+        if(!gs.exists)throw new Error("Game not found.");
+        const g=gs.data(),mine=boundPlayerId(g,user.uid),target=g.players[targetId];
+        if(!mine||!target||target.removed||!target.authUid||targetId===g.hostId||!["active","settling"].includes(g.phase))throw new Error("Choose another connected player at this table.");
+        if(cs.exists&&hostProposalCurrent(g,cs.data()))throw new Error("A host request is already open. Resolve or cancel it first.");
+        if(mode==="transfer"&&mine!==g.hostId)throw new Error("Only the host can offer a handover.");
+        if(mode==="recovery"&&(mine!==targetId||g.coHostId))throw new Error("The assigned co-host can take over. Otherwise request your own candidacy.");
+        if(mode==="recovery"&&Object.values(g.players).filter(p=>p.authUid&&!p.removed&&p.id!==g.hostId&&p.id!==targetId).length<2)throw new Error("Recovery needs two other players. With fewer players, the original host must reconnect.");
+        if(mode==="cohost"&&(mine!==g.coHostId||mine!==targetId))throw new Error("Only the assigned co-host can take over directly.");
+        const c={mode,status:mode==="cohost"?"approved":"pending",candidateId:targetId,candidateUid:target.authUid,fromHostId:g.hostId,fromHostUid:g.hostUid,
+          hostEpoch:g.hostEpoch||0,createdByUid:user.uid,createdAt:firebase.firestore.FieldValue.serverTimestamp(),nonce:uid(),vote1Uid:null,vote2Uid:null};
+        tx.set(ref,c);
+        if(mode==="cohost")tx.set(parent,transferredGame(g,c));
+      });
+      setShowTableControls(false);setShowHostTransfer(false);
+    }catch(e){setError(e.message||"Couldn't request host change.");}
+  }
+  async function decideHost(action) {
+    try {
+      const user=await ensureAuth(),parent=gamesCol().doc(role.code),ref=parent.collection("host_control").doc("current");
+      await db.runTransaction(async tx=>{
+        const gs=await tx.get(parent),cs=await tx.get(ref);
+        if(!gs.exists||!cs.exists)throw new Error("Host request not found.");
+        const g=gs.data(),c=cs.data(),mine=boundPlayerId(g,user.uid);
+        if(!mine||!hostProposalCurrent(g,c))throw new Error("Host request expired or the host changed. Start again.");
+        const next={...c};
+        if(action==="cancel") {
+          if(user.uid!==g.hostUid&&user.uid!==c.createdByUid&&user.uid!==c.candidateUid)throw new Error("Only the host or participants can cancel this request.");
+          next.status="cancelled";
+        } else if(c.mode==="transfer") {
+          if(user.uid!==c.candidateUid)throw new Error("Only the selected player can accept.");
+          next.status="approved";
+        } else {
+          if(g.coHostId||user.uid===c.candidateUid||user.uid===g.hostUid||user.uid===c.vote1Uid)throw new Error("Two different other players must approve recovery.");
+          if(!next.vote1Uid)next.vote1Uid=user.uid;
+          else {next.vote2Uid=user.uid;next.status="approved";}
+        }
+        tx.set(ref,next);
+        if(next.status==="approved")tx.set(parent,transferredGame(g,next));
+      });
+    }catch(e){setError(e.message||"Couldn't update host request.");}
+  }
   function approverFor(targetId) {
     if (!game) return null;
     // The host verifies every other player's buy-in/cash-out request.
-    // The co-host exists primarily to verify the host, so nobody self-verifies.
-    if (targetId === game.hostId) return game.coHostId || null;
+    // Any other authenticated player can verify the host.
+    if (targetId === game.hostId) return Object.values(game.players).find(p => p.id !== targetId && p.authUid && !p.removed)?.id || null;
     return game.hostId;
   }
   async function createPendingRequest(type, targetId, cents) {
-    if (!role || !game) return setError("Not connected to the game yet.");
-    if (type === "buyin" && game.phase !== "active") return setError("Rebuys can only be requested while the game is active.");
-    if (type === "cashout" && game.phase !== "active" && game.phase !== "settling") return setError("Cash-out requests are not open right now.");
-    const target = game.players[targetId];
-    if (!target) return setError("Player no longer exists.");
-    if (type === "buyin" && targetId !== role.playerId) {
-      return setError("The player must request their own rebuy QR from their phone. The host can use Manual Rebuy only if their phone is unavailable.");
-    }
-    if (type === "cashout" && targetId !== role.playerId) {
-      return setError("Players enter their own cash-out amount. Guests without a phone use the host's logged Guest Cash Out override.");
-    }
-    const approverId = approverFor(targetId);
-    if (!approverId) return setError(targetId === game.hostId
-      ? "Assign a co-host before the host can buy in or cash out — the host cannot approve their own request."
-      : "The host must be connected to approve this request.");
-    const approver = game.players[approverId];
-    if (!approver || !approver.authUid) return setError("The verifier must be connected from their own device.");
-    const duplicate = pendingRequests.some(r => r.type === type && r.targetId === targetId && r.status === "pending");
-    if (duplicate) return setError(type === "buyin" ? "You already have a buy-in in progress." : "That player already has a cash-out awaiting verification.");
-    const conflicting = pendingRequests.some(r => r.type !== type && r.targetId === targetId && r.status === "pending");
-    if (conflicting) return setError(type === "buyin" ? "Finish or cancel the cash-out request before taking another rebuy." : "Finish or cancel the pending rebuy before submitting cash-out.");
+    if (!game || !role || targetId !== role.playerId) return setError("Request your own buy-in or cash-out.");
+    if (!Number.isSafeInteger(cents) || cents < (type === "buyin" ? 1 : 0)) return setError("Enter a valid amount.");
+    if (pendingRequests.some(r => r.targetId === targetId && r.status === "pending")) return setError("You already have a request waiting. Approve or cancel it first.");
     try {
-      await ensureAuth();
+      const user = await ensureAuth();
       const parent = gamesCol().doc(role.code);
-      const reqRef = parent.collection("requests").doc(uid());
-      const eventRef = parent.collection("events").doc(uid());
-      const requester = game.players[role.playerId];
-      const req = {
-        schemaVersion: 2,
-        clientVersion: APP_VERSION,
-        type,
-        status: "pending",
-        targetId,
-        targetUid: target.authUid || null,
-        amountCents: cents,
-        amount: fromCents(cents),
-        approverId,
-        approverUid: approver.authUid,
-        requesterId: role.playerId,
-        requesterUid: auth.currentUser.uid,
-        ts: Date.now()
-      };
-      const batch = db.batch();
-      let challenge = null;
-      if (type === "buyin") {
-        const challengeId = uid();
-        const secret = randomQrSecret();
-        const displayExpiresAtMs = Date.now() + 180000;
-        req.approvalMode = "qr";
-        req.challengeId = challengeId;
-        req.challengeExpiresAtMs = displayExpiresAtMs;
-        const challengeRef = parent.collection("buyin_challenges").doc(challengeId);
-        batch.set(challengeRef, {
-          schemaVersion: 2,
-          requestId: reqRef.id,
-          challengeId,
-          secret,
-          requesterUid: auth.currentUser.uid,
-          approverUid: approver.authUid,
-          targetId,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          displayExpiresAtMs,
-          used: false
-        });
-        challenge = { challengeId, secret, displayExpiresAtMs };
-      }
-      batch.set(reqRef, req);
-      batch.set(eventRef, {
-        type: type === "buyin" ? "buyin_qr_requested" : "cashout_requested",
-        actorUid: auth.currentUser.uid,
-        actorPlayerId: role.playerId,
-        actorName: requester ? requester.name : "Player",
-        clientTs: Date.now(),
-        serverTs: firebase.firestore.FieldValue.serverTimestamp(),
-        meta: { requestId: reqRef.id, targetId, amountCents: cents, approvalMode: type === "buyin" ? "qr" : "standard" },
-        schemaVersion: 2
+      const reqRef = parent.collection("requests").doc("pending_" + targetId);
+      await db.runTransaction(async tx => {
+        const gs = await tx.get(parent), rs = await tx.get(reqRef);
+        if (!gs.exists) throw new Error("Game not found.");
+        const g = gs.data(), p = g.players[targetId];
+        if (boundPlayerId(g, user.uid) !== targetId || !p || p.removed) throw new Error("This is not your seat.");
+        if (g.phase !== "active" && !(type === "cashout" && g.phase === "settling")) throw new Error("Requests are closed in this phase.");
+        if (type === "buyin" && p.cashedOut) throw new Error("You have already cashed out.");
+        if (rs.exists && rs.data().status === "pending") throw new Error("You already have a request waiting.");
+        if (!Object.values(g.players).some(other => other.authUid && !other.removed && other.id !== targetId)) throw new Error("Another player must join before your request can be approved.");
+        const approverId = targetId === g.hostId ? null : g.hostId;
+        tx.set(reqRef, {schemaVersion: 2, clientVersion: APP_VERSION, type, status: "pending", targetId, targetUid: user.uid,
+          amountCents: cents, amount: fromCents(cents), approverId, approverUid: approverId ? g.hostUid : null,
+          requesterId: targetId, requesterUid: user.uid, ts: Date.now(), approvalMode: "tap", challengeId: uid(), challengeExpiresAtMs: 0});
       });
-      await batch.commit();
-      if (type === "buyin" && challenge) {
-        setRebuyQR({
-          gameCode: role.code,
-          requestId: reqRef.id,
-          challengeId: challenge.challengeId,
-          secret: challenge.secret,
-          expiresAtMs: challenge.displayExpiresAtMs,
-          targetId,
-          amountCents: cents
-        });
-      }
-      return { ok: true, requestId: reqRef.id };
-    } catch (e) {
-      console.error(e);
-      setError(e && e.message ? e.message : "Couldn't submit the request.");
-      return { ok: false };
-    }
+      return {ok: true, requestId: reqRef.id};
+    } catch(e) {setError(e.message || "Couldn't submit request."); return {ok: false};}
   }
   async function requestBuyInForOther(targetId, amount) {
     const cents = amount == null ? buyInCentsForGame(game) : toCents(amount);
     if (cents <= 0) return setError("Enter a valid buy-in amount.");
     return await createPendingRequest("buyin", targetId, cents);
   }
-  async function refreshRebuyQR(pending) {
-    try {
-      await ensureAuth();
-      if (!pending) throw new Error("Buy-in request not found.");
-      const parent = gamesCol().doc(role.code);
-      const reqRef = parent.collection("requests").doc(pending.id || pending.requestId);
-      const reqSnap = await reqRef.get();
-      if (!reqSnap.exists) throw new Error("That buy-in request no longer exists.");
-      const req = { id: reqSnap.id, ...reqSnap.data() };
-      if (req.type !== "buyin" || req.status !== "pending") throw new Error("That rebuy was already resolved.");
-      if (req.requesterUid !== auth.currentUser.uid) throw new Error("Only the requesting player can refresh this QR.");
-      const approver = game.players[req.approverId];
-      if (!approver || !approver.authUid) throw new Error("The verifier is no longer connected.");
-      const challengeId = uid();
-      const secret = randomQrSecret();
-      const displayExpiresAtMs = Date.now() + 180000;
-      const challengeRef = parent.collection("buyin_challenges").doc(challengeId);
-      const eventRef = parent.collection("events").doc(uid());
-      const batch = db.batch();
-      batch.update(reqRef, { challengeId, challengeExpiresAtMs: displayExpiresAtMs });
-      batch.set(challengeRef, {
-        schemaVersion: 2,
-        requestId: reqRef.id,
-        challengeId,
-        secret,
-        requesterUid: auth.currentUser.uid,
-        approverUid: approver.authUid,
-        targetId: req.targetId,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        displayExpiresAtMs,
-        used: false
-      });
-      batch.set(eventRef, {
-        type: "rebuy_qr_refreshed",
-        actorUid: auth.currentUser.uid,
-        actorPlayerId: role.playerId,
-        actorName: game.players[role.playerId] ? game.players[role.playerId].name : "Player",
-        clientTs: Date.now(),
-        serverTs: firebase.firestore.FieldValue.serverTimestamp(),
-        meta: { requestId: reqRef.id, targetId: req.targetId, challengeId },
-        schemaVersion: 2
-      });
-      await batch.commit();
-      setRebuyQR({
-        gameCode: role.code,
-        requestId: reqRef.id,
-        challengeId,
-        secret,
-        expiresAtMs: displayExpiresAtMs,
-        targetId: req.targetId,
-        amountCents: req.amountCents
-      });
-      return true;
-    } catch (e) {
-      console.error(e);
-      setError(e && e.message ? e.message : "Couldn't refresh the rebuy QR.");
-      return false;
-    }
-  }
+  async function refreshRebuyQR(pending) { return showRebuyQRForRequest(pending); }
   async function showRebuyQRForRequest(pending) {
-    try {
-      if (!pending || pending.requesterUid !== (auth.currentUser && auth.currentUser.uid)) return setError("Only the requesting player can display this QR.");
-      const parent = gamesCol().doc(role.code);
-      const snap = await parent.collection("buyin_challenges").doc(pending.challengeId).get();
-      if (!snap.exists) return refreshRebuyQR(pending);
-      const ch = snap.data();
-      const createdMs = ch.createdAt && ch.createdAt.toMillis ? ch.createdAt.toMillis() : ((ch.displayExpiresAtMs || Date.now()) - 180000);
-      const expiresAtMs = Math.min(ch.displayExpiresAtMs || createdMs + 180000, createdMs + 180000);
-      if (ch.used) return setError("That QR was already used.");
-      if (Date.now() >= expiresAtMs) return refreshRebuyQR(pending);
-      setRebuyQR({ gameCode: role.code, requestId: pending.id, challengeId: pending.challengeId, secret: ch.secret, expiresAtMs, targetId: pending.targetId, amountCents: pending.amountCents });
-    } catch (e) {
-      console.error(e); setError("Couldn't reopen the buy-in QR.");
-    }
+    if(!pending || pending.targetId!==role.playerId || pending.status!=="pending")return;
+    setRebuyQR({gameCode:role.code,requestId:pending.id,challengeId:pending.challengeId,secret:"tap",expiresAtMs:Date.now()+180000,targetId:pending.targetId,amountCents:pending.amountCents});
   }
-  async function approvePendingBuyIn(requestId, scanProof) {
-    // One scan = one approved rebuy. The designated verifier scans the
-    // player's one-time QR, gives the chips, and the rebuy is appended
-    // atomically to the shared ledger.
-    tapFeedback();
-    try {
-      const parent = gamesCol().doc(role.code);
-      const gameRef = parent;
-      const reqRef = parent.collection("requests").doc(requestId);
-      const challengeRef = parent.collection("buyin_challenges").doc(scanProof.challengeId);
-      const eventRef = parent.collection("events").doc(uid());
-      let approvedSummary = null;
-      await db.runTransaction(async tx => {
-        const gameSnap = await tx.get(gameRef);
-        const reqSnap = await tx.get(reqRef);
-        if (!gameSnap.exists || !reqSnap.exists) throw new Error("That request no longer exists.");
-        const g = gameSnap.data(), req = reqSnap.data();
-        if (g.phase !== "active") throw new Error("The game is no longer accepting rebuys.");
-        if (req.type !== "buyin" || req.status !== "pending") throw new Error("That rebuy was already resolved.");
-        if (req.approvalMode !== "qr" || req.challengeId !== scanProof.challengeId) throw new Error("This QR does not match the active rebuy request.");
-        if (req.approverUid !== auth.currentUser.uid || req.approverId !== role.playerId) throw new Error("You are not the verifier for this rebuy.");
-        if (Number.isFinite(req.challengeExpiresAtMs) && Date.now() > req.challengeExpiresAtMs + 30000) throw new Error("That rebuy QR expired. Ask the player to create a fresh request.");
-        const next = JSON.parse(JSON.stringify(g));
-        const player = next.players[req.targetId];
-        if (!player || player.cashedOut) throw new Error("That player is no longer active.");
-        const activeBefore = (player.buyins || []).filter(b => !b.voided).length;
-        player.buyins = player.buyins || [];
-        player.buyins.push({
-          id: uid(), ts: Date.now(), amountCents: req.amountCents,
-          amount: fromCents(req.amountCents), kind: "rebuy", approved: true,
-          approvedBy: role.playerId, requestId, approvalMethod: "qr",
-          challengeId: req.challengeId
-        });
-        next.lastVerifiedRequestId = requestId;
-        next.revision = (g.revision || 0) + 1;
-        next.updatedAtMs = Date.now();
-        next.lastClientVersion = APP_VERSION;
-        next.writeNonce = uid();
-        tx.set(gameRef, next);
-        tx.update(reqRef, {
-          status: "approved", decidedAt: Date.now(),
-          decidedByUid: auth.currentUser.uid, decidedByPlayerId: role.playerId
-        });
-        tx.update(challengeRef, {
-          used: true, usedAt: firebase.firestore.FieldValue.serverTimestamp(),
-          usedByUid: auth.currentUser.uid, usedByPlayerId: role.playerId,
-          presentedSecret: scanProof.secret
-        });
-        tx.set(eventRef, {
-          type: "rebuy_approved", actorUid: auth.currentUser.uid,
-          actorPlayerId: role.playerId,
-          actorName: next.players[role.playerId] ? next.players[role.playerId].name : "Verifier",
-          clientTs: Date.now(), serverTs: firebase.firestore.FieldValue.serverTimestamp(),
-          meta: { requestId, targetId: req.targetId, amountCents: req.amountCents, challengeId: scanProof.challengeId, approvalMethod: "qr" },
-          revision: next.revision, schemaVersion: 2
-        });
-        approvedSummary = { playerName: player.name, amountCents: req.amountCents, buyInNumber: activeBefore + 1 };
-      });
-      return { ok: true, summary: approvedSummary };
-    } catch (e) {
-      console.error(e); setError(e && e.message ? e.message : "Couldn't approve the rebuy.");
-      return { ok: false };
-    }
-  }
+  async function approvePendingBuyIn(requestId, proof) { return approveTableRequest(requestId,"buyin",proof?.challengeId || pendingRequests.find(r=>r.id===requestId)?.challengeId); }
   async function resolvePendingRequest(requestId, rejectedLabel) {
-    const req = pendingRequests.find(r => r.id === requestId);
-    if (!req) return;
-    const iAmApprover = req.approverUid === (auth.currentUser && auth.currentUser.uid);
-    const iAmRequester = req.requesterUid === (auth.currentUser && auth.currentUser.uid);
-    const hostCanCancel = isHost;
-    const status = iAmApprover ? "rejected" : (iAmRequester || hostCanCancel ? "cancelled" : null);
-    if (!status) return setError("You can't change that request.");
+    const expectedNonce=pendingRequests.find(r=>r.id===requestId)?.challengeId;
     try {
-      const parent = gamesCol().doc(role.code);
-      const reqRef = parent.collection("requests").doc(requestId);
-      const eventRef = parent.collection("events").doc(uid());
-      const batch = db.batch();
-      batch.update(reqRef, { status, decidedAt: Date.now(), decidedByUid: auth.currentUser.uid, decidedByPlayerId: role.playerId });
-      batch.set(eventRef, { type: `${req.type}_${status}`, actorUid: auth.currentUser.uid, actorPlayerId: role.playerId, actorName: game.players[role.playerId] ? game.players[role.playerId].name : "Player", clientTs: Date.now(), serverTs: firebase.firestore.FieldValue.serverTimestamp(), meta: { requestId, targetId: req.targetId }, schemaVersion: 2 });
-      await batch.commit();
-      if (rebuyQR && rebuyQR.requestId === requestId) setRebuyQR(null);
-    } catch (e) { console.error(e); setError(e && e.message ? e.message : rejectedLabel); }
+      const user=await ensureAuth(), parent=gamesCol().doc(role.code), ref=parent.collection("requests").doc(requestId);
+      await db.runTransaction(async tx=>{
+        const gs=await tx.get(parent),rs=await tx.get(ref);
+        if(!gs.exists||!rs.exists)throw new Error("Request not found.");
+        const g=gs.data(),r=rs.data();
+        if(r.status!=="pending")throw new Error("Request already resolved.");
+        if(expectedNonce && r.challengeId!==expectedNonce)throw new Error("This request changed. Review it first.");
+        const status=r.requesterUid===user.uid?"cancelled":canApproveTableRequest(g,r,role.playerId,user.uid)?"rejected":g.hostUid===user.uid?"cancelled":null;
+        if(!status)throw new Error("You cannot change this request.");
+        tx.update(ref,{status,decidedAt:Date.now(),decidedByUid:user.uid,decidedByPlayerId:role.playerId});
+      });
+      if(rebuyQR&&rebuyQR.requestId===requestId)setRebuyQR(null);
+    }catch(e){setError(e.message||rejectedLabel);}
   }
   async function rejectPendingBuyIn(requestId) {
     await resolvePendingRequest(requestId, "Couldn't resolve that buy-in request.");
   }
   async function requestRebuy(targetId) {
     if (targetId !== role.playerId) {
-      setError("The player must request their own rebuy QR from their phone. Use Manual Rebuy only if their phone is unavailable.");
+      setError("The player must request their own rebuy from their phone. Use Manual Rebuy only if their phone is unavailable.");
       return;
     }
     const approverId = approverFor(targetId);
     if (!approverId) {
-      setError("Assign a co-host before your buy-in can be approved — you cannot approve your own buy-in.");
+      setError("Another player must join before your request can be approved.");
       return;
     }
     setError("");
@@ -1948,9 +1918,8 @@ function PokerLedger() {
       if (!snap.exists) return setRebuyScanError("That buy-in request no longer exists.");
       const req = { id: snap.id, ...snap.data() };
       if (req.type !== "buyin" || req.status !== "pending") return setRebuyScanError("That buy-in was already resolved.");
-      if (req.approverUid !== auth.currentUser.uid || req.approverId !== role.playerId) return setRebuyScanError("You are not the designated verifier for this buy-in.");
+      if (!canApproveTableRequest(game,req,role.playerId,auth.currentUser.uid)) return setRebuyScanError("You cannot approve this buy-in.");
       if (req.challengeId !== parsed.challengeId) return setRebuyScanError("That is an old or replaced QR for this buy-in.");
-      if (Number.isFinite(req.challengeExpiresAtMs) && Date.now() >= req.challengeExpiresAtMs) return setRebuyScanError("That QR expired. Ask the player to cancel and request a fresh buy-in QR.");
       const target = game.players[req.targetId];
       if (!target) return setRebuyScanError("Player no longer exists.");
       const standardCents = buyInCentsForGame(game);
@@ -2009,7 +1978,7 @@ function PokerLedger() {
     }
     const approverId = approverFor(targetId);
     if (!approverId) {
-      setError("Assign a co-host before the host can buy in — the host cannot verify their own buy-in.");
+      setError("Another player must join before your rebuy can be approved.");
       return;
     }
     setCustomBuyInId(targetId);
@@ -2064,7 +2033,7 @@ function PokerLedger() {
     }
     if (!guestOverride) {
       const approverId = approverFor(targetId);
-      if (!approverId) return setError("Assign a co-host first — the host's cash-out must be verified by the co-host.");
+      if (!approverId) return setError("Another player must join to verify your cash-out.");
     }
     setCashingOutId(targetId);
     setCashOutAmount(target.cashedOut ? String(target.finalAmount ?? fromCents(target.finalCents)) : "");
@@ -2109,41 +2078,7 @@ function PokerLedger() {
       setCashOutAmount("");
     }
   }
-  async function approvePendingCashOut(requestId) {
-    tapFeedback();
-    try {
-      const parent = gamesCol().doc(role.code);
-      const gameRef = parent;
-      const reqRef = parent.collection("requests").doc(requestId);
-      const eventRef = parent.collection("events").doc(uid());
-      await db.runTransaction(async tx => {
-        const gameSnap = await tx.get(gameRef);
-        const reqSnap = await tx.get(reqRef);
-        if (!gameSnap.exists || !reqSnap.exists) throw new Error("That request no longer exists.");
-        const g = gameSnap.data(), req = reqSnap.data();
-        if (g.phase !== "active" && g.phase !== "settling") throw new Error("Cash-out approvals are not open right now.");
-        if (req.type !== "cashout" || req.status !== "pending") throw new Error("That cash-out was already resolved.");
-        if (req.approverUid !== auth.currentUser.uid || req.approverId !== role.playerId) throw new Error("You are not the verifier for this cash-out.");
-        const next = JSON.parse(JSON.stringify(g));
-        const player = next.players[req.targetId];
-        if (!player || player.removed) throw new Error("Player no longer exists.");
-        const currentVerifierId = req.targetId === g.hostId ? g.coHostId : g.hostId;
-        if (currentVerifierId !== role.playerId || req.targetId === role.playerId) throw new Error("Only the current verifier can approve this cash-out.");
-        player.cashedOut = true;
-        player.finalCents = req.amountCents;
-        player.finalAmount = fromCents(req.amountCents);
-        next.lastVerifiedRequestId = requestId;
-        next.revision = (g.revision || 0) + 1;
-        next.updatedAtMs = Date.now();
-        next.lastClientVersion = APP_VERSION;
-        next.writeNonce = uid();
-        tx.set(gameRef, next);
-        tx.update(reqRef, { status: "approved", decidedAt: Date.now(), decidedByUid: auth.currentUser.uid, decidedByPlayerId: role.playerId });
-        const actor = next.players[role.playerId];
-        tx.set(eventRef, { type: "cashout_approved", actorUid: auth.currentUser.uid, actorPlayerId: role.playerId, actorName: actor ? actor.name : "Verifier", clientTs: Date.now(), serverTs: firebase.firestore.FieldValue.serverTimestamp(), meta: { requestId, targetId: req.targetId, amountCents: req.amountCents }, revision: next.revision, schemaVersion: 2 });
-      });
-    } catch (e) { console.error(e); setError(e && e.message ? e.message : "Couldn't approve the cash-out."); }
-  }
+  async function approvePendingCashOut(requestId) { return approveTableRequest(requestId,"cashout",pendingRequests.find(r=>r.id===requestId)?.challengeId); }
   async function rejectPendingCashOut(requestId) {
     await resolvePendingRequest(requestId, "Couldn't resolve that cash-out request.");
   }
@@ -2261,8 +2196,8 @@ function PokerLedger() {
   async function startSettling() {
     if (pendingList.length > 0) return setError("Resolve pending rebuys before ending the game.");
     const hostPlayer = game.players[game.hostId];
-    if (hostPlayer && !hostPlayer.cashedOut && !game.coHostId) {
-      return setError("Assign a co-host before ending the game — the co-host must approve the host's cash-out.");
+    if (hostPlayer && !hostPlayer.cashedOut && !approverFor(game.hostId)) {
+      return setError("Another player must join to approve the host’s cash-out.");
     }
     setCashOutAmount("");
     await mutateGame(g => {
@@ -2287,7 +2222,7 @@ function PokerLedger() {
   }
   async function submitFinal(targetId) {
     if (!isHost) return setError("Only the host can record a missing cash-out.");
-    if (targetId === game.hostId) return setError("Your own cash-out still needs co-host approval.");
+    if (targetId === game.hostId) return setError("Your own cash-out needs another player’s approval.");
     const raw = finalInputs[targetId];
     const amt = parseFloat(raw);
     if (raw === undefined || raw === "" || !Number.isFinite(amt) || amt < 0) return setError("Enter a valid final chip value.");
@@ -2356,6 +2291,12 @@ function PokerLedger() {
     }
   }, [game, role]);
   async function leaveGame() {
+    if(controlUnsubRef.current)controlUnsubRef.current();
+    setSavedRebuyQueue([]);setHostProposal(null);
+    listenerCodeRef.current = null;
+    listenerEpochRef.current += 1;
+    clearTimeout(retryTimerRef.current);
+    setConnectionError("");
     if (unsubRef.current) {
       unsubRef.current();
       unsubRef.current = null;
@@ -2375,6 +2316,19 @@ function PokerLedger() {
     setScreen("home");
     setCName(defaultGameName(history));
   }
+  // Remember only the authenticated browser's own successfully joined seat.
+  const ownGuestName = game && role && auth.currentUser && boundPlayerId(game,auth.currentUser.uid)===role.playerId
+    ? game.players[role.playerId].name : null;
+  useEffect(() => {
+    if (!ownGuestName) return;
+    saveGuestName(ownGuestName);
+    setRememberedName(ownGuestName);
+    setJName(ownGuestName);
+    setCHostName(ownGuestName);
+  }, [ownGuestName]);
+  function changeRememberedName() {
+    forgetGuestName();setRememberedName("");setJName("");setCHostName("");
+  }
   const allPlayers = game ? Object.values(game.players) : [];
   const players = allPlayers.filter(p => !p.removed);
   const isHost = game && role && game.hostId === role.playerId && (!game.hostUid || game.hostUid === (auth.currentUser && auth.currentUser.uid));
@@ -2383,15 +2337,15 @@ function PokerLedger() {
   const phase = game ? game.phase : null;
   const pendingList = pendingRequests.filter(r => r.type === "buyin" && r.status === "pending");
   const approverPendingBuyIns = role
-    ? pendingList.filter(r => r.approverId === role.playerId)
+    ? pendingList.filter(r => canApproveTableRequest(game,r,role.playerId,auth.currentUser && auth.currentUser.uid))
     : [];
   const nextApproverBuyIn = approverPendingBuyIns[0] || null;
   const otherPendingBuyIns = role
-    ? pendingList.filter(r => r.approverId !== role.playerId)
+    ? pendingList.filter(r => !canApproveTableRequest(game,r,role.playerId,auth.currentUser && auth.currentUser.uid))
     : pendingList;
   const pendingCashOutList = pendingRequests.filter(r => r.type === "cashout" && r.status === "pending");
   const myPendingCashOut = me ? pendingCashOutList.find(r => r.targetId === me.id) || null : null;
-  const cashOutsToApprove = role ? pendingCashOutList.filter(r => r.approverId === role.playerId) : [];
+  const cashOutsToApprove = role ? pendingCashOutList.filter(r => canApproveTableRequest(game,r,role.playerId,auth.currentUser && auth.currentUser.uid)) : [];
   const guestsNeedingCashOut = players.filter(p => !p.authUid && !p.cashedOut);
   const completedBuyInCountFor = p => (p.buyins || []).filter(b => !b.voided).length;
   const ledgerPlayers = players.slice().sort((a, b) => completedBuyInCountFor(b) - completedBuyInCountFor(a));
@@ -2451,13 +2405,13 @@ function PokerLedger() {
     }
     const waiting = pendingRequests.filter(r =>
       r.status === "pending" &&
-      r.approverId === role.playerId &&
+      canApproveTableRequest(game,r,role.playerId,auth.currentUser && auth.currentUser.uid) &&
       (r.type === "cashout" || (r.type === "buyin" && phase === "active"))
     );
     const newlyWaiting = waiting.filter(r => !alertedRebuyRequestIdsRef.current.has(r.id));
     if (newlyWaiting.length > 0) {
       newlyWaiting.forEach(r => alertedRebuyRequestIdsRef.current.add(r.id));
-      rebuyRequestAlertFeedback();
+      // Approval requests stay visual; sound is reserved for saved rebuys.
     }
     if (typeof document !== "undefined") {
       document.title = waiting.length > 0
@@ -2553,6 +2507,14 @@ function PokerLedger() {
   const ghostBtn = "font-data text-base rounded-2xl border border-felt-600 text-bone bg-felt-800/60 hover:bg-felt-700/60 transition active:scale-[0.97]";
   const inputClass = "w-full bg-felt-800/70 text-bone font-data text-base rounded-2xl px-4 py-3.5 border border-felt-600 outline-none placeholder:text-smoke/60 focus:border-gold-400 focus:ring-2 focus:ring-gold-400/20 transition";
   const textareaClass = "w-full bg-felt-800/70 text-bone font-data text-base rounded-2xl px-4 py-3.5 border border-felt-600 outline-none placeholder:text-smoke/60 focus:border-gold-400 focus:ring-2 focus:ring-gold-400/20 transition resize-none";
+  if (screen === "reconnect") {
+    return React.createElement("main", {className: "min-h-screen bg-app-gradient flex items-center justify-center p-6"}, fontStyle,
+      React.createElement("div", {className: "max-w-sm space-y-4"},
+        React.createElement("h1", {className: "font-display text-bone text-2xl"}, "Return to your table"),
+        React.createElement("p", {className: "font-data text-smoke text-sm", role: "status"}, error || "Couldn't reconnect yet. Your saved game link is still here."),
+        React.createElement("button", {onClick: () => window.location.reload(), className: `w-full ${goldBtn} py-3`}, "Retry connection"),
+        React.createElement("p", {className: "font-data text-smoke text-xs"}, "Use the same browser and original game link. Don't clear browser data or join as a new player.")));
+  }
   if (screen === "loading") {
     return /*#__PURE__*/React.createElement("div", {
       className: "min-h-screen bg-app-gradient flex items-center justify-center"
@@ -2572,7 +2534,7 @@ function PokerLedger() {
           React.createElement("button", {onClick: () => setScreen("create"), className: "poker-primary"}, "Host a Game", React.createElement("span", {"aria-hidden": true}, "↗")),
           React.createElement("button", {onClick: () => setScreen("join"), className: "poker-secondary"}, "Join a Game", React.createElement("span", {"aria-hidden": true}, "→")),
           React.createElement("button", {onClick: () => setScreen("leaderboard"), className: "poker-leaderboard"}, "♧", "  View leaderboard"))),
-      React.createElement("footer", {className: "poker-footer"}, React.createElement("span", null, "Good company. A little friendly competition."), React.createElement("small", null, "Poker Ledger · V2.6.20")));
+      React.createElement("footer", {className: "poker-footer"}, React.createElement("span", null, "Good company. A little friendly competition."), React.createElement("small", null, "Poker Ledger · V2.6.23")));
   }
   if (screen === "create") {
     return /*#__PURE__*/React.createElement("div", {
@@ -2674,13 +2636,12 @@ function PokerLedger() {
       onChange: e => setJCode(e.target.value.toUpperCase()),
       placeholder: "paste or scan the code",
       className: underlineInput
-    })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
-      className: labelClass, htmlFor: "setup-jName"
-    }, "Your name"), /*#__PURE__*/React.createElement("input", {
-      id: "setup-jName", value: jName,
-      onChange: e => setJName(e.target.value),
-      className: underlineInput
-    })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    })), rememberedName && jName===rememberedName ? React.createElement("div",null,
+      React.createElement("p",{className:"font-display text-bone text-xl"},"Welcome back, ",rememberedName),
+      React.createElement("button",{onClick:changeRememberedName,className:"font-data text-smoke text-sm underline mt-2"},"Not you? Change name")) : React.createElement("div",null,
+      React.createElement("label",{className:labelClass,htmlFor:"setup-jName"},"Your name"),
+      React.createElement("input",{id:"setup-jName",value:jName,onChange:e=>setJName(e.target.value),autoComplete:"given-name",maxLength:60,className:underlineInput}),
+      React.createElement("p",{className:"font-data text-smoke text-xs mt-2"},"Remembered on this browser for next time.")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
       className: labelClass, htmlFor: "setup-jPhone"
     }, "Mobile number"), /*#__PURE__*/React.createElement("input", {
       id: "setup-jPhone", value: jPhone,
@@ -2729,7 +2690,18 @@ function PokerLedger() {
     const coHostName = game.coHostId && game.players[game.coHostId] ? game.players[game.coHostId].name : null;
     return /*#__PURE__*/React.createElement("div", {
       className: `min-h-screen bg-app-gradient pb-24 poker-game${!showBuyInHistory ? " poker-game-art" : ""}`
-    }, fontStyle, /*#__PURE__*/React.createElement("div", {
+    } , fontStyle,
+      savedRebuyQueue[0] && React.createElement("div",{key:savedRebuyQueue[0].key,className:"rebuy-saved-notice",role:"status","aria-live":"polite"},
+        "✓ ",savedRebuyQueue[0].name," · +",money(fromCents(savedRebuyQueue[0].amountCents))," saved · ",savedRebuyQueue[0].count," buy-ins"),
+      hostProposalCurrent(game,hostProposal) && React.createElement("div",{className:"max-w-sm mx-auto px-5 pt-4"},
+        React.createElement("div",{className:"rounded-2xl bg-felt-900 p-4"},
+          React.createElement("p",{className:"font-data text-bone text-sm"},game.players[hostProposal.candidateId]?.name," to become host",hostProposal.mode==="recovery"?` · ${hostProposal.vote1Uid?1:0}/2 approvals`:""),
+          React.createElement("div",{className:"flex gap-3 mt-3"},
+            ((hostProposal.mode==="transfer"&&role.playerId===hostProposal.candidateId)||(hostProposal.mode==="recovery"&&!isHost&&role.playerId!==hostProposal.candidateId&&auth.currentUser?.uid!==hostProposal.vote1Uid)) && React.createElement("button",{className:`${goldBtn} px-4 py-2 text-sm`,onClick:()=>decideHost("approve")},hostProposal.mode==="transfer"?"Accept hosting":"Approve takeover"),
+            (isHost||role.playerId===hostProposal.candidateId) && React.createElement("button",{className:"font-data text-smoke text-sm underline",onClick:()=>decideHost("cancel")},"Cancel")))),
+      connectionError && React.createElement("div", {className: "max-w-sm mx-auto px-5 pt-5", role: "status"},
+      React.createElement("p", {className: "font-data text-gold-300 text-sm"}, connectionError),
+      React.createElement("button", {onClick: () => { retryCountRef.current = 0; reconnectGame(); }, disabled: reconnecting, className: "font-data text-gold-300 text-sm underline mt-2"}, reconnecting ? "Reconnecting…" : "Reconnect")), /*#__PURE__*/React.createElement("div", {
       className: "max-w-sm mx-auto px-5 pt-5 pb-2"
     }, /*#__PURE__*/React.createElement("div", {
       className: "flex items-start justify-between"
@@ -2740,10 +2712,7 @@ function PokerLedger() {
     }, phase !== "settled" && !game.joinLocked && /*#__PURE__*/React.createElement("button", {
       onClick: () => setShowQR(true),
       className: "font-data text-sm text-gold-300 border border-gold-500/50 rounded-full px-3 py-1.5"
-    }, "Invite"), phase === "active" && (isHost || isCoHost) && /*#__PURE__*/React.createElement("button", {
-      onClick: () => openRebuyScanner(),
-      className: `font-data text-sm text-gold-300 border rounded-full px-3 py-1.5 transition ${approverPendingBuyIns.length > 0 ? "border-gold-500/60 bg-gold-500/10 shadow-[0_0_24px_-4px_rgba(232,178,61,0.25)]" : "border-gold-500/50"}`
-    }, approverPendingBuyIns.length > 0 ? `Scan · ${approverPendingBuyIns.length}` : "Scan"), phase === "active" && isHost && /*#__PURE__*/React.createElement("button", {
+    }, "Invite"), phase !== "settled" && /*#__PURE__*/React.createElement("button", {
       onClick: () => setShowTableControls(true),
       className: "font-data text-sm text-gold-300 border border-gold-500/50 rounded-full px-3 py-1.5"
     }, "More"), phase === "settled" && isHost && /*#__PURE__*/React.createElement("button", {
@@ -2757,9 +2726,7 @@ function PokerLedger() {
       className: "font-data text-smoke text-sm"
     }, "leave")))), /*#__PURE__*/React.createElement("p", {
       className: "font-data text-sm text-smoke mt-1"
-    }, players.length, players.length === 1 ? " player · Buy-in " : " players · Buy-in ", money(fromCents(buyInCentsForGame(game))), cashedOutCount > 0 && phase === "active" ? ` · ${cashedOutCount} cashed out` : ""), phase === "active" && isHost && !game.coHostId && /*#__PURE__*/React.createElement("p", {
-      className: "font-data text-gold-300 text-xs mt-1.5"
-    }, "Assign a co-host before your own buy-in."), phase === "active" && game.joinLocked && /*#__PURE__*/React.createElement("p", {
+    }, players.length, players.length === 1 ? " player · Buy-in " : " players · Buy-in ", money(fromCents(buyInCentsForGame(game))), cashedOutCount > 0 && phase === "active" ? ` · ${cashedOutCount} cashed out` : ""), phase === "active" && game.joinLocked && /*#__PURE__*/React.createElement("p", {
       className: "font-data text-gold-300 text-xs mt-1.5"
     }, "🔒 Table locked — new joins are paused."), phase === "active" && isCoHost && /*#__PURE__*/React.createElement("div", {
       className: "flex items-center gap-2 mt-1.5"
@@ -2821,36 +2788,13 @@ function PokerLedger() {
       }, "→"), " ", to.name), /*#__PURE__*/React.createElement("span", {
         className: "font-data text-gold-300 text-sm shrink-0"
       }, money(t.amount)));
-    }))))), phase === "active" && nextApproverBuyIn && (() => {
-      const target = game.players[nextApproverBuyIn.targetId];
-      if (!target) return null;
-      const existingCompleted = completedBuyInCountFor(target);
-      const rebuyNo = Math.max(1, existingCompleted);
-      return /*#__PURE__*/React.createElement("div", {
-        className: "max-w-sm mx-auto px-5 pb-2"
-      }, /*#__PURE__*/React.createElement("button", {
-        onClick: () => openRebuyScanner(nextApproverBuyIn.id),
-        className: "w-full text-left rounded-2xl border border-gold-500/60 bg-gold-500/10 px-4 py-3 shadow-[0_0_24px_-4px_rgba(232,178,61,0.25)] active:scale-[0.99] transition"
-      }, /*#__PURE__*/React.createElement("div", {
-        className: "flex items-center justify-between gap-3"
-      }, /*#__PURE__*/React.createElement("div", {
-        className: "min-w-0"
-      }, /*#__PURE__*/React.createElement("p", {
-        className: "font-display font-semibold text-bone text-base truncate"
-      }, target.name, " wants +", money(fromCents(nextApproverBuyIn.amountCents))), /*#__PURE__*/React.createElement("p", {
-        className: "font-data text-gold-300 text-xs mt-0.5"
-      }, "Rebuy #", rebuyNo, " · tap anywhere to scan")), /*#__PURE__*/React.createElement("span", {
-        className: "font-display font-bold text-gold-300 text-lg shrink-0"
-      }, "→")), approverPendingBuyIns.length > 1 && /*#__PURE__*/React.createElement("p", {
-        className: "font-data text-smoke text-[11px] mt-2"
-      }, "+", approverPendingBuyIns.length - 1, " more rebuy", approverPendingBuyIns.length - 1 === 1 ? "" : "s", " waiting")));
-    })(), rebuyRequesterNotice && /*#__PURE__*/React.createElement("div", {
-      className: "max-w-sm mx-auto px-5 pb-2"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "rounded-2xl border border-mint-500/40 bg-mint-500/10 px-4 py-3"
-    }, /*#__PURE__*/React.createElement("p", {
-      className: "font-display font-semibold text-mint-400 text-sm"
-    }, "✓ Rebuy approved · +", money(fromCents(rebuyRequesterNotice.amountCents)), " added"))), phase === "settling" && me && me.authUid && !me.removed && (() => {
+    }))))), phase === "active" && approverPendingBuyIns.map(pending => React.createElement("div", {key:pending.id,className:"max-w-sm mx-auto px-5 pb-3"},
+      React.createElement("div",{className:"rounded-2xl bg-felt-900 p-4"},
+        React.createElement("p",{className:"font-data text-bone text-sm"},game.players[pending.targetId]?.name," · +",money(fromCents(pending.amountCents))),
+        React.createElement("p",{className:"font-data text-smoke text-xs mt-1"},"Confirm payment received"),
+        React.createElement("div",{className:"flex gap-3 mt-3"},
+          React.createElement("button",{className:`flex-1 ${goldBtn} py-2 text-sm`,onClick:()=>approvePendingBuyIn(pending.id)},"Approve"),
+          React.createElement("button",{className:`${ghostBtn} px-4 py-2 text-sm`,onClick:()=>rejectPendingBuyIn(pending.id)},"Decline"))))), phase === "settling" && me && me.authUid && !me.removed && (() => {
       const verifierId = approverFor(me.id);
       const verifier = verifierId ? game.players[verifierId] : null;
       if (me.cashedOut && !myPendingCashOut) {
@@ -2886,7 +2830,7 @@ function PokerLedger() {
           className: "font-data text-smoke text-xs underline shrink-0"
         }, "change")), /*#__PURE__*/React.createElement("p", {
           className: "font-data text-smoke text-xs mt-1"
-        }, "Waiting for ", verifier ? firstName(verifier.name) : "verifier", " approval.")));
+        }, "Waiting for ", isHost ? "another player" : verifier ? firstName(verifier.name) : "the host", " approval.")));
       }
       return /*#__PURE__*/React.createElement("div", {
         className: "max-w-sm mx-auto px-5 pb-2"
@@ -2916,7 +2860,7 @@ function PokerLedger() {
         className: `w-full ${goldBtn} py-3 mt-3 text-sm`
       }, "Submit for Approval"), /*#__PURE__*/React.createElement("p", {
         className: "font-data text-smoke text-[11px] text-center mt-2"
-      }, verifier ? `${firstName(verifier.name)} will verify it.` : "A verifier is required.")));
+      }, isHost ? "Another player will verify it." : verifier ? `${firstName(verifier.name)} will verify it.` : "A verifier is required.")));
     })(), cashOutsToApprove.length > 0 && /*#__PURE__*/React.createElement("div", {
       className: "max-w-sm mx-auto px-5 pb-2 space-y-2"
     }, /*#__PURE__*/React.createElement("p", {
@@ -3002,25 +2946,25 @@ function PokerLedger() {
       className: "max-w-sm mx-auto px-5 pb-2 space-y-2"
     }, /*#__PURE__*/React.createElement("p", { className: "font-data text-xs tracking-[0.1em] text-gold-300 uppercase" }, "Pending Rebuys"), otherPendingBuyIns.map(pending => {
       const target = game.players[pending.targetId];
-      const approver = game.players[pending.approverId];
-      const iAmApprover = role.playerId === pending.approverId;
+      const approver = pending.targetId === game.hostId ? null : game.players[game.hostId];
+      const iAmApprover = canApproveTableRequest(game,pending,role.playerId,auth.currentUser && auth.currentUser.uid);
       const iAmRequester = pending.requesterUid === (auth.currentUser && auth.currentUser.uid);
       if (!target) return null;
       return /*#__PURE__*/React.createElement("div", { key: pending.id, className: "bg-gold-500/10 border border-gold-500/30 rounded-2xl p-3 flex items-center justify-between gap-2" },
         /*#__PURE__*/React.createElement("div", { className: "min-w-0" },
           /*#__PURE__*/React.createElement("p", { className: "font-data text-bone text-sm" }, target.name, " · ", money(fromCents(pending.amountCents))),
-          /*#__PURE__*/React.createElement("p", { className: "font-data text-smoke text-[11px] mt-0.5" }, iAmApprover ? "Scan the player's QR to approve" : `waiting on ${approver ? firstName(approver.name) : "verifier"}`)
+          /*#__PURE__*/React.createElement("p", { className: "font-data text-smoke text-[11px] mt-0.5" }, `Waiting for ${approver ? firstName(approver.name) : "another player"} to approve`)
         ), iAmApprover ? /*#__PURE__*/React.createElement("span", { className: "font-data text-gold-300 text-[11px] shrink-0" }, "ready to scan") : iAmRequester ? /*#__PURE__*/React.createElement("div", { className: "flex gap-2 shrink-0" },
-          /*#__PURE__*/React.createElement("button", { onClick: () => showRebuyQRForRequest(pending), className: "font-data text-gold-300 text-xs underline" }, "Show QR"),
+          React.createElement("details",{className:"font-data text-smoke text-xs"},React.createElement("summary",null,"Options"),React.createElement("button", { onClick: () => showRebuyQRForRequest(pending), className: "text-gold-300 underline" }, "Show QR")),
           /*#__PURE__*/React.createElement("button", { onClick: () => rejectPendingBuyIn(pending.id), className: "font-data text-coral-400 text-xs underline" }, "cancel")
         ) : null);
     })), rebuyQR && /*#__PURE__*/React.createElement("div", {
       className: "fixed inset-0 bg-felt-950/95 z-50 flex flex-col items-center justify-center p-6",
       onClick: e => { if (e.target === e.currentTarget) setRebuyQR(null); }
     }, /*#__PURE__*/React.createElement("div", { className: "w-full max-w-sm text-center" },
-      /*#__PURE__*/React.createElement("p", { className: "font-data text-xs tracking-[0.2em] text-gold-400/80 uppercase mb-2" }, "One-time buy-in verification"),
+      /*#__PURE__*/React.createElement("p", { className: "font-data text-xs tracking-[0.2em] text-gold-400/80 uppercase mb-2" }, "Optional rebuy QR"),
       /*#__PURE__*/React.createElement("h3", { className: "font-display font-bold text-bone text-xl mb-1" }, game.players[rebuyQR.targetId] ? game.players[rebuyQR.targetId].name : "Player", " · ", money(fromCents(rebuyQR.amountCents))),
-      /*#__PURE__*/React.createElement("p", { className: "font-data text-smoke text-sm mb-4" }, "Have ", game.players[approverFor(rebuyQR.targetId)] ? firstName(game.players[approverFor(rebuyQR.targetId)].name) : "the verifier", " scan this QR. The scan approves the rebuy."),
+      /*#__PURE__*/React.createElement("p", { className: "font-data text-smoke text-sm mb-4" }, "Have ", rebuyQR.targetId===game.hostId ? "another player" : "the host", " scan this QR. The scan approves the rebuy."),
       Math.max(0, Math.ceil((rebuyQR.expiresAtMs - qrTick) / 1000)) > 0 ? /*#__PURE__*/React.createElement(React.Fragment, null,
         /*#__PURE__*/React.createElement(QRCode, { text: makeRebuyQrPayload(rebuyQR), size: 230 }),
         /*#__PURE__*/React.createElement("p", { className: "font-data text-gold-300 text-sm mt-3" }, "Expires in ", Math.max(0, Math.ceil((rebuyQR.expiresAtMs - qrTick) / 1000)), " sec")
@@ -3105,39 +3049,29 @@ function PokerLedger() {
     }, "Share Invite"), /*#__PURE__*/React.createElement("button", {
       onClick: () => setShowQR(false),
       className: `flex-1 ${ghostBtn} py-3 text-sm`
-    }, "Close")))), showTableControls && /*#__PURE__*/React.createElement("div", {
-      className: "fixed inset-0 bg-felt-950/95 z-50 flex flex-col items-center justify-center p-6",
-      onClick: e => { if (e.target === e.currentTarget) setShowTableControls(false); }
-    }, /*#__PURE__*/React.createElement("div", { className: "w-full max-w-sm space-y-3" },
-      /*#__PURE__*/React.createElement("div", null,
-        /*#__PURE__*/React.createElement("p", { className: "font-display font-bold text-bone text-xl" }, "Table"),
-        /*#__PURE__*/React.createElement("p", { className: "font-data text-smoke text-sm mt-1" }, "Keep the game clean once everyone is seated.")
-      ),
-      /*#__PURE__*/React.createElement("div", { className: "rounded-2xl border border-felt-700 bg-felt-900 p-4 flex items-center justify-between gap-3" },
-        /*#__PURE__*/React.createElement("div", null,
-          /*#__PURE__*/React.createElement("p", { className: "font-data text-bone text-sm" }, game.joinLocked ? "Joining locked" : "Joining open"),
-          /*#__PURE__*/React.createElement("p", { className: "font-data text-smoke text-xs mt-0.5" }, game.joinLocked ? "No new players can join." : "Anyone with the invite can join.")
-        ),
-        /*#__PURE__*/React.createElement("button", { onClick: toggleJoinLock, className: "font-data text-gold-300 text-xs border border-gold-500/50 rounded-full px-3 py-1.5 shrink-0" }, game.joinLocked ? "Unlock" : "Lock")
-      ),
-      /*#__PURE__*/React.createElement("div", { className: "rounded-2xl border border-felt-700 bg-felt-900 p-4 flex items-center justify-between gap-3" },
-        /*#__PURE__*/React.createElement("div", { className: "min-w-0" },
-          /*#__PURE__*/React.createElement("p", { className: "font-data text-bone text-sm" }, coHostName ? `Co-host: ${coHostName}` : "No co-host assigned"),
-          /*#__PURE__*/React.createElement("p", { className: "font-data text-smoke text-xs mt-0.5" }, "Co-host verifies the host and can take over if needed.")
-        ),
-        /*#__PURE__*/React.createElement("button", { onClick: () => { setShowTableControls(false); setShowCoHostPicker(true); }, className: "font-data text-gold-300 text-xs underline shrink-0" }, "Manage")
-      ),
-      /*#__PURE__*/React.createElement("button", {
-        onClick: () => { setShowTableControls(false); setShowSpotCheck(true); },
-        className: `w-full ${ghostBtn} py-3 text-sm`
-      }, "Spot Check"), React.createElement("button", {
-        onClick: () => {setShowTableControls(false); setShowAddPlayer(true);}, className: `w-full ${ghostBtn} py-3 text-sm`
-      }, "+ Add guest"),
-      /*#__PURE__*/React.createElement("button", {
-        onClick: () => setShowTableControls(false),
-        className: "w-full font-data text-smoke text-sm underline text-center"
-      }, "close")
-    )), showCoHostPicker && /*#__PURE__*/React.createElement("div", {
+    }, "Close")))), showTableControls && React.createElement("div",{className:"fixed inset-0 bg-felt-950/95 z-50 flex items-center justify-center p-6"},
+      React.createElement("div",{className:"w-full max-w-sm space-y-3"},
+        React.createElement("h3",{className:"font-display text-bone text-xl"},"Table options"),
+        React.createElement("button",{className:`w-full ${ghostBtn} py-3 text-sm`,onClick:()=>{const next=!soundEnabled;setSoundEnabled(next);soundEnabledRef.current=next;try{localStorage.setItem("pokerSound",next?"on":"off");}catch{}if(next)enableTableSound();}},soundEnabled?"Rebuy sound: on":"Rebuy sound: off"),
+        phase==="active" && React.createElement("button",{className:`w-full ${ghostBtn} py-3 text-sm`,onClick:()=>{setShowTableControls(false);openRebuyScanner();}},"Scan a rebuy QR · optional"),
+        isHost && React.createElement(React.Fragment,null,
+          phase==="active" && React.createElement("button",{className:`w-full ${ghostBtn} py-3 text-sm`,onClick:toggleJoinLock},game.joinLocked?"Unlock joining":"Lock joining"),
+          React.createElement("button",{className:`w-full ${ghostBtn} py-3 text-sm`,onClick:()=>{setShowTableControls(false);setShowCoHostPicker(true);}},coHostName?`Co-host: ${coHostName}`:"Assign a co-host"),
+          React.createElement("button",{className:`w-full ${ghostBtn} py-3 text-sm`,onClick:()=>{setShowTableControls(false);setShowHostTransfer(true);}},"Hand over hosting"),
+          phase==="active" && React.createElement("button",{className:`w-full ${ghostBtn} py-3 text-sm`,onClick:()=>{setShowTableControls(false);setShowSpotCheck(true);}},"Spot check"),
+          phase==="active" && React.createElement("button",{className:`w-full ${ghostBtn} py-3 text-sm`,onClick:()=>{setShowTableControls(false);setShowAddPlayer(true);}},"Add guest")),
+        !isHost && React.createElement(React.Fragment,null,
+          React.createElement("p",{className:"font-data text-smoke text-xs"},isCoHost?"You can take over if the host is unavailable.":game.coHostId?`${coHostName} can take over as co-host.`:"Host unavailable? Two other players must approve your takeover. The host and candidate cannot vote."),
+          (!game.coHostId || isCoHost) && React.createElement("button",{className:`w-full ${ghostBtn} py-3 text-sm`,onClick:isCoHost?takeOverHost:()=>proposeHost("recovery",role.playerId)},isCoHost?"Take over hosting":"Request to become host")),
+        error && React.createElement("p",{className:"font-data text-coral-400 text-sm"},error),
+        React.createElement("button",{className:"w-full text-smoke font-data text-sm underline",onClick:()=>setShowTableControls(false)},"Close"))),
+    showHostTransfer && React.createElement("div",{className:"fixed inset-0 bg-felt-950/95 z-50 flex items-center justify-center p-6"},
+      React.createElement("div",{className:"w-full max-w-sm space-y-3"},
+        React.createElement("h3",{className:"font-display text-bone text-xl"},"Choose the next host"),
+        React.createElement("p",{className:"font-data text-smoke text-sm"},"They will accept on their device. All records stay with this table."),
+        players.filter(p=>p.authUid&&p.id!==game.hostId).map(p=>React.createElement("button",{key:p.id,className:`w-full ${ghostBtn} py-3 text-sm`,onClick:()=>proposeHost("transfer",p.id)},p.name)),
+        error && React.createElement("p",{className:"font-data text-coral-400 text-sm"},error),
+        React.createElement("button",{className:"w-full text-smoke font-data text-sm underline",onClick:()=>setShowHostTransfer(false)},"Close"))), showCoHostPicker && /*#__PURE__*/React.createElement("div", {
       className: "fixed inset-0 bg-felt-950/95 z-50 flex flex-col items-center justify-center p-6",
       onClick: e => {
         if (e.target === e.currentTarget) setShowCoHostPicker(false);
@@ -3148,7 +3082,7 @@ function PokerLedger() {
       className: "font-display font-bold text-bone text-xl mb-1"
     }, "Co-Host"), /*#__PURE__*/React.createElement("p", {
       className: "font-data text-smoke text-sm mb-4"
-    }, "The host approves everyone else's rebuys. The co-host approves the host's rebuys, so nobody can approve their own."), coHostName && /*#__PURE__*/React.createElement("div", {
+    }, "A co-host can take over if the host disconnects. Any other player can approve the host’s request."), coHostName && /*#__PURE__*/React.createElement("div", {
       className: "flex items-center justify-between bg-felt-900 border border-gold-500/40 rounded-xl px-3.5 py-2.5 mb-3"
     }, /*#__PURE__*/React.createElement("span", {
       className: "font-data text-bone text-sm"
@@ -3201,7 +3135,7 @@ function PokerLedger() {
     }, (() => {
       const verifierId = approverFor(me.id);
       const verifier = verifierId ? game.players[verifierId] : null;
-      return verifier ? `${firstName(verifier.name)} will approve your cash-out.` : "Assign a co-host first so your cash-out can be approved.";
+      return me.id === game.hostId ? "Another player will approve your cash-out." : verifier ? `${firstName(verifier.name)} will approve your cash-out.` : "Another player must join first.";
     })()), /*#__PURE__*/React.createElement("button", {
       onClick: () => {
         setCashingOutId(null);
@@ -3298,7 +3232,7 @@ function PokerLedger() {
       const pendingCashOutForPlayer = pendingCashOutList.find(r => r.targetId === p.id) || null;
       return /*#__PURE__*/React.createElement("div", {
         key: p.id,
-        className: `rounded-lg border ${mine ? "border-gold-500/50 bg-felt-900" : canControl ? "border-gold-500/25 bg-felt-900/80" : "border-felt-700 bg-felt-900/60"}`
+        className: `${savedRebuyQueue[0]?.targetId===p.id ? "rebuy-saved-pulse " : ""}rounded-lg border ${mine ? "border-gold-500/50 bg-felt-900" : canControl ? "border-gold-500/25 bg-felt-900/80" : "border-felt-700 bg-felt-900/60"}`
       }, /*#__PURE__*/React.createElement("div", {
         className: "flex items-center px-2.5 py-1.5 gap-2"
       }, /*#__PURE__*/React.createElement("button", {
@@ -3550,7 +3484,7 @@ function PokerLedger() {
     }, (() => {
       const verifierId = approverFor(me.id);
       const verifier = verifierId ? game.players[verifierId] : null;
-      return `Waiting for ${verifier ? firstName(verifier.name) : "verifier"} approval`;
+      return `Waiting for ${isHost ? "another player" : verifier ? firstName(verifier.name) : "the host"} approval`;
     })())), /*#__PURE__*/React.createElement("button", {
       onClick: async () => {
         await rejectPendingCashOut(myPendingCashOut.id);
@@ -3588,7 +3522,7 @@ function PokerLedger() {
     }, (() => {
       const verifierId = approverFor(me.id);
       const verifier = verifierId ? game.players[verifierId] : null;
-      return `Waiting for ${verifier ? firstName(verifier.name) : "verifier"} approval`;
+      return `Waiting for ${isHost ? "another player" : verifier ? firstName(verifier.name) : "the host"} approval`;
     })())), /*#__PURE__*/React.createElement("button", {
       onClick: async () => {
         await rejectPendingCashOut(myPendingCashOut.id);
@@ -3741,7 +3675,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(/*#__PURE__*/React.c
 <script>
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("sw.js?v=2620").then(reg => reg.update()).catch(() => {});
+      navigator.serviceWorker.register("sw.js?v=2623").then(reg => reg.update()).catch(() => {});
     });
   }
 </script>
