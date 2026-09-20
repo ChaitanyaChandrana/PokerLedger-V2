@@ -59,6 +59,8 @@ function startBoot(){effects.find(e=>e.f.toString().includes('Strongest recovery
  for(const modal of ['showTableControls','showHostTransfer','showCoHostPicker']){state[modal]=true;render();state[modal]=false;}
  state.cashingOutId='h';render();assert(text(tree).includes('Your co-host will approve'));state.cashingOutId=null;
  state.pendingRequests=[{id:'pending_c',type:'buyin',status:'pending',targetId:'c',requesterUid:'uc',amountCents:4000,approvalMode:'tap',challengeId:'abc'}];render();assert(text(tree).includes('Confirm payment received'));assert(nodes().some(n=>n.type==='button'&&text(n)==='Approve'));assert(!nodes().some(n=>n.type==='button'&&text(n)==='Scan'));
+ game.players.a={...clone(game.players.c),id:'a',name:'Alex',authUid:'ua'};game.members.ua='a';state.game=clone(game);state.pendingRequests=[{id:'later',type:'buyin',status:'pending',targetId:'c',requesterUid:'uc',amountCents:4000,ts:200},{id:'earlier',type:'cashout',status:'pending',targetId:'a',requesterUid:'ua',amountCents:8500,ts:100}];render();const queue=nodes().filter(n=>n.props.className==='approval-card');assert.deepEqual(queue.map(n=>n.props.key),['earlier','later']);assert(text(queue[0]).includes('Alex'));assert(text(queue[0]).includes('$85.00'));assert(text(tree).includes('2 players are waiting'));assert.equal(nodes().filter(n=>n.type==='button'&&text(n)==='Approve').length,2);
+ state.role={code:'TEST',playerId:'a'};auth.currentUser={uid:'ua'};render();assert(!nodes().some(n=>n.props.className==='approval-card'));
  console.log('PASS: saved notification waits for server, pulses once, does not replay on reconnect; approval and handover controls render.');
  setup({guestName:'Chaitanya'});assert.equal(state.jName,'Chaitanya');assert.equal(state.cHostName,'Chaitanya');assert(text(tree).includes('Welcome back, Chaitanya'));assert.equal(writes,0);assert.equal(state.screen,'join');
  const change=nodes().find(n=>n.type==='button'&&text(n)==='Not you? Change name');assert(change);change.props.onClick();render();assert.equal(state.jName,'');assert.equal(store.has('pokerGuestName'),false);assert(nodes().some(n=>n.props.id==='setup-jName'));assert.equal(auth.currentUser.uid,'uh');assert.equal(writes,0);
@@ -80,15 +82,16 @@ function startBoot(){effects.find(e=>e.f.toString().includes('Strongest recovery
    requests[0].props.onClick();render();
    nodes().find(n=>n.props.id==='payment-contact').props.onChange({target:{value:'Zelle: c@example.com'}});render();
    const preview=nodes().find(n=>n.props.className==='payment-request-preview');assert(preview.props.value.includes('Hi h, please send $10.00 to c'));assert(preview.props.value.includes('Zelle: c@example.com'));
-   let shared;ctx.navigator.share=async payload=>{shared=payload.text};await nodes().find(n=>n.type==='button'&&text(n)==='Share request').props.onClick();assert.equal(shared,preview.props.value);
-   let copied;ctx.navigator.clipboard={writeText:async value=>{copied=value}};await nodes().find(n=>n.type==='button'&&text(n)==='Copy text').props.onClick();assert.equal(copied,preview.props.value);
+   nodes().find(n=>n.props.id==='payment-link').props.onChange({target:{value:'https://venmo.com/example'}});render();const linked=nodes().find(n=>n.props.className==='payment-request-preview');assert(linked.props.value.includes('Payment link: https://venmo.com/example'));
+   let shared;ctx.navigator.share=async payload=>{shared=payload.text};await nodes().find(n=>n.type==='button'&&text(n)==='Share request').props.onClick();assert.equal(shared,linked.props.value);
+   let copied;ctx.navigator.clipboard={writeText:async value=>{copied=value}};await nodes().find(n=>n.type==='button'&&text(n)==='Copy text').props.onClick();assert.equal(copied,linked.props.value);
    ctx.navigator.share=async()=>{throw {name:'AbortError'}};copied=null;await nodes().find(n=>n.type==='button'&&text(n)==='Share request').props.onClick();assert.equal(copied,null);
    ctx.navigator.clipboard.writeText=async()=>{throw Error('blocked')};await nodes().find(n=>n.type==='button'&&text(n)==='Copy text').props.onClick();render();assert(text(tree).includes('Select the message below'));assert.equal(writes,0);
   }
   await ctx.api.reconnectGame();publishCurrent();render();assert(text(tree).includes('d pays a'));assert.equal(writes,0);
  }
  setup({who:'c',phase:'settled'});game.coHostId=null;game.coHostUid=null;game.settlement={nets:{h:-10,c:10},transactions:[{from:'h',to:'c',amount:10}]};state.game=clone(game);state.screen='game';state.showSettlementDetails=true;render();assert(!text(tree).includes('Share payouts'));assert(!text(tree).includes('Share settlement'));assert(text(tree).includes('Request money'));
- game.coHostId='c';game.coHostUid='uc';state.game=clone(game);render();assert(text(tree).includes('Share payouts'));assert(text(tree).includes('Share settlement'));
+ game.coHostId='c';game.coHostUid='uc';state.game=clone(game);render();assert(!text(tree).includes('Share payouts'));assert(!text(tree).includes('Share settlement'));
  assert.equal(vm.runInContext('canApproveTableRequest',ctx)(game,{targetId:'h'},'c','uc'),true);game.coHostId=null;game.coHostUid=null;assert.equal(vm.runInContext('canApproveTableRequest',ctx)(game,{targetId:'h'},'c','uc'),false);
  console.log('PASS: host and player both see every final transfer, personal totals and results after live settlement and reconnect.');
 

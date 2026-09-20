@@ -1,4 +1,12 @@
-# Poker Ledger V2.6.33 — Welcome back
+# Poker Ledger V2.6.34 — Priority approvals
+
+## New in V2.6.34
+- Approvals are the first section on the game screen, above the welcome card: prominent count, player names, amounts, request type/time, and large individual Approve/Decline actions. Requests are ordered oldest first; duplicate action taps are blocked while saving.
+- The compact gold queue heading stays visible while scrolling through requests. Duplicate approval panels are removed.
+- Full settlement sharing/export controls are host-only. Co-hosts and players retain their own payment-request sharing.
+- Optional payment-app link can be pasted into a personal request and shared with the exact amount. Only https links can be shared. No automatic app launch, payment execution or completion tracking is provided; Zelle payments remain in the payer's banking app.
+- App checks passed for multiple request ordering, amounts, approval visibility, host-only sharing, payment-link messages and recovery. Live-device appearance/app opening were not verified.
+- Replace index.html and sw.js. No additional rules changes if V2.6.32 rules are published.
 
 ## New in V2.6.33
 - Recognized returning players and hosts see a prominent Welcome back card with their actual seat name and confirmation that existing buy-ins and records remain. Dismiss with Got it.
