@@ -1,4 +1,10 @@
-# Poker Ledger V2.6.30 — Payouts and results
+# Poker Ledger V2.6.31 — Share payment requests
+
+## New in V2.6.31
+- Smaller settled-payment names (16px) and amounts (20px), preserving highlighted personal transfers.
+- Recipients can tap Request beside an incoming transfer, enter optional Zelle or other payment details, preview the exact message, and share or copy it to the payer.
+- Payment details stay in memory for this session; they are not stored in Firebase. Requests are plain text, not a banking integration or payment confirmation.
+- Replace index.html and sw.js. No Firebase rules changes needed.
 
 ## New in V2.6.30
 - A compact Won / lost list shows every player’s net result directly below payouts, ordered from highest win to largest loss. Buy-in details stay collapsed.
