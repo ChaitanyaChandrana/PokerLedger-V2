@@ -1,4 +1,10 @@
-# Poker Ledger V2.6.32 — Clear requests and co-host approvals
+# Poker Ledger V2.6.33 — Welcome back
+
+## New in V2.6.33
+- Recognized returning players and hosts see a prominent Welcome back card with their actual seat name and confirmation that existing buy-ins and records remain. Dismiss with Got it.
+- Works for saved-session restoration, game links and rejoining an existing authenticated seat. Remembered-name greeting on the join form is also larger.
+- Host/player restoration and dismissal checks passed. No live-device visual verification performed.
+- Replace index.html and sw.js, then refresh. No additional rules changes if V2.6.32 rules are already published.
 
 ## New in V2.6.32
 - Request money is a prominent gold button on incoming transfers. Expanded settlement details use smaller type.
