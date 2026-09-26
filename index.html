@@ -2287,6 +2287,41 @@ function PokerLedger() {
     }
     setSavingFinalId(null);
   }
+  async function submitAllMissingFinals() {
+    if (!isHost) return setError("Only the host can record missing cash-outs.");
+    const entries = hostMissingCashOuts.map(p => {
+      const raw = finalInputs[p.id];
+      const amount = String(raw ?? "").trim() === "" ? NaN : Number(raw);
+      const amountCents = toCents(amount);
+      return { targetId: p.id, amount, amountCents };
+    });
+    if (!entries.length) return;
+    if (entries.some(e => !Number.isFinite(e.amount) || e.amount < 0 || !Number.isSafeInteger(e.amountCents))) {
+      return setError("Enter a valid final chip value for every missing player.");
+    }
+    setError("");
+    setSavingFinalId("all");
+    const result = await mutateGame(g => {
+      if (g.phase !== "settling") throw new Error("The game is not in settlement mode.");
+      entries.forEach(({ targetId, amountCents }) => {
+        if (targetId === g.hostId) throw new Error("The host’s cash-out needs co-host approval.");
+        const p = g.players[targetId];
+        if (!p || p.removed || p.cashedOut || p.finalAmount != null) throw new Error("A player’s cash-out changed. Review the list and try again.");
+        p.cashedOut = true;
+        p.finalCents = amountCents;
+        p.finalAmount = fromCents(amountCents);
+        p.cashoutOverrideReason = p.authUid ? "Player left before cash-out" : "Guest / no phone";
+      });
+    }, "host_cashouts_recorded", { entries: entries.map(({ targetId, amountCents }) => ({ targetId, amountCents })), source: "host_manual_batch" });
+    if (result && result.ok) {
+      setFinalInputs(prev => {
+        const next = { ...prev };
+        entries.forEach(({ targetId }) => delete next[targetId]);
+        return next;
+      });
+    }
+    setSavingFinalId(null);
+  }
   async function finalizeSettlement() {
     if (pendingRequests.length > 0) return setError("Resolve all pending requests before settling.");
     await mutateGame(g => {
@@ -2404,7 +2439,6 @@ function PokerLedger() {
       else await resolvePendingRequest(pending.id,"Couldn't decline this request.");}
     finally {approvalBusyRef.current.delete(pending.id);setApprovalBusy(v=>({...v,[pending.id]:false}));}
   }
-  const guestsNeedingCashOut = players.filter(p => !p.authUid && !p.cashedOut);
   const completedBuyInCountFor = p => (p.buyins || []).filter(b => !b.voided).length;
   const ledgerPlayers = players.slice().sort((a, b) => phase === "settled" && game.settlement
     ? (game.settlement.nets[b.id] - game.settlement.nets[a.id] || a.name.localeCompare(b.name))
@@ -2450,12 +2484,16 @@ function PokerLedger() {
   const hostMissingCashOuts = phase === "settling" && isHost
     ? players.filter(p =>
         p.id !== game.hostId &&
-        !!p.authUid &&
         !p.cashedOut &&
         p.finalAmount == null &&
         !pendingCashOutList.some(r => r.targetId === p.id)
       )
     : [];
+  const allMissingCashOutsEntered = hostMissingCashOuts.length > 1 && hostMissingCashOuts.every(p => {
+    const raw = finalInputs[p.id];
+    const amount = String(raw ?? "").trim() === "" ? NaN : Number(raw);
+    return Number.isFinite(amount) && amount >= 0 && Number.isSafeInteger(toCents(amount));
+  });
   const missingFinalCount = players.filter(p => p.finalAmount == null).length;
   const maxBuyins = players.length ? Math.max(1, ...players.map(p => (p.buyins || []).filter(b => !b.voided).length)) : 1;
   useEffect(() => {
@@ -2920,40 +2958,19 @@ function PokerLedger() {
       }, "Request approval"), /*#__PURE__*/React.createElement("p", {
         className: "font-data text-smoke text-[11px] text-center mt-2"
       }, isHost ? "Your co-host will verify it." : verifier ? `${firstName(verifier.name)} will verify it.` : "A verifier is required.")));
-    })(), phase === "settling" && isHost && guestsNeedingCashOut.length > 0 && /*#__PURE__*/React.createElement("div", {
-      className: "max-w-sm mx-auto px-5 pb-2 space-y-2"
-    }, /*#__PURE__*/React.createElement("p", {
-      className: "font-data text-xs tracking-[0.1em] text-smoke uppercase"
-    }, "Guest cash-outs"), guestsNeedingCashOut.map(guest => /*#__PURE__*/React.createElement("div", {
-      key: guest.id,
-      className: "rounded-2xl border border-felt-700 bg-felt-900 p-3 flex items-center gap-2"
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "font-display font-semibold text-bone text-sm flex-1 min-w-0 truncate"
-    }, guest.name), /*#__PURE__*/React.createElement("span", {
-      className: "font-data text-smoke text-sm"
-    }, "$"), /*#__PURE__*/React.createElement("input", {
-      value: finalInputs[guest.id] || "",
-      onChange: e => setFinalInputs(f => ({ ...f, [guest.id]: e.target.value })),
-      inputMode: "decimal",
-      placeholder: "0",
-      className: "w-14 bg-transparent text-bone font-data text-sm text-center border-0 border-b border-felt-600 pb-1 outline-none focus:border-gold-400"
-    }), /*#__PURE__*/React.createElement("button", {
-      onClick: async () => {
-        const result = await submitCashOutAmount(guest.id, finalInputs[guest.id] || "");
-        if (result && result.ok) setFinalInputs(f => ({ ...f, [guest.id]: "" }));
-      },
-      className: "font-data text-gold-300 text-xs border border-gold-500/50 rounded-full px-3 py-1.5"
-    }, "Record")))), phase === "settling" && isHost && hostMissingCashOuts.length > 0 && /*#__PURE__*/React.createElement("div", {
+    })(), phase === "settling" && isHost && hostMissingCashOuts.length > 0 && /*#__PURE__*/React.createElement("div", {
       className: "max-w-sm mx-auto px-5 pb-2"
     }, /*#__PURE__*/React.createElement("div", {
-      className: "rounded-2xl border border-gold-500/40 bg-felt-900 p-4"
+      className: "rounded-2xl border-2 border-gold-500/70 bg-gold-500/10 p-4 shadow-[0_0_24px_-4px_rgba(232,178,61,0.22)]"
     }, /*#__PURE__*/React.createElement("div", {
       className: "flex items-start justify-between gap-3 mb-3"
     }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
       className: "font-data text-gold-300 text-xs uppercase tracking-[0.1em]"
-    }, "Missing cash-outs"), /*#__PURE__*/React.createElement("p", {
+    }, hostMissingCashOuts.length, " cash-out", hostMissingCashOuts.length === 1 ? "" : "s", " needed"), /*#__PURE__*/React.createElement("p", {
+      className: "font-display font-semibold text-bone text-lg mt-1"
+    }, "Players left before cashing out"), /*#__PURE__*/React.createElement("p", {
       className: "font-data text-smoke text-xs mt-1"
-    }, "Record a final amount for players who need help."))), /*#__PURE__*/React.createElement("div", {
+    }, "Enter each player’s final chip value. Save one at a time or record everyone together."))), /*#__PURE__*/React.createElement("div", {
       className: "space-y-2"
     }, hostMissingCashOuts.map(p => /*#__PURE__*/React.createElement("div", {
       key: p.id,
@@ -2972,11 +2989,17 @@ function PokerLedger() {
       className: "w-16 bg-transparent text-bone font-data text-sm text-center border-0 border-b border-felt-600 pb-1 outline-none focus:border-gold-400"
     }), /*#__PURE__*/React.createElement("button", {
       onClick: () => submitFinal(p.id),
-      disabled: savingFinalId === p.id,
+      disabled: savingFinalId === p.id || savingFinalId === "all",
       className: "font-data text-gold-300 text-xs border border-gold-500/50 rounded-full px-3 py-1.5 disabled:opacity-40"
-    }, savingFinalId === p.id ? "Saving…" : "Record")), /*#__PURE__*/React.createElement("p", {
+    }, savingFinalId === p.id ? "Saving…" : "Save")), /*#__PURE__*/React.createElement("p", {
       className: "font-data text-smoke text-[11px] mt-1"
-    }, "Recorded by host")))))), otherPendingBuyIns.length > 0 && /*#__PURE__*/React.createElement("div", {
+    }, p.authUid ? "Host recovery entry" : "Guest cash-out"))), hostMissingCashOuts.length > 1 && /*#__PURE__*/React.createElement("button", {
+      onClick: submitAllMissingFinals,
+      disabled: !allMissingCashOutsEntered || savingFinalId !== null,
+      className: `w-full ${goldBtn} py-3 mt-3 text-sm disabled:opacity-40`
+    }, savingFinalId === "all" ? "Recording…" : `Record all ${hostMissingCashOuts.length} cash-outs`), hostMissingCashOuts.length > 1 && !allMissingCashOutsEntered && /*#__PURE__*/React.createElement("p", {
+      className: "font-data text-smoke text-[11px] text-center mt-2"
+    }, "Enter every amount to record them together.")))), otherPendingBuyIns.length > 0 && /*#__PURE__*/React.createElement("div", {
       className: "max-w-sm mx-auto px-5 pb-2 space-y-2"
     }, /*#__PURE__*/React.createElement("p", { className: "font-data text-xs tracking-[0.1em] text-gold-300 uppercase" }, "Pending Rebuys"), otherPendingBuyIns.map(pending => {
       const target = game.players[pending.targetId];
@@ -3551,7 +3574,7 @@ function PokerLedger() {
       className: `flex-1 ${goldBtn} py-3 text-base disabled:opacity-40`
     }, settlementReady ? "Calculate payments" : game.settlement ? "Recalculate payments" : "Calculate payments")), (!allFinalIn || discrepancyCents !== 0 || pendingList.length > 0 || pendingCashOutList.length > 0) && /*#__PURE__*/React.createElement("p", {
       className: "font-data text-gold-300 text-xs text-center mt-2"
-    }, pendingList.length > 0 ? "Resolve pending rebuys first." : pendingCashOutList.length > 0 ? `${pendingCashOutList.length} cash-out${pendingCashOutList.length === 1 ? "" : "s"} awaiting approval.` : !allFinalIn ? `${missingFinalCount} cash-out${missingFinalCount === 1 ? "" : "s"} still needed.` : `Resolve the ${money(Math.abs(discrepancy))} difference to continue.`)))), phase === "settled" && showSettlementDetails && isHost && /*#__PURE__*/React.createElement("div", {
+    }, pendingList.length > 0 ? "Resolve pending rebuys first." : pendingCashOutList.length > 0 ? `${pendingCashOutList.length} cash-out${pendingCashOutList.length === 1 ? "" : "s"} awaiting approval.` : !allFinalIn ? `${missingFinalCount} cash-out${missingFinalCount === 1 ? "" : "s"} missing: ${players.filter(p => p.finalAmount == null).map(p => firstName(p.name)).join(", ")}.` : `Resolve the ${money(Math.abs(discrepancy))} difference to continue.`)))), phase === "settled" && showSettlementDetails && isHost && /*#__PURE__*/React.createElement("div", {
       className: "max-w-sm mx-auto px-5 mt-5 pt-4 border-t border-felt-700 space-y-3"
     }, /*#__PURE__*/React.createElement("p", {
       className: "font-data text-xs tracking-[0.1em] text-gold-300 uppercase"
