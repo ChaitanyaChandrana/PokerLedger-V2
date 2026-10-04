@@ -545,6 +545,45 @@ async function ensureAuth() {
   }
   return authInFlight;
 }
+// Keep the live stream as the fast path, with server-only reconciliation as
+// a safety net for a silently stalled mobile connection. A read started before
+// a newer stream event must never replace it, and detached seats ignore late reads.
+function resilientSnapshot(ref, options, next, onError, pollMs = 5000, shouldPoll = () => true) {
+  let stopped = false, reading = false, sequence = 0;
+  const deliver = snap => { if (!stopped) { sequence++; next(snap); } };
+  const unsubscribe = ref.onSnapshot(options, deliver, e => {
+    if (stopped) return;
+    onError(e);
+  });
+  const checkServer = async () => {
+    if (stopped || reading || document.visibilityState === "hidden" || navigator.onLine === false || !shouldPoll()) return;
+    reading = true;
+    const before = sequence;
+    try {
+      const snap = await withConnectionTimeout(ref.get({source: "server"}), 12000);
+      if (!stopped && before === sequence && !snap.metadata.fromCache && !snap.metadata.hasPendingWrites) deliver(snap);
+    } catch (e) {
+      if (!stopped) onError(e);
+    } finally {
+      reading = false;
+    }
+  };
+  const interval = setInterval(checkServer, pollMs);
+  // An initial server check also recovers streams that never acknowledge attach.
+  const initial = setTimeout(checkServer, 1000);
+  const resume = () => { checkServer(); };
+  window.addEventListener("online", resume);
+  document.addEventListener("visibilitychange", resume);
+  return () => {
+    stopped = true;
+    sequence++;
+    clearInterval(interval);
+    clearTimeout(initial);
+    window.removeEventListener("online", resume);
+    document.removeEventListener("visibilitychange", resume);
+    unsubscribe();
+  };
+}
 function boundPlayerId(g, authUid) {
   if (!g || !authUid) return null;
   const mapped = g.members && g.members[authUid];
@@ -1076,7 +1115,7 @@ function PokerLedger() {
   useEffect(() => {
     if (!rebuyQR || !role || !role.code) return;
     const ref = gamesCol().doc(role.code).collection("requests").doc(rebuyQR.requestId);
-    return ref.onSnapshot(snap => {
+    return resilientSnapshot(ref, {includeMetadataChanges: true}, snap => {
       if (!snap.exists) return;
       const req = snap.data();
       if (req.status === "approved") {
@@ -1089,7 +1128,7 @@ function PokerLedger() {
       } else if (req.status !== "pending") {
         setRebuyQR(null);
       }
-    }, () => {});
+    }, e => setConnectionError(connectionMessage(e)));
   }, [rebuyQR && rebuyQR.requestId, role && role.code]);
   useEffect(() => {
     if (!rebuyRequesterNotice) return;
@@ -1381,6 +1420,7 @@ function PokerLedger() {
     if (requestsUnsubRef.current) requestsUnsubRef.current();
     if(controlUnsubRef.current)controlUnsubRef.current();
     const received = new Set();
+    let tableRevision = null, eventRevision = null;
     const current = () => listenerEpochRef.current === epoch && listenerCodeRef.current === code;
     const healthy = name => {
       received.add(name);
@@ -1394,9 +1434,9 @@ function PokerLedger() {
       if (!current()) return;
       received.delete(name);
       setConnectionError(connectionMessage(e));
-      // An errored Firestore listener is terminal. Reattach, with bounded retries.
-      if (!retryTimerRef.current && retryCountRef.current < 3) {
-        const delay = 1500 * 2 ** retryCountRef.current++;
+      // An errored Firestore listener is terminal. Keep retrying with a capped delay.
+      if (!retryTimerRef.current) {
+        const delay = Math.min(30000, 1500 * 2 ** Math.min(retryCountRef.current++, 5));
         retryTimerRef.current = setTimeout(() => {
           retryTimerRef.current = null;
           if (current()) reconnectGame();
@@ -1404,7 +1444,7 @@ function PokerLedger() {
       }
     };
     retryTimerRef.current = null;
-    unsubRef.current = gamesCol().doc(code).onSnapshot({includeMetadataChanges: true}, snap => {
+    unsubRef.current = resilientSnapshot(gamesCol().doc(code), {includeMetadataChanges: true}, snap => {
       if (!current()) return;
       if (!snap.exists) {
         if (!snap.metadata.fromCache) setConnectionError("This game could not be found on the server. Check the original game code.");
@@ -1423,25 +1463,27 @@ function PokerLedger() {
         const update=newSavedRebuys(rebuyBaselineRef.current,nextGame);rebuyBaselineRef.current=update.seen;
         if(document.visibilityState!=="hidden"&&update.added.length){setSavedRebuyQueue(q=>q.concat(update.added).slice(-20));if(soundEnabledRef.current)playSavedRebuySound();}
       }
+      tableRevision = nextGame.revision || 0;
       setGame(nextGame);
       if (snap.metadata.fromCache) { rebuyBaselineRef.current=null; received.delete("game"); setConnectionError("Reconnecting — showing the last received table. Waiting for the server."); }
       else healthy("game");
     }, e => failed("game", e));
-    activityUnsubRef.current = gamesCol().doc(code).collection("events").orderBy("clientTs", "desc").limit(30).onSnapshot({includeMetadataChanges: true}, snap => {
+    activityUnsubRef.current = resilientSnapshot(gamesCol().doc(code).collection("events").orderBy("clientTs", "desc").limit(30), {includeMetadataChanges: true}, snap => {
       if (!current()) return;
       setActivity(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      if (!snap.metadata.fromCache) eventRevision = tableRevision;
       if (!snap.metadata.fromCache) healthy("events");
       else received.delete("events");
-    }, e => failed("events", e));
-    requestsUnsubRef.current = gamesCol().doc(code).collection("requests").where("status", "==", "pending").onSnapshot({includeMetadataChanges: true}, snap => {
+    }, e => failed("events", e), 20000, () => !received.has("events") || tableRevision !== eventRevision);
+    requestsUnsubRef.current = resilientSnapshot(gamesCol().doc(code).collection("requests").where("status", "==", "pending"), {includeMetadataChanges: true}, snap => {
       if (!current()) return;
       setPendingRequests(snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (a.ts || 0) - (b.ts || 0)));
       if (!snap.metadata.fromCache) healthy("requests");
       else received.delete("requests");
     }, e => failed("requests", e));
-    controlUnsubRef.current=gamesCol().doc(code).collection("host_control").doc("current").onSnapshot({includeMetadataChanges:true},snap=>{
+    controlUnsubRef.current=resilientSnapshot(gamesCol().doc(code).collection("host_control").doc("current"),{includeMetadataChanges:true},snap=>{
       if(!current())return;setHostProposal(snap.exists?snap.data():null);if(!snap.metadata.fromCache)healthy("host-control");
-    },e=>failed("host-control",e));
+    },e=>failed("host-control",e),20000);
   }
   function resumeExistingSeat(g, code, user) {
     const playerId = boundPlayerId(g, user.uid);
@@ -3701,7 +3743,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(/*#__PURE__*/React.c
 <script>
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("sw.js?v=2635").then(reg => reg.update()).catch(() => {});
+      navigator.serviceWorker.register("sw.js?v=2636").then(reg => reg.update()).catch(() => {});
     });
   }
 </script>
