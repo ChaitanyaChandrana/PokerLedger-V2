@@ -6,7 +6,7 @@ const {doc,getDoc,setDoc,updateDoc,runTransaction,serverTimestamp,Timestamp}=req
 let env,seq=0;const nonce=()=>`n${++seq}`,clone=x=>JSON.parse(JSON.stringify(x));
 const base={code:'TEST',schemaVersion:2,appVersion:'2.6',protocolVersion:26,lastClientVersion:'2.6',writeNonce:'first',name:'Table',phase:'active',joinLocked:false,hostId:'h',hostUid:'uh',coHostId:null,coHostUid:null,buyInCents:4000,revision:1,lastVerifiedRequestId:null,members:{uh:'h',ua:'a',ub:'b',uc:'c'},players:{}};
 for(const id of ['h','a','b','c'])base.players[id]={id,name:id,authUid:'u'+id,buyins:[{id:id+'0',ts:1,kind:'initial',amountCents:4000,amount:40,approved:true,approvalMethod:'join'}],cashedOut:false,finalCents:null,finalAmount:null};
-const db=id=>env.authenticatedContext('u'+id).firestore();const game=d=>doc(d,'poker_games_v2/TEST');const req=(d,id)=>doc(d,'poker_games_v2/TEST/requests/pending_'+id);const ctl=d=>doc(d,'poker_games_v2/TEST/host_control/current');
+const db=id=>env.authenticatedContext('u'+id,id==='h'?{email:'chandrana@gmail.com',email_verified:true}:{}).firestore();const game=d=>doc(d,'poker_games_v2/TEST');const req=(d,id)=>doc(d,'poker_games_v2/TEST/requests/pending_'+id);const ctl=d=>doc(d,'poker_games_v2/TEST/host_control/current');
 async function reset(cohost=false){await env.clearFirestore();await env.withSecurityRulesDisabled(async c=>{const g=clone(base);if(cohost){g.coHostId='a';g.coHostUid='ua'}await setDoc(game(c.firestore()),g)})}
 async function request(id,type='buyin',amountCents=4000){const d=db(id),g=(await getDoc(game(d))).data();return setDoc(req(d,id),{schemaVersion:2,clientVersion:'2.6',type,status:'pending',targetId:id,targetUid:'u'+id,requesterId:id,requesterUid:'u'+id,amountCents,amount:amountCents/100,approverId:id===g.hostId?null:g.hostId,approverUid:id===g.hostId?null:g.hostUid,ts:Date.now(),approvalMode:'tap',challengeId:nonce(),challengeExpiresAtMs:0})}
 function meta(g){return {...g,revision:g.revision+1,writeNonce:nonce(),updatedAtMs:Date.now(),lastClientVersion:'2.6'}}
@@ -31,7 +31,11 @@ async function vote(actor,forced=false){const d=db(actor);return runTransaction(
  await reset();await assertFails(updateDoc(game(db('h')),{hostEpoch:8,writeNonce:nonce()}));await propose('a','recovery');await env.withSecurityRulesDisabled(async c=>updateDoc(ctl(c.firestore()),{createdAt:Timestamp.fromMillis(Date.now()-601000)}));await assertFails(vote('b'));await assertSucceeds(propose('b','recovery'));
  console.log('PASS: assigned co-host only for direct takeover; expired proposals cannot be approved; host epoch cannot be forged.');
 
- await env.clearFirestore();await assertSucceeds(setDoc(game(db('h')),base));
+ await env.clearFirestore();
+ const creationFor=uid=>{const g=clone(base);g.hostUid=uid;g.members={[uid]:'h'};g.players={h:{...clone(base.players.h),authUid:uid}};return g};
+ const outsider=env.authenticatedContext('outsider',{email:'other@gmail.com',email_verified:true}).firestore();
+ const unverified=env.authenticatedContext('unverified',{email:'chandrana@gmail.com',email_verified:false}).firestore();
+ await assertFails(setDoc(game(outsider),creationFor('outsider')));await assertFails(setDoc(game(unverified),creationFor('unverified')));await assertSucceeds(setDoc(game(db('h')),base));
  const joined=meta(clone(base));joined.members.ux='x';joined.players.x={...clone(base.players.a),id:'x',name:'x',authUid:'ux'};await assertSucceeds(setDoc(game(db('x')),joined));
  await assertSucceeds(updateDoc(game(db('h')),{coHostId:'a',coHostUid:'ua',writeNonce:nonce()}));let corrected=meta((await getDoc(game(db('a')))).data());corrected.players.h.buyins[0].voided=true;await assertSucceeds(setDoc(game(db('a')),corrected));
  corrected=meta(corrected);corrected.players.h.cashedOut=true;corrected.players.h.finalCents=100;corrected.players.h.finalAmount=1;await assertSucceeds(setDoc(game(db('a')),corrected));

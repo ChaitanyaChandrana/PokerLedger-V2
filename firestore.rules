@@ -4,6 +4,11 @@ service cloud.firestore {
     function signedIn() {
       return request.auth != null;
     }
+      function approvedHostCreator() {
+        return signedIn()
+          && request.auth.token.get('email_verified', false) == true
+          && request.auth.token.get('email', '') == 'chandrana@gmail.com';
+      }
 
     // V1 is not used in the separate V2 Firebase project.
     match /poker_games/{gameCode} {
@@ -200,7 +205,7 @@ service cloud.firestore {
       allow get: if signedIn();
       allow list: if false;
 
-      allow create: if signedIn()
+      allow create: if approvedHostCreator()
         && request.resource.data.schemaVersion == 2
         && request.resource.data.appVersion == '2.6'
         && request.resource.data.protocolVersion == 26

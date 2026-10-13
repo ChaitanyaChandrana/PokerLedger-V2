@@ -1,3 +1,45 @@
+# Poker Ledger V2.6.38 — Approved-host creation
+
+This release restricts new game creation to the verified Google account **chandrana@gmail.com**. Players still join anonymously and do not need Google accounts. Existing games and player records do not require migration.
+
+Before deploying the files:
+
+1. In Firebase Console, open **Authentication → Sign-in method → Google**, enable it, choose the project support email, and save.
+2. Confirm the production site domain is listed in **Authentication → Settings → Authorized domains**.
+3. Publish the included **firestore.rules**. This is the server-side enforcement that blocks every other account from creating a game.
+4. Replace **index.html** and **sw.js** in the existing deployment, then refresh/reopen every device once.
+
+The Create Game button now opens Google sign-in when necessary. The browser checks the approved account for a clear message, while Firestore rules independently require the verified `chandrana@gmail.com` identity. All existing host, co-host, join, rebuy, cash-out, settlement, and recovery behavior is retained.
+
+Files to deploy: **index.html**, **sw.js**, and **firestore.rules**.
+
+Previous release notes follow.
+
+# Poker Ledger V2.6.37 — Approvals visible while scrolling
+
+Replace **index.html** and **sw.js** in your existing GitHub deployment. Refresh/reopen all devices once after deployment. No Firebase rules changes.
+
+- A fixed gold approval alert remains at the top of the viewport even at the bottom of the table. Shows request count, oldest player's name, request type, amount and additional request count.
+- Review scrolls to the approval queue and focuses it. Incoming requests briefly pulse without moving the host's scroll position. Reduced-motion settings are respected.
+- Alert remains until all eligible requests are resolved; normal players never see it. Host requests appear for the assigned co-host only. Dialogs remain above the alert.
+- The automatic live-sync recovery from V2.6.36 is included.
+
+Validation: recovery and live-sync tests pass, including alert content, Review navigation, disappearance after resolution and host/co-host permissions. Browser visual testing could not run because this workspace has no browser executable. Not deployed to production.
+
+# Poker Ledger V2.6.36 — Automatic live-sync recovery
+
+Replace **index.html** and **sw.js** in the existing GitHub deployment. Keep the current Firebase project and Firestore rules. All devices should reopen/refresh once after deployment to load this fix; ongoing updates then recover automatically.
+
+- Live listeners remain the immediate update path. Server-only backup checks for game state and pending approvals run every 5 seconds while visible and online; an initial check runs after 1 second.
+- Returning to the foreground or reconnecting to the internet triggers a server check immediately. Listener failures keep retrying with a maximum 30-second delay instead of stopping after three attempts.
+- QR approval confirmation also has a backup server check. Event history is reconciled only when the table revision changes or its stream is unhealthy; host-control checks run every 20 seconds.
+- Late reads cannot overwrite a newer live update or update a departed seat. No new game, identity, ledger write, or buy-in is created by these checks.
+- Backup checks add Firestore reads (game and pending-request query approximately 720 checks each per visible device-hour, plus host-control and any changed history/request confirmation). Hidden/offline pages do not poll.
+
+Validation: `node tests/recovery.cjs` and `node tests/live-sync.cjs` pass. These simulate stalled streams, pending-request resolution, network failure/recovery, foreground resume, stale replies and listener cleanup. Live production multi-device testing and deployment have not been performed.
+
+Previous release notes follow.
+
 # Poker Ledger V2.6.35 — Simple joining
 
 ## New in V2.6.35

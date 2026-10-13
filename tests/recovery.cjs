@@ -6,8 +6,11 @@ const clone=x=>JSON.parse(JSON.stringify(x));
 const base={code:'TEST',name:'test',protocolVersion:26,appVersion:'2.6',phase:'active',joinLocked:false,hostId:'h',hostUid:'uh',coHostId:'c',coHostUid:'uc',buyInCents:4000,buyInAmount:40,chipsPerDollar:1,revision:1,members:{uh:'h',uc:'c'},players:{}};
 for(const [id,count] of [['h',3],['c',2]])base.players[id]={id,name:id,authUid:'u'+id,buyins:Array.from({length:count},(_,i)=>({id:id+i,ts:i+1,kind:i?'rebuy':'initial',amountCents:4000,amount:40})),cashedOut:false,finalAmount:null};
 let ctx,state,refs,effects,store,auth,timers,subscriptions,game,getError,writes,signins,tree,authCallback,tokenCalls,events;
+let eventHandlers;
+function addEvent(n,f){const handlers=eventHandlers[n]||(eventHandlers[n]=new Set());handlers.add(f);events[n]=()=>{for(const handler of [...handlers])handler()};}
+function removeEvent(n,f){eventHandlers[n]?.delete(f);}
 function setup({who='h',phase='active',locked=false,boot=false,noAuth=false,saved=true,readError=null,url=true,guestName=null}={}){
- game=clone(base);game.phase=phase;game.joinLocked=locked;refs={};effects=[];timers=new Map();subscriptions=[];store=new Map();events={};writes=0;signins=0;tokenCalls=0;getError=readError;
+ game=clone(base);game.phase=phase;game.joinLocked=locked;refs={};effects=[];timers=new Map();subscriptions=[];store=new Map();events={};eventHandlers={};writes=0;signins=0;tokenCalls=0;getError=readError;
  if(guestName!==null)store.set('pokerGuestName',guestName);
  if(saved)store.set('pokerRole',JSON.stringify({code:'TEST',playerId:who,authUid:'u'+who}));
  state={screen:boot?'loading':'join',game:boot?null:clone(game),role:boot?null:{code:'TEST',playerId:who},pendingRequests:[],jCode:'TEST'};
@@ -18,7 +21,7 @@ function setup({who='h',phase='active',locked=false,boot=false,noAuth=false,save
  const storage={getItem:k=>store.get(k)||null,setItem:(k,v)=>store.set(k,v),removeItem:k=>store.delete(k)};
  const React={createElement:(type,props,...children)=>({type,props:props||{},children:children.flat(Infinity)}),Fragment:'fragment',useEffect:(f,deps)=>effects.push({f,deps}),useMemo:f=>f(),useCallback:f=>f};
  let timerId=0;
- ctx=vm.createContext({console:{...console,error:()=>{}},firebase:fb,React,localStorage:storage,sessionStorage:storage,navigator:{onLine:true},document:{visibilityState:'visible',addEventListener:(n,f)=>events[n]=f,removeEventListener:n=>delete events[n]},window:{location:{href:'https://test/'+(url?'?code=TEST':''),search:url?'?code=TEST':'',pathname:'/',reload:()=>{}},history:{replaceState:()=>{}},addEventListener:(n,f)=>events[n]=f,removeEventListener:n=>delete events[n]},URL,URLSearchParams,setTimeout:(f,ms)=>{const id=++timerId;timers.set(id,{f,ms});return id},clearTimeout:id=>timers.delete(id),setInterval:()=>1,clearInterval:()=>{},useNamedState:(n,init)=>{if(!(n in state))state[n]=typeof init==='function'?init():init;return[state[n],v=>state[n]=typeof v==='function'?v(state[n]):v]},useNamedRef:(n,v)=>refs[n]||(refs[n]={current:v})});
+ ctx=vm.createContext({console:{...console,error:()=>{}},firebase:fb,React,localStorage:storage,sessionStorage:storage,navigator:{onLine:true},document:{visibilityState:'visible',addEventListener:addEvent,removeEventListener:removeEvent},window:{location:{href:'https://test/'+(url?'?code=TEST':''),search:url?'?code=TEST':'',pathname:'/',reload:()=>{}},history:{replaceState:()=>{}},addEventListener:addEvent,removeEventListener:removeEvent},URL,URLSearchParams,setTimeout:(f,ms)=>{const id=++timerId;timers.set(id,{f,ms});return id},clearTimeout:id=>timers.delete(id),setInterval:()=>1,clearInterval:()=>{},useNamedState:(n,init)=>{if(!(n in state))state[n]=typeof init==='function'?init():init;return[state[n],v=>state[n]=typeof v==='function'?v(state[n]):v]},useNamedRef:(n,v)=>refs[n]||(refs[n]={current:v})});
  vm.runInContext(src,ctx);render();
 }
 function render(){effects=[];tree=ctx.App()}
@@ -29,6 +32,12 @@ function publish(sub,cache=false){sub.next(sub.path.endsWith('/TEST')?{exists:tr
 function publishCurrent(cache=false){subscriptions.filter(s=>!s.stopped).forEach(s=>publish(s,cache))}
 function startBoot(){effects.find(e=>e.f.toString().includes('Strongest recovery path')).f()}
 (async()=>{
+ setup();
+ assert.equal(vm.runInContext('isApprovedHostUser({email:"chandrana@gmail.com",emailVerified:true})',ctx),true);
+ assert.equal(vm.runInContext('isApprovedHostUser({email:"other@gmail.com",emailVerified:true})',ctx),false);
+ assert.equal(vm.runInContext('isApprovedHostUser({email:"chandrana@gmail.com",emailVerified:false})',ctx),false);
+ state.screen='create';render();assert(text(tree).includes('Only the approved Google account can create a game.'));assert(text(tree).includes('Sign in & Create Game'));
+ console.log('PASS: only the verified approved Google account is recognized as a host creator; players remain sign-in free.');
  for(const phase of ['active','settling','settled'])for(const who of ['h','c']){
   setup({who,phase,locked:true});await ctx.api.handleJoin();assert.equal(state.screen,'game');assert.equal(state.role.playerId,who);assert.equal(state.game.players[who].buyins.length,who==='h'?3:2);assert.equal(writes,0);publishCurrent();assert.equal(state.connectionError,'');
  }
@@ -44,6 +53,14 @@ function startBoot(){effects.find(e=>e.f.toString().includes('Strongest recovery
  setup();await ctx.api.handleJoin();publishCurrent();const old=subscriptions.slice();old[0].error({code:'unavailable'});assert(state.connectionError.includes('unavailable'));const retry=[...timers.values()].find(t=>t.ms===1500);assert(retry);retry.f();await flush();assert.equal(subscriptions.length,8);assert(old.every(x=>x.stopped));assert.equal(tokenCalls,1);publishCurrent();assert.equal(state.connectionError,'');game.name='stale';publish(old[0]);assert.notEqual(state.game.name,'stale');game.name='new';publishCurrent();assert.equal(state.game.name,'new');
  subscriptions.at(-1).error({code:'permission-denied'});assert(state.connectionError.includes('permission-denied'));publish(subscriptions.at(-3));assert(state.connectionError.includes('permission-denied'));
  console.log('PASS: terminal listeners reattach; healthy server data clears status; stale listeners ignored; pending-request listener failures stay visible.');
+ setup();await ctx.api.handleJoin();
+ for(let failure=0;failure<6;failure++){
+  const count=subscriptions.length;subscriptions.filter(s=>!s.stopped)[0].error({code:'unavailable'});
+  const retry=[...timers.values()].find(t=>t.ms===Math.min(30000,1500*2**Math.min(failure,5)));assert(retry);retry.f();await flush();assert.equal(subscriptions.length,count+4);
+ }
+ publishCurrent();assert.equal(state.connectionError,'');
+ console.log('PASS: recovery continues after more than three failures, caps retry delay, and clears error on confirmed recovery.');
+
  setup();await ctx.api.handleJoin();publishCurrent();render();const resumeEffect=effects.find(e=>e.f.toString().includes('visibilitychange'));resumeEffect.f();events.visibilitychange();await flush();assert.equal(subscriptions.length,8);publishCurrent();await ctx.api.leaveGame();const count=subscriptions.length;events.online();await flush();assert.equal(subscriptions.length,count);
  console.log('PASS: returning to foreground reconnects; leaving prevents background reconnection.');
  setup();await ctx.api.handleJoin();auth.currentUser={uid:'changed',getIdToken:async()=>''};await ctx.api.reconnectGame();assert(state.connectionError.includes('identity changed'));assert.equal(subscriptions.length,4);assert.equal(writes,0);
@@ -60,6 +77,19 @@ function startBoot(){effects.find(e=>e.f.toString().includes('Strongest recovery
  state.cashingOutId='h';render();assert(text(tree).includes('Your co-host will approve'));state.cashingOutId=null;
  state.pendingRequests=[{id:'pending_c',type:'buyin',status:'pending',targetId:'c',requesterUid:'uc',amountCents:4000,approvalMode:'tap',challengeId:'abc'}];render();assert(text(tree).includes('Confirm payment received'));assert(nodes().some(n=>n.type==='button'&&text(n)==='Approve'));assert(!nodes().some(n=>n.type==='button'&&text(n)==='Scan'));
  game.players.a={...clone(game.players.c),id:'a',name:'Alex',authUid:'ua'};game.members.ua='a';state.game=clone(game);state.pendingRequests=[{id:'later',type:'buyin',status:'pending',targetId:'c',requesterUid:'uc',amountCents:4000,ts:200},{id:'earlier',type:'cashout',status:'pending',targetId:'a',requesterUid:'ua',amountCents:8500,ts:100}];render();const queue=nodes().filter(n=>n.props.className==='approval-card');assert.deepEqual(queue.map(n=>n.props.key),['earlier','later']);assert(text(queue[0]).includes('Alex'));assert(text(queue[0]).includes('$85.00'));assert(text(tree).includes('2 players are waiting'));assert.equal(nodes().filter(n=>n.type==='button'&&text(n)==='Approve').length,2);
+ const alert=nodes().find(n=>n.props.className==='approval-floating');assert(alert);assert(text(alert).includes('2 approvals waiting'));assert(text(alert).includes('Alex'));assert(text(alert).includes('$85.00'));assert(text(alert).includes('+1 more'));assert(nodes().some(n=>String(n.props.className).includes('poker-has-approvals')));
+ let prevented=false,focused=false,scrolled=false;ctx.document.getElementById=id=>{assert.equal(id,'approval-priority');return{focus:opts=>{assert(opts.preventScroll);focused=true},scrollIntoView:opts=>{assert.equal(opts.block,'start');scrolled=true}}};
+ nodes(alert).find(n=>n.props.className==='approval-review').props.onClick({preventDefault:()=>prevented=true});assert(prevented&&focused&&scrolled);
+ const escape=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+ function markup(n){if(n==null||typeof n==='boolean')return '';if(typeof n!=='object')return escape(n);return `<${n.type} ${Object.entries(n.props).filter(([k])=>!['key','children'].includes(k)&&!k.startsWith('on')).map(([k,v])=>`${k==='className'?'class':k}="${escape(v)}"`).join(' ')}>${n.children.map(markup).join('')}</${n.type}>`;}
+ if(process.env.APPROVAL_QA)fs.writeFileSync(process.env.APPROVAL_QA,'<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1">'+[...fs.readFileSync(require('path').join(__dirname,'../index.html'),'utf8').matchAll(/<style[^>]*>[\s\S]*?<\/style>/g)].map(x=>x[0]).join('')+'<main class="poker-game poker-has-approvals" style="background:#12151a;color:white;min-height:2600px">'+markup(alert)+'<section id="approval-priority" class="approval-priority" tabindex="-1">Approval queue</section><p style="position:absolute;top:2500px">Bottom of table</p></main>');
+ state.pendingRequests=state.pendingRequests.filter(r=>r.id!=='earlier');render();assert(text(nodes().find(n=>n.props.className==='approval-floating')).includes('1 approval waiting'));
+ state.pendingRequests=[];render();assert(!nodes().some(n=>n.props.className==='approval-floating'));assert(!nodes().some(n=>String(n.props.className).includes('poker-has-approvals')));
+ state.pendingRequests=[{id:'own',type:'buyin',status:'pending',targetId:'h',requesterUid:'uh',amountCents:4000}];render();assert(!nodes().some(n=>n.props.className==='approval-floating'));
+ state.role={code:'TEST',playerId:'c'};auth.currentUser={uid:'uc'};render();assert(nodes().some(n=>n.props.className==='approval-floating'));
+ state.pendingRequests=[{id:'peer',type:'buyin',status:'pending',targetId:'a',requesterUid:'ua',amountCents:4000}];render();assert(!nodes().some(n=>n.props.className==='approval-floating'));
+ console.log('PASS: fixed approval alert shows count/name/amount; Review navigates to queue; resolution removes it; host/co-host see only requests they can approve.');
+
  state.role={code:'TEST',playerId:'a'};auth.currentUser={uid:'ua'};render();assert(!nodes().some(n=>n.props.className==='approval-card'));
  console.log('PASS: saved notification waits for server, pulses once, does not replay on reconnect; approval and handover controls render.');
  setup({guestName:'Chaitanya'});assert.equal(state.jName,'Chaitanya');assert.equal(state.cHostName,'Chaitanya');assert(text(tree).includes('Welcome backChaitanya'));assert.equal(writes,0);assert.equal(state.screen,'join');
@@ -72,6 +102,8 @@ function startBoot(){effects.find(e=>e.f.toString().includes('Strongest recovery
  setup({phase:'settling'});await ctx.api.handleJoin();publishCurrent();render();assert(text(tree).includes('Calculate payments'));assert(text(tree).includes('Resume play'));assert(!nodes().some(n=>String(n.props.className||'').includes('mint-')));
  setup({who:'c',phase:'settling'});await ctx.api.handleJoin();publishCurrent();render();assert(text(tree).includes('Enter cash-out amount'));assert(!nodes().some(n=>String(n.props.className||'').includes('fixed bottom-0')));
  console.log('PASS: neutral settlement screen renders host actions and player amount entry without duplicate footer.');
+ setup({phase:'settling'});await ctx.api.handleJoin();publishCurrent();game.players.a={...clone(game.players.c),id:'a',name:'Alex',authUid:'ua'};game.players.d={...clone(game.players.c),id:'d',name:'Dana',authUid:null};state.game=clone(game);render();assert(text(tree).includes('3 cash-outs needed'));assert(text(tree).includes('Players left before cashing out'));assert(text(tree).includes('Alex'));assert(text(tree).includes('Dana'));assert(nodes().some(n=>n.type==='button'&&text(n)==='Record all 3 cash-outs'&&n.props.disabled));state.finalInputs={c:'80',a:'120',d:'0'};render();assert(nodes().some(n=>n.type==='button'&&text(n)==='Record all 3 cash-outs'&&!n.props.disabled));assert(text(tree).includes('4 cash-outs missing: h, c, Alex, Dana.'));
+ console.log('PASS: host recovery lists multiple signed-in and guest players, enables one bulk cash-out action, and names every missing player.');
  for(const who of ['h','c']){
   setup({who,phase:'settling'});await ctx.api.handleJoin();publishCurrent();
   for(const id of ['a','d'])game.players[id]={...clone(game.players.c),id,name:id,authUid:'u'+id};
