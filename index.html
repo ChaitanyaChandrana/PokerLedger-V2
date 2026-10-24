@@ -93,6 +93,7 @@
 .returning-player{padding-top:20px}.returning-player-card{padding:20px;background:linear-gradient(120deg,#edca8518,#edca8505);border-radius:16px;border:1px solid #edca8533}.returning-player-label{font-size:14px;color:#c7c4bd;margin:0 0 4px}.returning-player-name{font:600 30px/1.2 Inter,sans-serif;color:#edca85;letter-spacing:-.03em;overflow-wrap:anywhere;margin:0 0 10px}.returning-player-context{font-size:14px;line-height:1.5;color:#c7c4bd;margin:0}.returning-player-dismiss{font-size:14px;min-height:44px;color:#edca85;font-weight:600;margin-top:6px}.remembered-player-name{font:600 28px/1.25 Inter,sans-serif;color:#edca85;overflow-wrap:anywhere}
 .approval-priority{padding-top:16px;position:relative}.approval-priority-banner{position:sticky;top:8px;z-index:30;display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:12px;background:#edca85;color:#191919;box-shadow:0 5px 22px #0005}.approval-priority-banner strong{display:block;font-size:19px}.approval-priority-banner small{display:block;font-size:13px}.approval-count{display:grid;place-items:center;min-width:38px;height:38px;border-radius:50%;background:#191919;color:#edca85;font-size:22px;font-weight:700}.approval-queue{list-style:none;padding:0;margin:12px 0 20px;display:grid;gap:12px}.approval-card{padding:18px;background:#24231f;border:1px solid #edca8570;border-radius:14px}.approval-card-top{display:flex;justify-content:space-between;align-items:start;gap:12px}.approval-player{font-size:22px;font-weight:600;line-height:1.25;overflow-wrap:anywhere}.approval-card-top>div{min-width:0}.approval-kind{font-size:14px;color:#c7c4bd;margin-top:5px}.approval-amount{font-size:24px;color:#edca85;white-space:nowrap}.approval-instruction{font-size:13px;color:#c7c4bd;margin:14px 0 10px}.approval-card-actions{display:flex;gap:10px}.approval-card-actions button{min-height:48px;font-size:16px;flex:1}.approval-card-actions button:disabled{opacity:.5}.approval-priority{scroll-margin-top:8px}
 .quick-join-identity,.quick-join-code{display:flex;align-items:center;justify-content:space-between;gap:16px}.quick-join-identity>div{min-width:0}.quick-join-greeting{font-size:14px;color:#b5bac5;margin-bottom:4px}.quick-join-change{font:400 12px/1.3 Inter,sans-serif;color:#b5bac5;min-height:44px;flex-shrink:0}.quick-join-change:hover{color:#edca85}.quick-join-code{font-size:13px;color:#b5bac5}.quick-join-optional{font-size:12px;color:#b5bac5}.quick-join-optional summary{cursor:pointer;min-height:32px}.quick-join-optional[open] summary{margin-bottom:10px}
+.ledger-heading-with-rebuys{display:flex;align-items:center;gap:14px;flex-wrap:wrap}.main-rebuy-total{font:400 14px/1.3 Inter,sans-serif;color:#c7c4bd;white-space:nowrap}.main-rebuy-total strong{font-size:22px;font-weight:600;color:#edca85;font-variant-numeric:tabular-nums;margin-right:3px}
 </style></head>
 <body>
 <div id="root"></div>
@@ -2146,7 +2147,7 @@ function PokerLedger() {
     if (!game || !["active", "settling"].includes(game.phase)) return setError("Reopen settlement before changing a cash-out.");
     const target = game && game.players[targetId];
     if (!target) return setError("Player no longer exists.");
-    const guestOverride = isHost && !target.authUid;
+    const guestOverride = isHost && targetId !== game.hostId;
     if (targetId !== role.playerId && !guestOverride) {
       return setError("Players enter their own cash-out amount. The host verifies it.");
     }
@@ -2170,23 +2171,34 @@ function PokerLedger() {
       setError("Player no longer exists.");
       return { ok: false };
     }
-    if (!target.authUid && isHost) {
-      const cleanReason = "Guest / no phone";
-      const result = await mutateGame(g => {
-        const p = g.players[targetId];
-        if (!p || p.authUid || p.cashedOut) return false;
-        p.cashedOut = true;
-        p.finalCents = cents;
-        p.finalAmount = fromCents(cents);
-        p.cashoutOverrideReason = cleanReason;
-      }, "guest_cashout_override", { targetId, amountCents: cents, reason: cleanReason });
-      return result && result.ok ? { ok: true } : { ok: false };
-    }
+    if (isHost && targetId !== game.hostId) return await recordDepartedCashOut(targetId,cents);
     if (targetId !== role.playerId) {
       setError("Each player enters their own cash-out amount.");
       return { ok: false };
     }
     return await createPendingRequest("cashout", targetId, cents);
+  }
+  async function recordDepartedCashOut(targetId,cents) {
+    try {
+      const user=await ensureAuth(),parent=gamesCol().doc(role.code);
+      const requestRef=parent.collection("requests").doc("pending_"+targetId),eventRef=parent.collection("events").doc(uid());
+      let updated;
+      await db.runTransaction(async tx=>{
+        const gs=await tx.get(parent),rs=await tx.get(requestRef);
+        if(!gs.exists)throw new Error("Game not found.");
+        const g=gs.data(),p=g.players[targetId];
+        if(g.hostUid!==user.uid || g.hostId!==role.playerId || targetId===g.hostId)throw new Error("Only the host can record another player's cash-out.");
+        if(!["active","settling"].includes(g.phase)||!p||p.removed||p.cashedOut)throw new Error("This player can no longer be cashed out here.");
+        if(rs.exists&&rs.data().status==="pending")throw new Error("Resolve this player's pending request before recording their cash-out.");
+        if(!Number.isSafeInteger(cents)||cents<0)throw new Error("Enter a valid cash-out amount.");
+        updated=JSON.parse(JSON.stringify(g));
+        Object.assign(updated.players[targetId],{cashedOut:true,finalCents:cents,finalAmount:fromCents(cents),cashoutOverrideReason:"Recorded by host"});
+        updated.revision=(g.revision||0)+1;updated.updatedAtMs=Date.now();updated.lastClientVersion=APP_VERSION;updated.writeNonce=uid();
+        tx.set(parent,updated);
+        tx.set(eventRef,{type:"host_cashout_recorded",actorUid:user.uid,actorPlayerId:role.playerId,actorName:g.players[role.playerId].name,clientTs:Date.now(),serverTs:firebase.firestore.FieldValue.serverTimestamp(),meta:{targetId,amountCents:cents,source:"host_manual_midgame"},revision:updated.revision,schemaVersion:2});
+      });
+      setGame(updated);return {ok:true};
+    }catch(e){setError(e.message||"Couldn't save cash-out.");return {ok:false};}
   }
   async function confirmCashOut() {
     const targetId = cashingOutId;
@@ -2541,7 +2553,7 @@ function PokerLedger() {
       };
     });
   }).sort((a, b) => b.ts - a.ts);
-  const totalRebuyCount = players.reduce((sum, p) => sum + (p.buyins || []).filter(b => !b.voided && b.kind === "rebuy").length, 0);
+  const totalRebuyCount = players.reduce((sum, p) => sum + (p.buyins || []).filter((b,i) => !b.voided && (b.kind || (i === 0 ? "initial" : "rebuy")) === "rebuy").length, 0);
   const buyInsNeedingAction = pendingList.length;
   const totalBuyInCents = game ? players.reduce((s, p) => s + buyInTotalCents(p.buyins), 0) : 0;
   const totalBuyInDollars = fromCents(totalBuyInCents);
@@ -2730,7 +2742,7 @@ function PokerLedger() {
           React.createElement("button", {onClick: () => setScreen("create"), className: "poker-primary"}, "Host a Game", React.createElement("span", {"aria-hidden": true}, "↗")),
           React.createElement("button", {onClick: () => setScreen("join"), className: "poker-secondary"}, "Join a Game", React.createElement("span", {"aria-hidden": true}, "→")),
           React.createElement("button", {onClick: () => setScreen("leaderboard"), className: "poker-leaderboard"}, "♧", "  View leaderboard"))),
-      React.createElement("footer", {className: "poker-footer"}, React.createElement("span", null, "Good company. A little friendly competition."), React.createElement("small", null, "Poker Ledger · V2.6.38")));
+      React.createElement("footer", {className: "poker-footer"}, React.createElement("span", null, "Good company. A little friendly competition."), React.createElement("small", null, "Poker Ledger · V2.6.40")));
   }
   if (screen === "create") {
     return /*#__PURE__*/React.createElement("div", {
@@ -3351,7 +3363,7 @@ function PokerLedger() {
       className: "font-data text-coral-300 text-xs underline ml-3 shrink-0"
     }, "dismiss")), (phase !== "settled" || showSettlementDetails) && /*#__PURE__*/React.createElement("div", {
       className: "max-w-sm mx-auto px-5 mt-3 minimal-ledger"
-    }, React.createElement("div", {className: "minimal-ledger-title"}, React.createElement("h2", null, phase === "active" ? "Buy-ins" : phase === "settling" ? "Cash-outs" : "Final tally"), phase === "active" && React.createElement("button", {className:"table-sound-toggle",onClick:toggleTableSound,"aria-pressed":soundEnabled,"aria-label":"Rebuy confirmation sound"}, soundEnabled ? "Sound on" : "Sound off")), phase === "active" && React.createElement(BuyInBarLegend), /*#__PURE__*/React.createElement("div", {
+    }, React.createElement("div", {className: "minimal-ledger-title"}, React.createElement("div",{className:"ledger-heading-with-rebuys"},React.createElement("h2", null, phase === "active" ? "Buy-ins" : phase === "settling" ? "Cash-outs" : "Final tally"),phase !== "settled" && React.createElement("span",{className:"main-rebuy-total",role:"status","aria-live":"polite","aria-label":`${totalRebuyCount} total rebuys`},React.createElement("strong",null,totalRebuyCount)," rebuys")), phase === "active" && React.createElement("button", {className:"table-sound-toggle",onClick:toggleTableSound,"aria-pressed":soundEnabled,"aria-label":"Rebuy confirmation sound"}, soundEnabled ? "Sound on" : "Sound off")), phase === "active" && React.createElement(BuyInBarLegend), /*#__PURE__*/React.createElement("div", {
       className: "flex items-center px-3 gap-2 pb-1 font-data text-[10px] tracking-wide text-smoke uppercase"
     }, /*#__PURE__*/React.createElement("span", {
       className: "flex-1"
@@ -3495,7 +3507,7 @@ function PokerLedger() {
       }, /*#__PURE__*/React.createElement("button", {
         onClick: confirmCashOut,
         className: `flex-1 ${goldBtn} py-2 text-xs`
-      }, "Submit Cash Out"), /*#__PURE__*/React.createElement("button", {
+      }, isHost && p.id !== game.hostId ? "Record cash-out" : "Submit Cash Out"), /*#__PURE__*/React.createElement("button", {
         onClick: () => setCashingOutId(null),
         className: `px-3 ${ghostBtn} text-xs`
       }, "cancel"))) : customBuyInId === p.id ? /*#__PURE__*/React.createElement("div", {
@@ -3518,10 +3530,10 @@ function PokerLedger() {
         className: "shrink-0 font-data text-smoke text-base"
       }, "✕")) : /*#__PURE__*/React.createElement("div", {
         className: "flex gap-2"
-      }, (mine || (isHost && !p.authUid)) && /*#__PURE__*/React.createElement("button", {
+      }, (mine || isHost) && /*#__PURE__*/React.createElement("button", {
         onClick: () => startCashOut(p.id),
         className: `flex-1 ${ghostBtn} py-1.5 text-xs`
-      }, !p.authUid ? "Guest Cash Out" : "Request Cash Out"), (mine || isHost) && /*#__PURE__*/React.createElement("button", {
+      }, isHost && !mine ? "Record cash-out" : "Request Cash Out"), (mine || isHost) && /*#__PURE__*/React.createElement("button", {
         onClick: () => startCustomBuyIn(p.id),
         className: `flex-1 ${ghostBtn} py-1.5 text-xs`
       }, mine ? "Different Amount" : "Manual Rebuy")))));
@@ -3790,7 +3802,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(/*#__PURE__*/React.c
 <script>
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("sw.js?v=2638").then(reg => reg.update()).catch(() => {});
+      navigator.serviceWorker.register("sw.js?v=2640").then(reg => reg.update()).catch(() => {});
     });
   }
 </script>

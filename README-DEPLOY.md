@@ -1,3 +1,15 @@
+# Poker Ledger V2.6.40 — Host midgame cash-out
+
+During an active game, the host can expand another player's row, select Record cash-out, enter the final amount and record it. Signed-in players and guests are supported; zero is valid. The game stays active and the action is recorded in the event history. Pending requests must be resolved first. The host's own cash-out still needs co-host approval.
+
+Replace index.html and sw.js. No new Firebase rules are required with the V2.6.38 approved-host rules. Recovery/rendering tests and focused transaction-handler tests passed. Not deployed or verified on live devices.
+
+# Poker Ledger V2.6.39 — Visible rebuy total
+
+The main ledger heading shows the total number of completed rebuys to every player, including host and co-host. Initial buy-ins, pending requests and voided rebuys do not count. The number updates with the live game data. No extra timeline or list was added.
+
+Replace index.html and sw.js, then refresh. No Firebase rules changes for this update. Retain the approved-host rules from V2.6.38.
+
 # Poker Ledger V2.6.38 — Approved-host creation
 
 This release restricts new game creation to the verified Google account **chandrana@gmail.com**. Players still join anonymously and do not need Google accounts. Existing games and player records do not require migration.

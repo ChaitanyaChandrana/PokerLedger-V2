@@ -32,6 +32,8 @@ function publish(sub,cache=false){sub.next(sub.path.endsWith('/TEST')?{exists:tr
 function publishCurrent(cache=false){subscriptions.filter(s=>!s.stopped).forEach(s=>publish(s,cache))}
 function startBoot(){effects.find(e=>e.f.toString().includes('Strongest recovery path')).f()}
 (async()=>{
+ for(const who of ['h','c']){setup({who});await ctx.api.handleJoin();publishCurrent();render();assert.equal(text(nodes().find(n=>n.props.className==='main-rebuy-total')),'3 rebuys');game.players.c.buyins.push({id:'void',kind:'rebuy',amountCents:4000,voided:true});publishCurrent();render();assert.equal(text(nodes().find(n=>n.props.className==='main-rebuy-total')),'3 rebuys');game.players.c.buyins.push({id:'new',kind:'rebuy',amountCents:4000});publishCurrent();render();assert.equal(text(nodes().find(n=>n.props.className==='main-rebuy-total')),'4 rebuys');assert.equal(writes,0);}
+
  setup();
  assert.equal(vm.runInContext('isApprovedHostUser({email:"chandrana@gmail.com",emailVerified:true})',ctx),true);
  assert.equal(vm.runInContext('isApprovedHostUser({email:"other@gmail.com",emailVerified:true})',ctx),false);
